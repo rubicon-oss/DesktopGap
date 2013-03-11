@@ -17,16 +17,15 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using System.Windows;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Interfaces
 {
-  /// <summary>
-  /// Interaction logic for App.xaml
-  /// </summary>
-  public partial class App : Application
+  public interface IExtendedWebBrowser
   {
   }
 }

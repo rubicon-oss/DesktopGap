@@ -1,7 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DesktopGap.GUI", "DesktopGap.GUI\DesktopGap.GUI.csproj", "{817A8C29-84AF-414A-A800-1447B07E0647}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clients.Windows", "Clients.Windows\Clients.Windows.csproj", "{817A8C29-84AF-414A-A800-1447B07E0647}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clients.Windows.Launcher", "Clients.Windows.Launcher\Clients.Windows.Launcher.csproj", "{60C1A098-02EB-498A-9ADE-F3388C2A7DE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.AddIns", "Core.AddIns\Core.AddIns.csproj", "{025B2C20-3622-474C-898B-AC1FF42FB837}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +17,14 @@ Global
 		{817A8C29-84AF-414A-A800-1447B07E0647}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{817A8C29-84AF-414A-A800-1447B07E0647}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{817A8C29-84AF-414A-A800-1447B07E0647}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60C1A098-02EB-498A-9ADE-F3388C2A7DE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60C1A098-02EB-498A-9ADE-F3388C2A7DE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60C1A098-02EB-498A-9ADE-F3388C2A7DE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60C1A098-02EB-498A-9ADE-F3388C2A7DE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{025B2C20-3622-474C-898B-AC1FF42FB837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{025B2C20-3622-474C-898B-AC1FF42FB837}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{025B2C20-3622-474C-898B-AC1FF42FB837}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{025B2C20-3622-474C-898B-AC1FF42FB837}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

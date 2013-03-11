@@ -18,10 +18,10 @@
  ! Additional permissions are listed in the file DesktopGap_exceptions.txt.
  ! 
 -->
-<Application x:Class="DesktopGap.GUI.App"
+<Application x:Class="DesktopGap.Clients.Windows.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             StartupUri="MainWindow.xaml">
+             StartupUri="Browser.xaml">
     <Application.Resources>
          
     </Application.Resources>
