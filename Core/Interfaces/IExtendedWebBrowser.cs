@@ -18,14 +18,11 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DesktopGap.Interfaces
 {
   public interface IExtendedWebBrowser
   {
+    string Title { get; }
   }
 }

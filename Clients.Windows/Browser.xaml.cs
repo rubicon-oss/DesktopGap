@@ -18,18 +18,9 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using System.Windows.Forms.Integration;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -38,9 +29,60 @@ namespace DesktopGap.Clients.Windows
   /// </summary>
   public partial class Browser : Window
   {
+    private sealed class CloseableTabHeader : StackPanel
+    {
+      private readonly Label _lbl = new Label();
+      private readonly Button _btn = new Button();
+
+      public EventHandler Clicked;
+
+      public String Text
+      {
+        get { return (string) _lbl.Content; }
+        set { _lbl.Content = value ?? String.Empty; }
+      }
+
+      public CloseableTabHeader (string headerText)
+          : base()
+      {
+        Orientation = Orientation.Horizontal;
+
+        _btn.Content = "X";
+        _btn.Click += (s, e) => Clicked (s, e);
+        _lbl.Content = headerText;
+
+        Children.Add (_lbl);
+        Children.Add (_btn);
+      }
+    }
+
+    private sealed class BrowserTabItem : TabItem
+    {
+      public BrowserTabItem (TabControl parent)
+          : base()
+      {
+        var host =
+            new WindowsFormsHost();
+        var extendedWebBrowser = new ExtendedTridentWebBrowser();
+        extendedWebBrowser.DocumentCompleted += (s, e) =>
+                                                {
+                                                  var x = new CloseableTabHeader (extendedWebBrowser.Title);
+                                                  x.Clicked += (sx, ex) => parent.Items.Remove (this);
+                                                  Header = x;
+                                                };
+        host.Child = extendedWebBrowser;
+        this.AddChild (host);
+      }
+    }
+
     public Browser ()
     {
-      InitializeComponent ();
+      InitializeComponent();
+    }
+
+    private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
+    {
+      _tabControl.Items.Add (new BrowserTabItem (_tabControl));
     }
   }
 }
