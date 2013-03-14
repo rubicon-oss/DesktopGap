@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, Vienna, and contributors
+// Copyright (c) rubicon IT GmbH, www.rubicon.eu
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,24 +17,38 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Windows.Controls;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
+namespace DesktopGap.Clients.Windows.Components
+{
+  /// <summary>
+  /// Interaction logic for CloseableTabHeader.xaml
+  /// </summary>
+  public partial class CloseableTabHeader : UserControl
+  {
+    private const string c_defaultCloseButtonContent = "X";
 
-[assembly: AssemblyTitle ("DesktopGap.Launcher.Windows")]
-[assembly: AssemblyDescription ("")]
-[assembly: AssemblyCulture ("")]
+    public event EventHandler CloseTab;
 
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
+    public String Text
+    {
+      get { return (string) _label.Content; }
+      set { _label.Content = value ?? String.Empty; }
+    }
 
-[assembly: ComVisible (false)]
+    public CloseableTabHeader (string headerText, object closeButtonContent = null)
+    {
+      InitializeComponent();
 
-// The following GUID is for the ID of the typelib if this project is exposed to COM
+      if (closeButtonContent == null)
+        closeButtonContent = c_defaultCloseButtonContent;
 
-[assembly: Guid ("bef513e1-4a2b-456d-970b-c69e4d0ba40f")]
+      _closeButton.Content = closeButtonContent;
+      _closeButton.Click += (s, e) => CloseTab (s, e);
+
+      _label.Content = headerText;
+    }
+  }
+}

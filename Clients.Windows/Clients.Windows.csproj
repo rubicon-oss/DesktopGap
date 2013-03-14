@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DesktopGap.Clients.Windows</RootNamespace>
-    <AssemblyName>DesktopGap.Clients.Windows</AssemblyName>
+    <AssemblyName>DesktopGap</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -57,6 +57,9 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="..\AssemblyInfoShared.cs">
+      <Link>Properties\AssemblyInfoShared.cs</Link>
+    </Compile>
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -66,10 +69,31 @@
     <Compile Include="Browser.xaml.cs">
       <DependentUpon>Browser.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Components\BrowserTab.cs" />
+    <Compile Include="Components\CloseableTabHeader.xaml.cs">
+      <DependentUpon>CloseableTabHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="DesktopGapBrowserEvents.cs" />
+    <Compile Include="DesktopGapDocumentUIHandler.cs" />
+    <Compile Include="ExtendedDragEventArgs.cs" />
+    <Compile Include="TridentWebBrowser\Defaults\DefaulWebBrowserEvents.cs" />
+    <Compile Include="TridentWebBrowser\Defaults\TridentWebBrowserBase.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="TridentWebBrowser\Defaults\DefaultDocHostUIHandler.cs" />
+    <Compile Include="TridentWebBrowser\Low\UIHandler\ICustomDoc.cs" />
+    <Compile Include="TridentWebBrowser\Low\UIHandler\IDropTarget.cs" />
+    <Compile Include="TridentWebBrowser\Low\UIHandler\IOleInPlaceActiveObject.cs" />
+    <Compile Include="TridentWebBrowser\Low\UIHandler\IOleInPlaceFrame.cs" />
+    <Compile Include="TridentWebBrowser\Low\UIHandler\IOleInPlaceUIWindow.cs" />
+    <Compile Include="TridentWebBrowser\Low\Web\DWebBrowserEvents2.cs" />
     <Compile Include="ExtendedTridentWebBrowser.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="IWebBrowser2.cs" />
+    <Compile Include="TridentWebBrowser\Low\Common\HRESULT.cs" />
+    <Compile Include="TridentWebBrowser\Low\UIHandler\IDocHostUIHandler.cs" />
+    <Compile Include="TridentWebBrowser\Low\Common\IOleCommandTarget.cs" />
+    <Compile Include="TridentWebBrowser\Low\Web\IWebBrowser2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -97,6 +121,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Components\CloseableTabHeader.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core\Core.csproj">
@@ -104,9 +132,7 @@
       <Name>Core</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="COM\Interfaces\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

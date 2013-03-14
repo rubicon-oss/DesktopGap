@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,8 +19,9 @@
 // 
 using System;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Forms.Integration;
+using System.Windows.Forms;
+using DesktopGap.Browser;
+using DesktopGap.Clients.Windows.Components;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -29,60 +30,43 @@ namespace DesktopGap.Clients.Windows
   /// </summary>
   public partial class Browser : Window
   {
-    private sealed class CloseableTabHeader : StackPanel
-    {
-      private readonly Label _lbl = new Label();
-      private readonly Button _btn = new Button();
-
-      public EventHandler Clicked;
-
-      public String Text
-      {
-        get { return (string) _lbl.Content; }
-        set { _lbl.Content = value ?? String.Empty; }
-      }
-
-      public CloseableTabHeader (string headerText)
-          : base()
-      {
-        Orientation = Orientation.Horizontal;
-
-        _btn.Content = "X";
-        _btn.Click += (s, e) => Clicked (s, e);
-        _lbl.Content = headerText;
-
-        Children.Add (_lbl);
-        Children.Add (_btn);
-      }
-    }
-
-    private sealed class BrowserTabItem : TabItem
-    {
-      public BrowserTabItem (TabControl parent)
-          : base()
-      {
-        var host =
-            new WindowsFormsHost();
-        var extendedWebBrowser = new ExtendedTridentWebBrowser();
-        extendedWebBrowser.DocumentCompleted += (s, e) =>
-                                                {
-                                                  var x = new CloseableTabHeader (extendedWebBrowser.Title);
-                                                  x.Clicked += (sx, ex) => parent.Items.Remove (this);
-                                                  Header = x;
-                                                };
-        host.Child = extendedWebBrowser;
-        this.AddChild (host);
-      }
-    }
-
     public Browser ()
     {
       InitializeComponent();
     }
 
+    private void OnWindowOpen (WindowOpenEventArgs eventArgs)
+    {
+      var newTab = CreateBrowserTab (new ExtendedTridentWebBrowser());
+      eventArgs.TargetWindow = newTab.ExtendedWebBrowser;
+      if (!eventArgs.IsInBackground)
+        newTab.Focus();
+    }
+
+    private BrowserTab CreateBrowserTab (IExtendedWebBrowser browser)
+    {
+      var x = new BrowserTab (_tabControl, (WebBrowser) browser);
+
+      x.ExtendedWebBrowser.PageLoaded += (b) => _ConsoleListBox.Items.Add (b.ToString() + " loaded");
+      x.ExtendedWebBrowser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
+      ((ExtendedTridentWebBrowser) browser).Output += ToConsole;
+      return x;
+    }
+
+    private void ToConsole (string s)
+    {
+      _ConsoleListBox.Items.Add (s + " passed");
+      _ConsoleListBox.ScrollIntoView (_ConsoleListBox.Items[_ConsoleListBox.Items.Count - 1]);
+    }
+
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
     {
-      _tabControl.Items.Add (new BrowserTabItem (_tabControl));
+      var newTab = CreateBrowserTab (new ExtendedTridentWebBrowser());
+      //newTab.ExtendedWebBrowser.Navigate (@"\\rubicon\home\claus.matzinger\test.html");
+      newTab.ExtendedWebBrowser.Navigate (_urlTextBox.Text);
+
+      _tabControl.Items.Add (newTab);
+      newTab.Focus();
     }
   }
 }

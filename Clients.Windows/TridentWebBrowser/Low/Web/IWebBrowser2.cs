@@ -17,13 +17,14 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low
 {
 
   // ENUMS required for some function calls....

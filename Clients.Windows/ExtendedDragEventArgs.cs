@@ -18,23 +18,25 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Windows.Forms;
 
-// General Information about an assembly is controlled through the following 
-// set of attributes. Change these attribute values to modify the information
-// associated with an assembly.
+namespace DesktopGap.Clients.Windows
+{
+  /// <summary>
+  /// Extends the DragEventArgs to add the "Handled" flag
+  /// </summary>
+  public class ExtendedDragEventHandlerArgs : DragEventArgs
+  {
+    /// <summary>
+    /// Wether the Drag Drop Event was handled or not
+    /// If true the underlying control is prohibited from overiding the defined DragDropEffects
+    /// If false, the underlying control has full control over the DragDropEffects (modifications won't be applied)
+    /// </summary>
+    public bool Handled { get; set; }
 
-[assembly: AssemblyTitle ("DesktopGap.Launcher.Windows")]
-[assembly: AssemblyDescription ("")]
-[assembly: AssemblyCulture ("")]
-
-// Setting ComVisible to false makes the types in this assembly not visible 
-// to COM components.  If you need to access a type in this assembly from 
-// COM, set the ComVisible attribute to true on that type.
-
-[assembly: ComVisible (false)]
-
-// The following GUID is for the ID of the typelib if this project is exposed to COM
-
-[assembly: Guid ("bef513e1-4a2b-456d-970b-c69e4d0ba40f")]
+    public ExtendedDragEventHandlerArgs (IDataObject data, int keyState, int x, int y, DragDropEffects allowedEffect, DragDropEffects effect)
+        : base (data, keyState, x, y, allowedEffect, effect)
+    {
+    }
+  }
+}

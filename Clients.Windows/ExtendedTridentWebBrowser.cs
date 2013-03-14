@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -18,62 +18,100 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Security.Permissions;
+using System.Drawing;
 using System.Windows.Forms;
-using DesktopGap.Interfaces;
+using DesktopGap.Browser;
+using DesktopGap.Clients.Windows.TridentWebBrowser.Defaults;
 
 
 namespace DesktopGap.Clients.Windows
 {
-  public class ExtendedTridentWebBrowser : WebBrowser, IExtendedWebBrowser
+  public class ExtendedTridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IDropTarget
   {
+    #region IExtendedWebBrowser events
+
+    public event Action<IExtendedWebBrowser> PageLoaded;
+    public event Action<WindowOpenEventArgs> WindowOpen;
+
+    #endregion
+
+    public event Action<string> Output;
+
     public ExtendedTridentWebBrowser ()
     {
-      this.Navigate ("http://www.google.com/");
+      this._BrowserEvents = new DesktopGapBrowserEvents (this);
+      Navigate ("about:blank");
+
+
+      InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
     }
+
 
     public string Title
     {
-      get { return Document != null ? Document.Title : String.Empty; }
+      get { return Document == null ? String.Empty : Document.Title; }
     }
 
-    #region Requirements for acting like the WebBrowser Component. see http://www.codeproject.com/Articles/13598/Extended-NET-2-0-WebBrowser-Control
-
-    /// <summary>
-    /// Object for returning the basic scripting interface when the .NET Framework demands it (Application property)
-    /// </summary>
-    private IWebBrowser2 _axIWebBrowser2;
-
-    /// <summary>
-    /// Retrieve the _axIWebBrowser2 implementation from the .NET WebBrowser. 
-    /// </summary>
-    /// <param name="nativeActiveXObject"></param>
-    [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
-    protected override void
-        AttachInterfaces (object nativeActiveXObject)
+    public void OnLoadFinished ()
     {
-      this._axIWebBrowser2 =
-          (IWebBrowser2) nativeActiveXObject;
-      base.AttachInterfaces (nativeActiveXObject);
+      if (PageLoaded != null)
+        PageLoaded (this);
     }
 
-    /// <summary>
-    /// Clean up properly after the interface is detached.
-    /// </summary>
-    [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
-    protected override void DetachInterfaces ()
+    public void OnNewWindow (WindowOpenEventArgs eventArgs)
     {
-      this._axIWebBrowser2 = null;
-      base.DetachInterfaces();
+      if (WindowOpen != null)
+        WindowOpen (eventArgs);
     }
 
-    /// <summary>
-    /// Property that offers the scripting interface (required on connecting any other interface)
-    /// </summary>
-    public object Application
+
+    private bool MayDrop (IExtendedWebBrowser browser, DragEventArgs e)
     {
-      get { return _axIWebBrowser2.Application; }
+      var browserControl = (Control) browser;
+      var extendedBrowser = (ExtendedTridentWebBrowser) browser;
+      var doc = extendedBrowser.Document;
+      var locationOnScreen = browserControl.PointToScreen (browserControl.Location);
+      var elementAtPoint = doc.GetElementFromPoint (new Point (e.X - locationOnScreen.X, e.Y - locationOnScreen.Y));
+
+      var currentElement = elementAtPoint;
+      var isDropTarget = false;
+      while (currentElement != null && ! Boolean.TryParse(currentElement.GetAttribute ("droptarget"), out isDropTarget))
+      {
+        currentElement = currentElement.Parent;
+      }
+
+      return isDropTarget;
     }
-    #endregion
+
+
+    public new void OnDragEnter (ExtendedDragEventHandlerArgs e)
+    {
+            var ok = MayDrop (this, e);
+      e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
+      e.Handled = true;
+      // Output ("DragEnter" + MayDrop (this, e).ToString());
+    }
+
+    public new void OnDragDrop (ExtendedDragEventHandlerArgs e)
+    {
+      var ok = MayDrop (this, e);
+      e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
+      Output ("DragDrop: " + ok.ToString());
+      e.Handled = true;
+    }
+
+
+    public new void OnDragLeave (EventArgs e)
+    {
+      //Output ("DragLeave" + MayDrop (this, e).ToString());
+    }
+
+    public new void OnDragOver (ExtendedDragEventHandlerArgs e)
+    {
+                  var ok = MayDrop (this, e);
+      e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
+      e.Handled = true;
+      // Output ("DragOver" + MayDrop (this, e).ToString());
+    }
   }
 }
