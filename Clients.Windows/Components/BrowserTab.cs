@@ -21,8 +21,8 @@
 using System;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
-using DesktopGap.Browser;
-using WebBrowser = System.Windows.Forms.WebBrowser;
+using DesktopGap.WebBrowser;
+using WFWebBrowser = System.Windows.Forms.WebBrowser;
 
 namespace DesktopGap.Clients.Windows.Components
 {
@@ -36,7 +36,7 @@ namespace DesktopGap.Clients.Windows.Components
 
     private readonly ItemsControl _parent;
 
-    public BrowserTab (ItemsControl parent, WebBrowser extendedWebBrowser)
+    public BrowserTab (ItemsControl parent, WFWebBrowser extendedWebBrowser)
     {
       if (parent == null)
         throw new ArgumentNullException ("parent");

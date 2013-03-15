@@ -19,16 +19,16 @@
 // 
 
 using System;
-using System.Windows.Forms;
-using DesktopGap.Browser;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Defaults;
+using DesktopGap.WebBrowser;
+using WFWebBrowser = System.Windows.Forms.WebBrowser;
+using DesktopGap.Clients.Windows.WebBrowser.Trident;
 
 namespace DesktopGap.Clients.Windows
 {
   /// <summary>
   /// DesktopGap's custom events.
   /// </summary>
-  public class DesktopGapBrowserEvents : DefaultWebBrowserEvents
+  public class DesktopGapBrowserEvents : WebBrowserEventsBase
   {
     /// <summary>
     /// The corresponding WebBrowser control
@@ -50,7 +50,7 @@ namespace DesktopGap.Clients.Windows
       var ppDispOriginal = ppDisp;
       var eventArgs = new WindowOpenEventArgs (false, Cancel, null, false);
       _browserControl.OnNewWindow (eventArgs);
-      ppDisp = (WebBrowser) eventArgs.TargetWindow ?? ppDispOriginal; // TODO change to a new DesktopGap Window
+      ppDisp = (WFWebBrowser) eventArgs.TargetWindow ?? ppDispOriginal; // TODO change to a new DesktopGap Window
       Cancel = eventArgs.Cancel;
     }
 
@@ -59,7 +59,7 @@ namespace DesktopGap.Clients.Windows
       var ppDispOriginal = ppDisp;
       var eventArgs = new WindowOpenEventArgs (false, Cancel, bstrUrl, false);
       _browserControl.OnNewWindow (eventArgs);
-      ppDisp = (WebBrowser) eventArgs.TargetWindow ?? ppDispOriginal; // TODO change to a new DesktopGap Window
+      ppDisp = (WFWebBrowser) eventArgs.TargetWindow ?? ppDispOriginal; // TODO change to a new DesktopGap Window
       Cancel = eventArgs.Cancel;
 
     }

@@ -19,18 +19,20 @@
 // 
 using System;
 using System.Windows.Forms;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Defaults;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Low.Common;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Low.UIHandler;
+using DesktopGap.Clients.Windows.OleLibraryDependencies;
+using DesktopGap.Clients.Windows.WebBrowser.ComTypes;
+using DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler;
+using DesktopGap.Clients.Windows.WebBrowser.Trident;
+using DesktopGap.OleLibraryDependencies;
 using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
-using IDropTarget = DesktopGap.Clients.Windows.TridentWebBrowser.Low.UIHandler.IDropTarget;
+using IDropTarget = DesktopGap.Clients.Windows.OleLibraryDependencies.IDropTarget;
 
 namespace DesktopGap.Clients.Windows
 {
-  public class DesktopGapDocumentUIHandler : DefaultDocHostUIHandler, IDropTarget
+  public class DesktopGapDocumentUIHandler : DocHostUIHandlerBase, IDropTarget
   {
-
     private readonly ExtendedTridentWebBrowser _extendedTridentWebBrowser;
+
     public DesktopGapDocumentUIHandler (ExtendedTridentWebBrowser browser)
         : base (browser)
     {
@@ -40,7 +42,7 @@ namespace DesktopGap.Clients.Windows
     public override int GetDropTarget (IDropTarget dropTarget, out IDropTarget target)
     {
       target = this;
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
 
     private NativeDragDropEffects ToNative (DragDropEffects dragDropEffects)
@@ -85,7 +87,7 @@ namespace DesktopGap.Clients.Windows
         pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
       }
 
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
 
     public int DragOver (uint grfKeyState, tagPOINT pt, ref uint pdwEffect)
@@ -105,13 +107,13 @@ namespace DesktopGap.Clients.Windows
         pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
       }
 
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
 
     int IDropTarget.DragLeave ()
     {
       _extendedTridentWebBrowser.OnDragLeave (new EventArgs());
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
 
     public int Drop (IDataObject pDataObj, uint grfKeyState, tagPOINT pt, ref uint pdwEffect)
@@ -137,7 +139,7 @@ namespace DesktopGap.Clients.Windows
         pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
       }
 
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
   }
 }

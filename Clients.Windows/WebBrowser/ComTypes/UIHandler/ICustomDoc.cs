@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,14 +19,15 @@
 // 
 
 using System;
-using System.Windows;
+using System.Runtime.InteropServices;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler
 {
-  /// <summary>
-  /// Interaction logic for App.xaml
-  /// </summary>
-  public partial class App : DesktopGapApplication
+  [ComImport]
+  [InterfaceType (ComInterfaceType.InterfaceIsIUnknown)]
+  [Guid ("3050F3F0-98B5-11CF-BB82-00AA00BDCE0B")]
+  public interface ICustomDoc
   {
+    void SetUIHandler ([In] [MarshalAs (UnmanagedType.Interface)] IDocHostUIHandler pUIHandler);
   }
 }

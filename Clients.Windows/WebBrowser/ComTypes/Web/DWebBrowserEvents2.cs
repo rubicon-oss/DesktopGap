@@ -22,7 +22,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low
+namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web
 {
 
   #region interface definition

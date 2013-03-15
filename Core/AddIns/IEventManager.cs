@@ -18,25 +18,25 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Windows.Forms;
+using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.Linq;
+using DesktopGap.AddIns.Events;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.AddIns
 {
-  /// <summary>
-  /// Extends the DragEventArgs to add the "Handled" flag
-  /// </summary>
-  public class ExtendedDragEventHandlerArgs : DragEventArgs
-  {
-    /// <summary>
-    /// Wether the Drag Drop Event was handled or not
-    /// If true the underlying control is prohibited from overiding the defined DragDropEffects
-    /// If false, the underlying control has full control over the DragDropEffects (modifications won't be applied)
-    /// </summary>
-    public bool Handled { get; set; }
+  public delegate void ScriptEvent(ScriptEvent sender, ScriptArgs args);
 
-    public ExtendedDragEventHandlerArgs (IDataObject data, int keyState, int x, int y, DragDropEffects allowedEffect, DragDropEffects effect)
-        : base (data, keyState, x, y, allowedEffect, effect)
-    {
-    }
+  public interface IEventManager
+  {
+
+    IEnumerable<IExternalEvent> Events { get; }
+    void Register (string eventName, string callbackName, string moduleName);
+    void Unregister (string eventName, string callbackName, string moduleName);
+  
+    void RegisterEvent(ref ScriptEvent scriptEvent);
+    void UnregisterEvent (ref ScriptEvent scriptEvent);
   }
+
+ 
 }

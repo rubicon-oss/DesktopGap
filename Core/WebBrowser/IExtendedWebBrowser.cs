@@ -19,14 +19,23 @@
 // 
 
 using System;
-using System.Windows;
+using DesktopGap.AddIns;
+using DesktopGap.OleLibraryDependencies;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.WebBrowser
 {
-  /// <summary>
-  /// Interaction logic for App.xaml
-  /// </summary>
-  public partial class App : DesktopGapApplication
+  public interface IExtendedWebBrowser
   {
+    string Title { get; }
+
+    IAPIFacade APIServiceInterface { get; set;  }
+
+    event Action<IExtendedWebBrowser> PageLoaded;
+    event Action<WindowOpenEventArgs> WindowOpen;
+
+    event Action<ExtendedDragEventHandlerArgs> DragDrop;
+    event Action<ExtendedDragEventHandlerArgs> DragLeave;
+
+    void Navigate (string to);
   }
 }

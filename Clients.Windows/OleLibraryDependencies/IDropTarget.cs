@@ -17,11 +17,13 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
+using DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low.UIHandler
+namespace DesktopGap.Clients.Windows.OleLibraryDependencies
 {
   public enum NativeDragDropEffects : uint
   {

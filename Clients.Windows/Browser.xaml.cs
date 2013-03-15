@@ -18,17 +18,20 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using System.Windows;
-using System.Windows.Forms;
-using DesktopGap.Browser;
+using DesktopGap.AddIns;
 using DesktopGap.Clients.Windows.Components;
+using DesktopGap.WebBrowser;
+using EventManager = DesktopGap.AddIns.EventManager;
+using WFWebBrowser = System.Windows.Forms.WebBrowser;
 
 namespace DesktopGap.Clients.Windows
 {
   /// <summary>
   /// Interaction logic for Browser.xaml
   /// </summary>
-  public partial class Browser : Window
+  public partial class Browser
   {
     public Browser ()
     {
@@ -37,7 +40,11 @@ namespace DesktopGap.Clients.Windows
 
     private void OnWindowOpen (WindowOpenEventArgs eventArgs)
     {
-      var newTab = CreateBrowserTab (new ExtendedTridentWebBrowser());
+      var wb = new ExtendedTridentWebBrowser();
+      var api = new APIFacade (new ServiceManager(), new EventManager (wb));
+
+      wb.APIServiceInterface = api;
+      var newTab = CreateBrowserTab (wb);
       eventArgs.TargetWindow = newTab.ExtendedWebBrowser;
       if (!eventArgs.IsInBackground)
         newTab.Focus();
@@ -45,7 +52,7 @@ namespace DesktopGap.Clients.Windows
 
     private BrowserTab CreateBrowserTab (IExtendedWebBrowser browser)
     {
-      var x = new BrowserTab (_tabControl, (WebBrowser) browser);
+      var x = new BrowserTab (_tabControl, (WFWebBrowser) browser);
 
       x.ExtendedWebBrowser.PageLoaded += (b) => _ConsoleListBox.Items.Add (b.ToString() + " loaded");
       x.ExtendedWebBrowser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
@@ -62,7 +69,6 @@ namespace DesktopGap.Clients.Windows
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
     {
       var newTab = CreateBrowserTab (new ExtendedTridentWebBrowser());
-      //newTab.ExtendedWebBrowser.Navigate (@"\\rubicon\home\claus.matzinger\test.html");
       newTab.ExtendedWebBrowser.Navigate (_urlTextBox.Text);
 
       _tabControl.Items.Add (newTab);

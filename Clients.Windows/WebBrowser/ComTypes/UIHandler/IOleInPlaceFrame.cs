@@ -21,7 +21,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low.UIHandler
+namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler
 {
   [ComVisible (true)]
   [ComImport]

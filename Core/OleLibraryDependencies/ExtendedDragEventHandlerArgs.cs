@@ -17,16 +17,27 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using System.Runtime.InteropServices;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low.UIHandler
+using System;
+using System.Windows.Forms;
+
+namespace DesktopGap.OleLibraryDependencies
 {
-  [ComImport]
-  [InterfaceType (ComInterfaceType.InterfaceIsIUnknown)]
-  [Guid ("3050F3F0-98B5-11CF-BB82-00AA00BDCE0B")]
-  public interface ICustomDoc
+  /// <summary>
+  /// Extends the DragEventArgs to add the "Handled" flag
+  /// </summary>
+  public class ExtendedDragEventHandlerArgs : DragEventArgs
   {
-    void SetUIHandler ([In] [MarshalAs (UnmanagedType.Interface)] IDocHostUIHandler pUIHandler);
+    /// <summary>
+    /// Wether the Drag Drop Event was handled or not
+    /// If true the underlying control is prohibited from overiding the defined DragDropEffects
+    /// If false, the underlying control has full control over the DragDropEffects (modifications won't be applied)
+    /// </summary>
+    public bool Handled { get; set; }
+
+    public ExtendedDragEventHandlerArgs (IDataObject data, int keyState, int x, int y, DragDropEffects allowedEffect, DragDropEffects effect)
+        : base (data, keyState, x, y, allowedEffect, effect)
+    {
+    }
   }
 }

@@ -33,8 +33,12 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Security" />
@@ -75,25 +79,24 @@
     </Compile>
     <Compile Include="DesktopGapBrowserEvents.cs" />
     <Compile Include="DesktopGapDocumentUIHandler.cs" />
-    <Compile Include="ExtendedDragEventArgs.cs" />
-    <Compile Include="TridentWebBrowser\Defaults\DefaulWebBrowserEvents.cs" />
-    <Compile Include="TridentWebBrowser\Defaults\TridentWebBrowserBase.cs">
+    <Compile Include="WebBrowser\Trident\WebBrowserEventsBase.cs" />
+    <Compile Include="WebBrowser\Trident\TridentWebBrowserBase.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="TridentWebBrowser\Defaults\DefaultDocHostUIHandler.cs" />
-    <Compile Include="TridentWebBrowser\Low\UIHandler\ICustomDoc.cs" />
-    <Compile Include="TridentWebBrowser\Low\UIHandler\IDropTarget.cs" />
-    <Compile Include="TridentWebBrowser\Low\UIHandler\IOleInPlaceActiveObject.cs" />
-    <Compile Include="TridentWebBrowser\Low\UIHandler\IOleInPlaceFrame.cs" />
-    <Compile Include="TridentWebBrowser\Low\UIHandler\IOleInPlaceUIWindow.cs" />
-    <Compile Include="TridentWebBrowser\Low\Web\DWebBrowserEvents2.cs" />
+    <Compile Include="WebBrowser\Trident\DocHostUIHandlerBase.cs" />
+    <Compile Include="WebBrowser\ComTypes\UIHandler\ICustomDoc.cs" />
+    <Compile Include="OleLibraryDependencies\IDropTarget.cs" />
+    <Compile Include="WebBrowser\ComTypes\UIHandler\IOleInPlaceActiveObject.cs" />
+    <Compile Include="WebBrowser\ComTypes\UIHandler\IOleInPlaceFrame.cs" />
+    <Compile Include="WebBrowser\ComTypes\UIHandler\IOleInPlaceUIWindow.cs" />
+    <Compile Include="WebBrowser\ComTypes\Web\DWebBrowserEvents2.cs" />
     <Compile Include="ExtendedTridentWebBrowser.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="TridentWebBrowser\Low\Common\HRESULT.cs" />
-    <Compile Include="TridentWebBrowser\Low\UIHandler\IDocHostUIHandler.cs" />
-    <Compile Include="TridentWebBrowser\Low\Common\IOleCommandTarget.cs" />
-    <Compile Include="TridentWebBrowser\Low\Web\IWebBrowser2.cs" />
+    <Compile Include="WebBrowser\ComTypes\HResult.cs" />
+    <Compile Include="WebBrowser\ComTypes\UIHandler\IDocHostUIHandler.cs" />
+    <Compile Include="WebBrowser\ComTypes\IOleCommandTarget.cs" />
+    <Compile Include="WebBrowser\ComTypes\Web\IWebBrowser2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

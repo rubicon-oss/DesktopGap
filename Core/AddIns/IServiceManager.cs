@@ -1,5 +1,6 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+﻿using DesktopGap.AddIns.Services;
+// This file is part of DesktopGap (desktopgap.codeplex.com)
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,16 +18,17 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using System.Windows;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.AddIns
 {
-  /// <summary>
-  /// Interaction logic for App.xaml
-  /// </summary>
-  public partial class App : DesktopGapApplication
+  public interface IServiceManager
   {
+    IExternalService GetService (string serviceName);
+    IEnumerable<IExternalService> Services { get; }
   }
 }

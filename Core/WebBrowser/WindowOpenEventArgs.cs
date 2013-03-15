@@ -20,7 +20,7 @@
 
 using System;
 
-namespace DesktopGap.Browser
+namespace DesktopGap.WebBrowser
 {
   public class WindowOpenEventArgs
   {

@@ -21,10 +21,11 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Low.Common;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Low.UIHandler;
+using DesktopGap.Clients.Windows.OleLibraryDependencies;
+using DesktopGap.Clients.Windows.WebBrowser.ComTypes;
+using DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
+namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
   /// <summary>
   /// Provides a implementation for all functions of the interface IDocHostUIHandler
@@ -35,7 +36,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
   /// For more info go to: 
   /// http://msdn.microsoft.com/en-us/library/aa753260%28v=vs.85%29.aspx
   /// </summary>
-  public abstract class DefaultDocHostUIHandler : IDocHostUIHandler
+  public abstract class DocHostUIHandlerBase : IDocHostUIHandler
   {
     
     private readonly System.Windows.Forms.WebBrowser _browser;
@@ -44,7 +45,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     /// 
     /// </summary>
     /// <param name="browser">The Browser Object for which the IDocHostUIHandler should be registered</param>
-    protected DefaultDocHostUIHandler (System.Windows.Forms.WebBrowser browser)
+    protected DocHostUIHandlerBase (System.Windows.Forms.WebBrowser browser)
     {
       _browser = browser;
     }
@@ -63,7 +64,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     /// </returns>
     public virtual int ShowContextMenu (uint dwID, ref tagPOINT pt, object pcmdtReserved, object pdispReserved)
     {
-      return !_browser.IsWebBrowserContextMenuEnabled ? HRESULT.S_OK : HRESULT.S_FALSE;
+      return !_browser.IsWebBrowserContextMenuEnabled ? HResult.S_OK : HResult.S_FALSE;
     }
 
     /// <summary>
@@ -76,7 +77,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
       info.cbSize = (uint) Marshal.SizeOf (info);
       info.dwDoubleClick = (uint) DOCHOSTUIDBLCLK.DOCHOSTUIDBLCLK_DEFAULT;
       info.dwFlags = (uint) (DOCHOSTUIFLAG.DOCHOSTUIFLAG_NO3DBORDER | DOCHOSTUIFLAG.DOCHOSTUIFLAG_FLAT_SCROLLBAR | DOCHOSTUIFLAG.DOCHOSTUIFLAG_THEME);
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
 
     /// <summary>
@@ -96,7 +97,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     public virtual int ShowUI (
         int dwID, IOleInPlaceActiveObject activeObject, IOleCommandTarget commandTarget, IOleInPlaceFrame frame, IOleInPlaceUIWindow doc)
     {
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
 
     /// <summary>
@@ -105,7 +106,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int HideUI ()
     {
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
 
     /// <summary>
@@ -114,7 +115,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int UpdateUI ()
     {
-      return HRESULT.S_OK;
+      return HResult.S_OK;
     }
 
     /// <summary>
@@ -128,7 +129,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int EnableModeless (bool fEnable)
     {
-      return HRESULT.E_NOTIMPL;
+      return HResult.E_NOTIMPL;
     }
 
     /// <summary>
@@ -142,7 +143,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int OnDocWindowActivate (bool fActivate)
     {
-      return HRESULT.E_NOTIMPL;
+      return HResult.E_NOTIMPL;
     }
 
     /// <summary>
@@ -156,7 +157,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int OnFrameWindowActivate (bool fActivate)
     {
-      return HRESULT.E_NOTIMPL;
+      return HResult.E_NOTIMPL;
     }
 
     /// <summary>
@@ -168,7 +169,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int ResizeBorder (ref tagRECT rect, IOleInPlaceUIWindow doc, bool fFrameWindow)
     {
-      return HRESULT.E_NOTIMPL;
+      return HResult.E_NOTIMPL;
     }
 
     /// <summary>
@@ -182,7 +183,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     ///S_FALSE 	The message was not handled. Host default behavior is allowed. </returns>
     public virtual int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
     {
-      return HRESULT.S_FALSE;
+      return HResult.S_FALSE;
     }
 
     /// <summary>
@@ -194,7 +195,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     public virtual int GetOptionKeyPath (out string pbstrKey, uint dw)
     {
       pbstrKey = null;
-      return HRESULT.E_NOTIMPL;
+      return HResult.E_NOTIMPL;
     }
 
     /// <summary>
@@ -206,7 +207,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     public virtual int GetDropTarget (IDropTarget pDropTarget, out IDropTarget ppDropTarget)
     {
       ppDropTarget = pDropTarget;
-      return HRESULT.E_NOTIMPL;
+      return HResult.E_NOTIMPL;
     }
 
     /// <summary>
@@ -219,11 +220,11 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
       if (_browser.ObjectForScripting != null)
       {
         ppDispatch = _browser.ObjectForScripting;
-        return HRESULT.S_OK;
+        return HResult.S_OK;
       }
 
       ppDispatch = null;
-      return HRESULT.E_NOTIMPL;
+      return HResult.E_NOTIMPL;
     }
 
     /// <summary>
@@ -236,7 +237,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     public virtual int TranslateUrl (uint dwTranslate, string strURLIn, out string pstrURLOut)
     {
       pstrURLOut = null;
-      return HRESULT.S_FALSE;
+      return HResult.S_FALSE;
     }
 
     /// <summary>
@@ -248,7 +249,7 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
     public virtual int FilterDataObject (IDataObject pDO, out IDataObject ppDORet)
     {
       ppDORet = null;
-      return HRESULT.S_FALSE;
+      return HResult.S_FALSE;
     }
 
   }

@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,17 +17,14 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
-namespace DesktopGap.Browser
+namespace DesktopGap.AddIns.Events
 {
-  public interface IExtendedWebBrowser
+  public class ScriptArgs
   {
-    string Title { get; }
-    event Action<IExtendedWebBrowser> PageLoaded;
-    event Action<WindowOpenEventArgs> WindowOpen;
-
-    void Navigate (string to);
   }
 }

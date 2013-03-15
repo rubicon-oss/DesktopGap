@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,16 +17,26 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using System.Windows;
+using System.Linq;
+using System.Runtime.InteropServices;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.AddIns
 {
-  /// <summary>
-  /// Interaction logic for App.xaml
-  /// </summary>
-  public partial class App : DesktopGapApplication
+  [ComVisible(true)]
+  public interface IAPIFacade
   {
+    object GetService (string serviceName);
+
+    string[] GetServiceNames ();
+
+    string[] GetEventNames ();
+
+    void addEventListener (string eventName, string callbackName, string moduleName);
+    void removeEventListener (string eventName, string callbackName, string moduleName);
+
+
+    IServiceManager ServiceManager { get; }
+    IEventManager EventManager { get; }
   }
 }

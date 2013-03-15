@@ -19,14 +19,14 @@
 // 
 
 using System;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Low;
+using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Defaults
+namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
   /// <summary>
   /// Provides a default implementation of the events interface(s) for easier handling. The default implementations don't do anything but waiting to be overridden.
   /// </summary>
-  public abstract class DefaultWebBrowserEvents : DWebBrowserEvents2
+  public abstract class WebBrowserEventsBase : DWebBrowserEvents2
   {
     public virtual void StatusTextChange (string Text)
     {

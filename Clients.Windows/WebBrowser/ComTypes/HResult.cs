@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,16 +17,21 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low.Common
+namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes
 {
-  public sealed class HRESULT
+  public sealed class HResult
   {
-    public const int NOERROR = 0;
     public const int S_OK = 0;
     public const int S_FALSE = 1;
+    public const int E_NOTIMPL = unchecked((int) 0x80004001);
+
+
+    /*
+    public const int NOERROR = 0;
+            public const int S_OK = 0;
+        public const int S_FALSE = 1;
     public const int E_PENDING = unchecked((int) 0x8000000A);
     public const int E_HANDLE = unchecked((int) 0x80070006);
     public const int E_NOTIMPL = unchecked((int) 0x80004001);
@@ -86,6 +91,6 @@ namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low.Common
     public const int OLE_E_NOT_INPLACEACTIVE = unchecked((int) 0x80040010);
     public const int OLE_E_CANTCONVERT = unchecked((int) 0x80040011);
     public const int OLE_E_NOSTORAGE = unchecked((int) 0x80040012);
-    public const int RPC_E_RETRY = unchecked((int) 0x80010109);
+    public const int RPC_E_RETRY = unchecked((int) 0x80010109); */
   }
 }

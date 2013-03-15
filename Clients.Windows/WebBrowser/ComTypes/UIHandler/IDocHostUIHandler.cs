@@ -17,12 +17,13 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Low.Common;
+using DesktopGap.Clients.Windows.OleLibraryDependencies;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low.UIHandler
+namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler
 {
   public enum DOCHOSTUITYPE
   {

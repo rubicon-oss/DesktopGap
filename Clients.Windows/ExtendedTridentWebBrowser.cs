@@ -20,18 +20,25 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using DesktopGap.Browser;
-using DesktopGap.Clients.Windows.TridentWebBrowser.Defaults;
+using DesktopGap.AddIns;
+using DesktopGap.AddIns.Events;
+using DesktopGap.Clients.Windows.WebBrowser.Trident;
+using DesktopGap.OleLibraryDependencies;
+using DesktopGap.WebBrowser;
 
 
 namespace DesktopGap.Clients.Windows
 {
-  public class ExtendedTridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IDropTarget
+  public class ExtendedTridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IDropTarget, ICallbackHost
   {
+
     #region IExtendedWebBrowser events
 
+    public IAPIFacade APIServiceInterface { get; set; }
     public event Action<IExtendedWebBrowser> PageLoaded;
     public event Action<WindowOpenEventArgs> WindowOpen;
+    public new event Action<ExtendedDragEventHandlerArgs> DragDrop;
+    public new event Action<ExtendedDragEventHandlerArgs> DragLeave;
 
     #endregion
 
@@ -64,7 +71,7 @@ namespace DesktopGap.Clients.Windows
         WindowOpen (eventArgs);
     }
 
-
+    //TODO restructure
     private bool MayDrop (IExtendedWebBrowser browser, DragEventArgs e)
     {
       var browserControl = (Control) browser;
@@ -75,7 +82,7 @@ namespace DesktopGap.Clients.Windows
 
       var currentElement = elementAtPoint;
       var isDropTarget = false;
-      while (currentElement != null && ! Boolean.TryParse(currentElement.GetAttribute ("droptarget"), out isDropTarget))
+      while (currentElement != null && ! Boolean.TryParse (currentElement.GetAttribute ("droptarget"), out isDropTarget))
       {
         currentElement = currentElement.Parent;
       }
@@ -86,10 +93,9 @@ namespace DesktopGap.Clients.Windows
 
     public new void OnDragEnter (ExtendedDragEventHandlerArgs e)
     {
-            var ok = MayDrop (this, e);
+      var ok = MayDrop (this, e);
       e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
       e.Handled = true;
-      // Output ("DragEnter" + MayDrop (this, e).ToString());
     }
 
     public new void OnDragDrop (ExtendedDragEventHandlerArgs e)
@@ -108,10 +114,18 @@ namespace DesktopGap.Clients.Windows
 
     public new void OnDragOver (ExtendedDragEventHandlerArgs e)
     {
-                  var ok = MayDrop (this, e);
+      var ok = MayDrop (this, e);
       e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
       e.Handled = true;
       // Output ("DragOver" + MayDrop (this, e).ToString());
+    }
+
+    public void Call (string function, ScriptArgs args)
+    {
+      var document = this.Document;
+
+      if (document != null)
+        document.InvokeScript (function, new[] { args }); // TODO figure this out
     }
   }
 }

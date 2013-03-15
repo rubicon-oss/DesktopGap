@@ -21,7 +21,7 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low.Common
+namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes
 {
    [StructLayout(LayoutKind.Sequential)]
     public struct OLECMD

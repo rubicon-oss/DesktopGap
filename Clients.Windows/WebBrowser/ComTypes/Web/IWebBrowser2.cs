@@ -24,7 +24,7 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low
+namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web
 {
 
   // ENUMS required for some function calls....

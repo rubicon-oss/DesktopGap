@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,14 +19,12 @@
 // 
 
 using System;
-using System.Windows;
+using DesktopGap.AddIns.Events;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.WebBrowser
 {
-  /// <summary>
-  /// Interaction logic for App.xaml
-  /// </summary>
-  public partial class App : DesktopGapApplication
+  public interface ICallbackHost
   {
+    void Call (string function, ScriptArgs args);
   }
 }

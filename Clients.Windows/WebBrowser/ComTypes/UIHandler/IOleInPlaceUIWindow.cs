@@ -17,10 +17,11 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Runtime.InteropServices;
 
-namespace DesktopGap.Clients.Windows.TridentWebBrowser.Low.UIHandler
+namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler
 {
  [ComVisible(true), ComImport, Guid("00000115-0000-0000-C000-000000000046"),
      InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
