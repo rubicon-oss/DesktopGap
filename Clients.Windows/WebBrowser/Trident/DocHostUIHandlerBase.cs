@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
@@ -38,7 +37,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
   /// </summary>
   public abstract class DocHostUIHandlerBase : IDocHostUIHandler
   {
-    
     private readonly System.Windows.Forms.WebBrowser _browser;
 
     /// <summary>
@@ -251,6 +249,5 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       ppDORet = null;
       return HResult.S_FALSE;
     }
-
   }
 }

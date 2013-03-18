@@ -18,9 +18,11 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
 using System.Windows;
 using DesktopGap.AddIns;
+using DesktopGap.AddIns.Events;
 using DesktopGap.Clients.Windows.Components;
 using DesktopGap.WebBrowser;
 using EventManager = DesktopGap.AddIns.EventManager;
@@ -33,18 +35,27 @@ namespace DesktopGap.Clients.Windows
   /// </summary>
   public partial class Browser
   {
+    private readonly AggregateCatalog _catalog = null;
+    private CompositionContainer _container = null;
+
     public Browser ()
     {
       InitializeComponent();
+
+      _catalog = new AggregateCatalog();
+      //var d = new DirectoryCatalog (@".\lib\");
+      //_catalog.Catalogs.Add (d);
+      _catalog.Catalogs.Add (new AssemblyCatalog (typeof (ElementDragAndDropEvent).Assembly));
+      _container = new CompositionContainer (_catalog);
     }
 
     private void OnWindowOpen (WindowOpenEventArgs eventArgs)
     {
-      var wb = new ExtendedTridentWebBrowser();
-      var api = new APIFacade (new ServiceManager(), new EventManager (wb));
+      var webBrowser = new ExtendedTridentWebBrowser();
 
-      wb.APIServiceInterface = api;
-      var newTab = CreateBrowserTab (wb);
+
+      SystemEventHub.AddWebBrowser (webBrowser);
+      var newTab = CreateBrowserTab (webBrowser);
       eventArgs.TargetWindow = newTab.ExtendedWebBrowser;
       if (!eventArgs.IsInBackground)
         newTab.Focus();
@@ -52,6 +63,25 @@ namespace DesktopGap.Clients.Windows
 
     private BrowserTab CreateBrowserTab (IExtendedWebBrowser browser)
     {
+      var serviceManager = new ServiceManager();
+      var eventManager = new EventManager ((ICallbackHost) browser);
+
+
+      try
+      {
+        _container.ComposeParts (serviceManager);
+        _container.ComposeParts (eventManager);
+      }
+      catch (CompositionException compositionException)
+      {
+        Console.WriteLine (compositionException.ToString());
+      }
+
+      var api = new APIFacade (serviceManager, eventManager);
+
+      browser.APIServiceInterface = api;
+
+      SystemEventHub.AddWebBrowser (browser);
       var x = new BrowserTab (_tabControl, (WFWebBrowser) browser);
 
       x.ExtendedWebBrowser.PageLoaded += (b) => _ConsoleListBox.Items.Add (b.ToString() + " loaded");

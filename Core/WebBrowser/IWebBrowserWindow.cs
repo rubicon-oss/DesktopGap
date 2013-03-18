@@ -24,6 +24,6 @@ namespace DesktopGap.WebBrowser
 {
   public interface IWebBrowserWindow
   {
-    IEnumerable<IExtendedWebBrowser> WebBrowsers { get; }
+    ISession CurrentSession { get; }
   }
 }

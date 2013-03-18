@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,14 +19,41 @@
 // 
 
 using System;
-using System.Windows;
+using System.ComponentModel.Composition;
+using System.Windows.Forms;
+using DesktopGap.AddIns.Events;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.AddIns
 {
-  /// <summary>
-  /// Interaction logic for App.xaml
-  /// </summary>
-  public partial class App 
+  [Export(typeof(IExternalEvent))]
+  public class ElementDragAndDropEvent : IExternalEvent
   {
+    private const string c_name = "ElementDragAndDrop";
+
+    public string Name
+    {
+      get { return c_name; }
+    }
+
+    public void OnBeforeLoad ()
+    {
+      SystemEventHub.DragDrop += (e) =>
+                                 {
+                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
+                                   ItemDropped (this.GetType().GetEvent("ItemDropped"), new FileScriptArgs (filePaths[0]));
+                                 };
+    }
+
+    public event ScriptEvent ItemDropped;
+
+
+
+
+
+
+
+    public void OnBeforeUnload ()
+    {
+    }
   }
 }

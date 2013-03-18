@@ -19,10 +19,12 @@
 // 
 using System;
 using System.Linq;
+using System.Runtime.InteropServices;
 using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
+  [ComVisible(true)]
   public class APIFacade : IAPIFacade
   {
     public IServiceManager ServiceManager { get; private set; }

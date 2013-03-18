@@ -130,6 +130,10 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core.AddIns\Core.AddIns.csproj">
+      <Project>{025b2c20-3622-474c-898b-ac1ff42fb837}</Project>
+      <Name>Core.AddIns</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f650ab80-45e1-44f3-897a-2af5f774c71d}</Project>
       <Name>Core</Name>

@@ -31,10 +31,20 @@ namespace DesktopGap.Clients.Windows
 {
   public class ExtendedTridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IDropTarget, ICallbackHost
   {
-
     #region IExtendedWebBrowser events
 
-    public IAPIFacade APIServiceInterface { get; set; }
+    private IAPIFacade _apiFacade = null;
+
+    public IAPIFacade APIServiceInterface
+    {
+      get { return _apiFacade; }
+      set
+      {
+        _apiFacade = value;
+        ObjectForScripting = _apiFacade;
+      }
+    }
+
     public event Action<IExtendedWebBrowser> PageLoaded;
     public event Action<WindowOpenEventArgs> WindowOpen;
     public new event Action<ExtendedDragEventHandlerArgs> DragDrop;
@@ -103,6 +113,8 @@ namespace DesktopGap.Clients.Windows
       var ok = MayDrop (this, e);
       e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
       Output ("DragDrop: " + ok.ToString());
+      DragDrop (e);
+
       e.Handled = true;
     }
 
@@ -125,7 +137,7 @@ namespace DesktopGap.Clients.Windows
       var document = this.Document;
 
       if (document != null)
-        document.InvokeScript (function, new[] { args }); // TODO figure this out
+        document.InvokeScript (function, new object[] { args.ToString() }); // TODO figure this out
     }
   }
 }

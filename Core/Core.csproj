@@ -48,6 +48,9 @@
     <Compile Include="AddIns\EventManager.cs" />
     <Compile Include="AddIns\Events\IExternalEvent.cs" />
     <Compile Include="AddIns\Events\ScriptArgs.cs" />
+    <Compile Include="AddIns\Events\SystemEventHub.cs" />
+    <Compile Include="SessionFactory.cs" />
+    <Compile Include="WebBrowser\ISession.cs" />
     <Compile Include="WebBrowser\ICallbackHost.cs" />
     <Compile Include="AddIns\IEventManager.cs" />
     <Compile Include="AddIns\IServiceManager.cs" />
@@ -58,6 +61,7 @@
     <Compile Include="WebBrowser\IExtendedWebBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebBrowser\IWebBrowserWindow.cs" />
+    <Compile Include="WebBrowser\Session.cs" />
     <Compile Include="WebBrowser\WindowOpenEventArgs.cs" />
   </ItemGroup>
   <ItemGroup>

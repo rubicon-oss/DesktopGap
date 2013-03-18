@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,16 +17,17 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using System.Windows;
+using DesktopGap.AddIns;
+using DesktopGap.WebBrowser;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap
 {
-  /// <summary>
-  /// Interaction logic for App.xaml
-  /// </summary>
-  public partial class App 
+  internal class SessionFactory
   {
+    public static ISession CreateInstance ()
+    {
+      return new Session();
+    }
   }
 }

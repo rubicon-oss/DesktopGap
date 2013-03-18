@@ -19,24 +19,20 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
+using System.Reflection;
 using DesktopGap.AddIns.Events;
 
 namespace DesktopGap.AddIns
 {
-  public delegate void ScriptEvent(ScriptEvent sender, ScriptArgs args);
+  public delegate void ScriptEvent (EventInfo sender, ScriptArgs args);
 
   public interface IEventManager
   {
-
     IEnumerable<IExternalEvent> Events { get; }
     void Register (string eventName, string callbackName, string moduleName);
     void Unregister (string eventName, string callbackName, string moduleName);
-  
-    void RegisterEvent(ref ScriptEvent scriptEvent);
+
+    void RegisterEvent (ref ScriptEvent scriptEvent);
     void UnregisterEvent (ref ScriptEvent scriptEvent);
   }
-
- 
 }

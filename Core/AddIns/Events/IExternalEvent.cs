@@ -26,5 +26,7 @@ namespace DesktopGap.AddIns.Events
   public interface IExternalEvent
   {
     String Name { get; }
+    void OnBeforeLoad ();
+    void OnBeforeUnload ();
   }
 }

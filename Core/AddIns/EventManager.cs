@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using System.Reflection;
 using DesktopGap.AddIns.Events;
 using DesktopGap.WebBrowser;
 
@@ -88,16 +89,28 @@ namespace DesktopGap.AddIns
       if (scriptEvent == null)
         throw new ArgumentNullException ("scriptEvent");
 
-      scriptEvent += FireEvent;
+      RegisterEvent (scriptEvent.GetType().FullName ?? scriptEvent.GetType().Name, ref scriptEvent);
     }
 
     public void UnregisterEvent (ref ScriptEvent scriptEvent)
     {
       if (scriptEvent == null)
         throw new ArgumentNullException ("scriptEvent");
+      var eventClients = GetClients (scriptEvent.Method.Name);
+
+      if (eventClients == null)
+        throw new Exception ("Event not registered"); // TODO Exception class
 
       scriptEvent -= FireEvent;
+      eventClients.Clear();
     }
+
+    public void OnImportsSatisfied ()
+    {
+      ReregisterEvents();
+    }
+
+    #region Utility Methods
 
     private void ReregisterEvents ()
     {
@@ -107,35 +120,61 @@ namespace DesktopGap.AddIns
 
       foreach (var eventModule in Events)
       {
-        var name = eventModule.Name;
-        IList<string> moduleEvents = (from evt in eventModule.GetType().GetEvents()
-                                      where evt.GetType() == typeof(ScriptEvent)
-                                      select name + "." + evt.Name).ToList<string>();
+        var events = eventModule.GetType().GetEvents (BindingFlags.Public | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
+        IEnumerable<EventInfo> moduleEvents =
+            eventModule.GetType().GetEvents (
+                BindingFlags.Public
+                | BindingFlags.Instance
+                | BindingFlags.FlattenHierarchy)
+                .Where (
+                    p => p.EventHandlerType == typeof (ScriptEvent));
 
-        foreach (var eventName in moduleEvents)
+        eventModule.OnBeforeLoad();
+
+        foreach (var scriptEvent in moduleEvents)
         {
-          IList<string> result = null;
-          if (!_clients.TryGetValue (eventName, out result))
-            _clients[eventName] = new List<string>();
-          //else
-          // throw new Exception("Duplicate event found") // TODO throw exception here or just fail silently?
+          
+          InitializeClients (scriptEvent.ReflectedType + c_moduleEventSeperator + scriptEvent.Name);
+
+          // Add FireEvent as an event handler for every published event in the module
+          var eventMethod = GetType().GetMethod ("FireEvent", BindingFlags.NonPublic | BindingFlags.Instance); // TODO something generic
+          var handler = Delegate.CreateDelegate (scriptEvent.EventHandlerType, this, eventMethod);
+          scriptEvent.AddEventHandler (eventModule, handler);
         }
       }
     }
 
-    public void OnImportsSatisfied ()
+    private void InitializeClients (string name)
     {
-      ReregisterEvents();
+      if (GetClients (name) != null)
+        throw new Exception ("Event already registered"); // TODO Exception class
+
+      _clients[name] = new List<string>();
     }
 
-    private void FireEvent (ScriptEvent sender, ScriptArgs args)
+    private void RegisterEvent (string name, ref ScriptEvent scriptEvent)
     {
-      var name = sender.GetType().FullName; // TODO does this work like this?
+      InitializeClients (name);
+      scriptEvent += FireEvent;
+    }
+
+    private IList<string> GetClients (string eventName)
+    {
+      IList<string> eventClients = null;
+      _clients.TryGetValue (eventName, out eventClients);
+      return eventClients;
+    }
+
+    private void FireEvent (EventInfo sender, ScriptArgs args)
+    {
+      var name = sender.ReflectedType + c_moduleEventSeperator + sender.Name; // TODO does this work like this?
 
       IList<string> callbackNames = _clients[name]; // TODO throw exception if event not found?
 
       foreach (var callbackName in callbackNames)
         _callbackHost.Call (callbackName, args);
     }
+
+    #endregion
   }
 }

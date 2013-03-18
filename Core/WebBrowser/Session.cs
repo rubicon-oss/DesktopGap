@@ -18,27 +18,34 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
+using DesktopGap.AddIns;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.WebBrowser
 {
-  public class ScriptArgs
+  public class Session : ISession
   {
-  }
+    public IEnumerable<IExtendedWebBrowser> WebBrowsers { get; private set; }
+    public IEventManager EventManager { get; private set; }
+    public IServiceManager ServiceManager { get; private set; }
 
-  public class FileScriptArgs : ScriptArgs
-  {
-    public string Path { get; private set; }
-
-    public FileScriptArgs (string path)
+    public Session ()
     {
-      if (path == null)
-        throw new ArgumentNullException ("path");
-      Path = path;
+      
     }
 
-    public override string ToString ()
+    public Session (IEnumerable<IExtendedWebBrowser> webBrowsers, IEventManager eventManager, IServiceManager serviceManager)
     {
-      return "{\"Path\":\"" + Path + "\"}";
+      if (webBrowsers == null)
+        throw new ArgumentNullException ("webBrowsers");
+      if (eventManager == null)
+        throw new ArgumentNullException ("eventManager");
+      if (serviceManager == null)
+        throw new ArgumentNullException ("serviceManager");
+
+      WebBrowsers = webBrowsers;
+      EventManager = eventManager;
+      ServiceManager = serviceManager;
     }
   }
 }
