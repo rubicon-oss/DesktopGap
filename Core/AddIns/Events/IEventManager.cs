@@ -18,18 +18,22 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace DesktopGap.AddIns.Events
 {
-  [InheritedExport (typeof (IExternalEvent))]
-  public interface IExternalEvent
+  public delegate void ScriptEvent (EventInfo sender, ScriptEventArgs args);
+
+  public interface IEventManager
   {
-    String Name { get; }
+    event EventHandler<ScriptEventArgs> EventFired;
 
-    void RegisterEvents (IEventManager eventManager);
+    IEnumerable<IExternalEvent> Events { get; }
+    void Register (string eventName, string callbackName, string moduleName);
+    void Unregister (string eventName, string callbackName, string moduleName);
 
-    void OnBeforeLoad ();
-    void OnBeforeUnload ();
+    void RegisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent);
+    void UnregisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent);
   }
 }

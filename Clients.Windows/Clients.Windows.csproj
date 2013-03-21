@@ -64,6 +64,7 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="APIFacade.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -73,12 +74,15 @@
     <Compile Include="Browser.xaml.cs">
       <DependentUpon>Browser.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ComServiceDecorator.cs" />
     <Compile Include="Components\BrowserTab.cs" />
     <Compile Include="Components\CloseableTabHeader.xaml.cs">
       <DependentUpon>CloseableTabHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="DesktopGapBrowserEvents.cs" />
     <Compile Include="DesktopGapDocumentUIHandler.cs" />
+    <Compile Include="TridentWebBrowserFactory.cs" />
+    <Compile Include="WebBrowser\ComTypes\UIHandler\WindowsMessages.cs" />
     <Compile Include="WebBrowser\Trident\WebBrowserEventsBase.cs" />
     <Compile Include="WebBrowser\Trident\TridentWebBrowserBase.cs">
       <SubType>Component</SubType>

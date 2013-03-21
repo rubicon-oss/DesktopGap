@@ -18,14 +18,11 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.Windows;
-using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.Clients.Windows.Components;
 using DesktopGap.WebBrowser;
-using EventManager = DesktopGap.AddIns.EventManager;
+using DesktopGap.WebBrowser.EventArguments;
 using WFWebBrowser = System.Windows.Forms.WebBrowser;
 
 namespace DesktopGap.Clients.Windows
@@ -35,59 +32,39 @@ namespace DesktopGap.Clients.Windows
   /// </summary>
   public partial class Browser
   {
-    private readonly AggregateCatalog _catalog = null;
-    private CompositionContainer _container = null;
+    private readonly TridentWebBrowserFactory _browserFactory;
 
-    public Browser ()
+    public Browser (TridentWebBrowserFactory browserFactory)
     {
-      InitializeComponent();
+      if (browserFactory == null)
+        throw new ArgumentNullException ("browserFactory");
 
-      _catalog = new AggregateCatalog();
-      //var d = new DirectoryCatalog (@".\lib\");
-      //_catalog.Catalogs.Add (d);
-      _catalog.Catalogs.Add (new AssemblyCatalog (typeof (ElementDragAndDropEvent).Assembly));
-      _container = new CompositionContainer (_catalog);
+      _browserFactory = browserFactory;
+      InitializeComponent();
     }
 
-    private void OnWindowOpen (WindowOpenEventArgs eventArgs)
+    private void OnWindowOpen (object sender, WindowOpenEventArgs eventArgs)
     {
-      var webBrowser = new ExtendedTridentWebBrowser();
+      var webBrowser = _browserFactory.CreateBrowser();
 
-
-      SystemEventHub.AddWebBrowser (webBrowser);
       var newTab = CreateBrowserTab (webBrowser);
-      eventArgs.TargetWindow = newTab.ExtendedWebBrowser;
+      eventArgs.TargetWindow = webBrowser;
+
+      _tabControl.Items.Add (newTab);
+
       if (!eventArgs.IsInBackground)
         newTab.Focus();
     }
 
     private BrowserTab CreateBrowserTab (IExtendedWebBrowser browser)
     {
-      var serviceManager = new ServiceManager();
-      var eventManager = new EventManager ((ICallbackHost) browser);
-
-
-      try
-      {
-        _container.ComposeParts (serviceManager);
-        _container.ComposeParts (eventManager);
-      }
-      catch (CompositionException compositionException)
-      {
-        Console.WriteLine (compositionException.ToString());
-      }
-
-      var api = new APIFacade (serviceManager, eventManager);
-
-      browser.APIServiceInterface = api;
-
       SystemEventHub.AddWebBrowser (browser);
-      var x = new BrowserTab (_tabControl, (WFWebBrowser) browser);
+      var browserTab = new BrowserTab (_tabControl, (WFWebBrowser) browser);
 
-      x.ExtendedWebBrowser.PageLoaded += (b) => _ConsoleListBox.Items.Add (b.ToString() + " loaded");
-      x.ExtendedWebBrowser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
-      ((ExtendedTridentWebBrowser) browser).Output += ToConsole;
-      return x;
+      browserTab.ExtendedWebBrowser.PageLoaded += (s, b) => _ConsoleListBox.Items.Add (b.ToString() + " loaded");
+      browserTab.ExtendedWebBrowser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
+      ((TridentWebBrowser) browser).Output += ToConsole;
+      return browserTab;
     }
 
     private void ToConsole (string s)
@@ -98,7 +75,7 @@ namespace DesktopGap.Clients.Windows
 
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
     {
-      var newTab = CreateBrowserTab (new ExtendedTridentWebBrowser());
+      var newTab = CreateBrowserTab (_browserFactory.CreateBrowser());
       newTab.ExtendedWebBrowser.Navigate (_urlTextBox.Text);
 
       _tabControl.Items.Add (newTab);

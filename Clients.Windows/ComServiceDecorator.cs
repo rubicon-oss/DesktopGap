@@ -18,21 +18,41 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
-using System.Reflection;
-using DesktopGap.AddIns.Events;
+using System.Dynamic;
+using System.Runtime.InteropServices;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.AddIns
+namespace DesktopGap.Clients.Windows
 {
-  public delegate void ScriptEvent (EventInfo sender, ScriptArgs args);
-
-  public interface IEventManager
+  [ComVisible (true)]
+  public class ComServiceDecorator : DynamicObject, IExternalService
   {
-    IEnumerable<IExternalEvent> Events { get; }
-    void Register (string eventName, string callbackName, string moduleName);
-    void Unregister (string eventName, string callbackName, string moduleName);
+    private readonly IExternalService _inner;
 
-    void RegisterEvent (ref ScriptEvent scriptEvent);
-    void UnregisterEvent (ref ScriptEvent scriptEvent);
+    public ComServiceDecorator (IExternalService inner)
+    {
+      _inner = inner;
+    }
+
+    public string Name
+    {
+      get { return _inner.Name; }
+    }
+
+    
+    public override bool TryInvokeMember (InvokeMemberBinder binder, object[] args, out object result)
+    {
+      var info = _inner.GetType().GetMethod (binder.Name);
+
+      if (info == null)
+      {
+        result = null;
+        return false;
+      }
+
+      result = info.Invoke (_inner, args);
+
+      return true;
+    }
   }
 }

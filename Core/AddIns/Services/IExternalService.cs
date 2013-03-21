@@ -18,11 +18,12 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.ComponentModel.Composition;
 using System.Runtime.InteropServices;
 
 namespace DesktopGap.AddIns.Services
 {
-  [ComVisible (true)]
+  [InheritedExport(typeof(IExternalService))]
   public interface IExternalService
   {
     String Name { get; }

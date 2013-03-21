@@ -20,7 +20,7 @@
 
 using System;
 
-namespace DesktopGap.WebBrowser
+namespace DesktopGap.WebBrowser.EventArguments
 {
   public class WindowOpenEventArgs
   {
@@ -32,7 +32,9 @@ namespace DesktopGap.WebBrowser
 
     public IExtendedWebBrowser TargetWindow { get; set; }
 
-    public string TargetURL { get; private set; }
+    public string URL { get; private set; }
+
+    public string Target { get; private set; }
 
     /// <summary>
     /// C'tor for the WindowOpen event arguments.
@@ -42,13 +44,14 @@ namespace DesktopGap.WebBrowser
     /// <param name="cancel">Should the action be cancelled?</param>
     /// <param name="targetURL">The URL the window is going to open.</param>
     /// <param name="targetWindow">Where should the new window be openend? (null means new DesktopGap window)</param>
-    public WindowOpenEventArgs (bool isModal, bool cancel, string targetURL, bool isInBackground, IExtendedWebBrowser targetWindow = null)
+    public WindowOpenEventArgs (bool isModal, bool cancel, string targetURL, bool isInBackground, string target, IExtendedWebBrowser targetWindow = null)
     {
       IsModal = isModal;
       Cancel = cancel;
-      TargetURL = targetURL;
+      URL = targetURL;
       IsInBackground = isInBackground;
       TargetWindow = targetWindow;
+      Target = target;
     }
   }
 }

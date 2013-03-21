@@ -20,49 +20,47 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.WebBrowser;
+using DesktopGap.WebBrowser.EventArguments;
 
 
 namespace DesktopGap.Clients.Windows
 {
-  public class ExtendedTridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IDropTarget, ICallbackHost
+  public class TridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IDropTarget
   {
-    #region IExtendedWebBrowser events
+    public event EventHandler<IExtendedWebBrowser> PageLoaded;
+    public event EventHandler<EventArgs> ContentReloaded;
+    public event EventHandler<WindowOpenEventArgs> WindowOpen;
+    public new event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
+    public new event EventHandler<ExtendedDragEventHandlerArgs> DragLeave;
 
-    private IAPIFacade _apiFacade = null;
-
-    public IAPIFacade APIServiceInterface
-    {
-      get { return _apiFacade; }
-      set
-      {
-        _apiFacade = value;
-        ObjectForScripting = _apiFacade;
-      }
-    }
-
-    public event Action<IExtendedWebBrowser> PageLoaded;
-    public event Action<WindowOpenEventArgs> WindowOpen;
-    public new event Action<ExtendedDragEventHandlerArgs> DragDrop;
-    public new event Action<ExtendedDragEventHandlerArgs> DragLeave;
-
-    #endregion
-
+    /// <summary>
+    /// 
+    /// </summary>
     public event Action<string> Output;
 
-    public ExtendedTridentWebBrowser ()
+
+    public TridentWebBrowser (APIFacade apiFacade)
     {
+      ObjectForScripting = apiFacade;
       this._BrowserEvents = new DesktopGapBrowserEvents (this);
       Navigate ("about:blank");
-
-
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
+      apiFacade.EventManager.EventFired += OnEventFired;
     }
 
+    protected override void Dispose (bool disposing)
+    {
+      PageLoaded = null;
+      WindowOpen = null;
+      DragDrop = null;
+      DragLeave = null;
+
+      base.Dispose (disposing);
+    }
 
     public string Title
     {
@@ -72,20 +70,20 @@ namespace DesktopGap.Clients.Windows
     public void OnLoadFinished ()
     {
       if (PageLoaded != null)
-        PageLoaded (this);
+        PageLoaded (this, this);
     }
 
     public void OnNewWindow (WindowOpenEventArgs eventArgs)
     {
       if (WindowOpen != null)
-        WindowOpen (eventArgs);
+        WindowOpen (this, eventArgs);
     }
 
     //TODO restructure
     private bool MayDrop (IExtendedWebBrowser browser, DragEventArgs e)
     {
       var browserControl = (Control) browser;
-      var extendedBrowser = (ExtendedTridentWebBrowser) browser;
+      var extendedBrowser = (TridentWebBrowser) browser;
       var doc = extendedBrowser.Document;
       var locationOnScreen = browserControl.PointToScreen (browserControl.Location);
       var elementAtPoint = doc.GetElementFromPoint (new Point (e.X - locationOnScreen.X, e.Y - locationOnScreen.Y));
@@ -101,19 +99,19 @@ namespace DesktopGap.Clients.Windows
     }
 
 
-    public new void OnDragEnter (ExtendedDragEventHandlerArgs e)
+    public void OnDragEnter (ExtendedDragEventHandlerArgs e)
     {
       var ok = MayDrop (this, e);
       e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
       e.Handled = true;
     }
 
-    public new void OnDragDrop (ExtendedDragEventHandlerArgs e)
+    public void OnDragDrop (ExtendedDragEventHandlerArgs e)
     {
       var ok = MayDrop (this, e);
       e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
       Output ("DragDrop: " + ok.ToString());
-      DragDrop (e);
+      DragDrop (this, e);
 
       e.Handled = true;
     }
@@ -124,7 +122,7 @@ namespace DesktopGap.Clients.Windows
       //Output ("DragLeave" + MayDrop (this, e).ToString());
     }
 
-    public new void OnDragOver (ExtendedDragEventHandlerArgs e)
+    public void OnDragOver (ExtendedDragEventHandlerArgs e)
     {
       var ok = MayDrop (this, e);
       e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
@@ -132,12 +130,9 @@ namespace DesktopGap.Clients.Windows
       // Output ("DragOver" + MayDrop (this, e).ToString());
     }
 
-    public void Call (string function, ScriptArgs args)
+    private void OnEventFired (object sender, ScriptEventArgs args)
     {
-      var document = this.Document;
-
-      if (document != null)
-        document.InvokeScript (function, new object[] { args.ToString() }); // TODO figure this out
+      Document.InvokeScript (args.Function, new object[] { args.ScriptArgs });
     }
   }
 }

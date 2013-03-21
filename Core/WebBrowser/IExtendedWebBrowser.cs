@@ -21,6 +21,7 @@
 using System;
 using DesktopGap.AddIns;
 using DesktopGap.OleLibraryDependencies;
+using DesktopGap.WebBrowser.EventArguments;
 
 namespace DesktopGap.WebBrowser
 {
@@ -28,13 +29,12 @@ namespace DesktopGap.WebBrowser
   {
     string Title { get; }
 
-    IAPIFacade APIServiceInterface { get; set;  }
+    event EventHandler<IExtendedWebBrowser> PageLoaded; // initial page downloaded event
+    event EventHandler<EventArgs> ContentReloaded; // Reload event
+    event EventHandler<WindowOpenEventArgs> WindowOpen;
 
-    event Action<IExtendedWebBrowser> PageLoaded;
-    event Action<WindowOpenEventArgs> WindowOpen;
-
-    event Action<ExtendedDragEventHandlerArgs> DragDrop;
-    event Action<ExtendedDragEventHandlerArgs> DragLeave;
+    event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
+    event EventHandler<ExtendedDragEventHandlerArgs> DragLeave;
 
     void Navigate (string to);
   }

@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,26 +17,17 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using System.Linq;
-using System.Runtime.InteropServices;
 
-namespace DesktopGap.AddIns
+namespace JetBrains.Annotations
 {
-  [ComVisible(true)]
-  public interface IAPIFacade
+  /// <summary>
+  /// Indicates that the function argument should be string literal and match one  of the parameters of the caller function.
+  /// For example, <see cref="ArgumentNullException"/> has such parameter.
+  /// </summary>
+  [AttributeUsage (AttributeTargets.Parameter, AllowMultiple = false, Inherited = true)]
+  internal sealed class InvokerParameterNameAttribute : Attribute
   {
-    object GetService (string serviceName);
-
-    string[] GetServiceNames ();
-
-    string[] GetEventNames ();
-
-    void addEventListener (string eventName, string callbackName, string moduleName);
-    void removeEventListener (string eventName, string callbackName, string moduleName);
-
-
-    IServiceManager ServiceManager { get; }
-    IEventManager EventManager { get; }
   }
 }

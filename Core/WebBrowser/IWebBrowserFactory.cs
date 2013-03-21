@@ -18,16 +18,15 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.AddIns;
-using DesktopGap.WebBrowser;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DesktopGap
+namespace DesktopGap.WebBrowser
 {
-  internal class SessionFactory
+  public interface IWebBrowserFactory
   {
-    public static ISession CreateInstance ()
-    {
-      return new Session();
-    }
+    IExtendedWebBrowser CreateBrowser ();
   }
 }

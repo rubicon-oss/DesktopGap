@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -19,12 +19,16 @@
 // 
 
 using System;
-using DesktopGap.AddIns.Events;
 
-namespace DesktopGap.WebBrowser
+namespace JetBrains.Annotations
 {
-  public interface ICallbackHost
+  /// <summary>
+  /// Indicates that the marked method is assertion method, i.e. it halts control flow if one of the conditions is satisfied. 
+  /// To set the condition, mark one of the parameters with <see cref="AssertionConditionAttribute"/> attribute
+  /// </summary>
+  /// <seealso cref="AssertionConditionAttribute"/>
+  [AttributeUsage (AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
+  internal sealed class AssertionMethodAttribute : Attribute
   {
-    void Call (string function, ScriptArgs args);
   }
 }

@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,19 +17,31 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using System.ComponentModel.Composition;
+using System.Runtime.Serialization;
 
-namespace DesktopGap.AddIns.Events
+namespace Remotion.Dms.Shared.Utilities
 {
-  [InheritedExport (typeof (IExternalEvent))]
-  public interface IExternalEvent
+  /// <summary>
+  /// This exception is thrown if an argument is empty although it must have a content.
+  /// </summary>
+  [Serializable]
+  public class ArgumentEmptyException : ArgumentException
   {
-    String Name { get; }
+    public ArgumentEmptyException (string argumentName)
+        : base (FormatMessage (argumentName))
+    {
+    }
 
-    void RegisterEvents (IEventManager eventManager);
+    public ArgumentEmptyException (SerializationInfo info, StreamingContext context)
+        : base (info, context)
+    {
+    }
 
-    void OnBeforeLoad ();
-    void OnBeforeUnload ();
+    private static string FormatMessage (string argumentName)
+    {
+      return string.Format ("Argument {0} is empty.", argumentName);
+    }
   }
 }

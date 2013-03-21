@@ -30,13 +30,15 @@ namespace DesktopGap.Clients.Windows.Components
   {
     private const string c_defaultCloseButtonContent = "X";
 
-    public event EventHandler CloseTab;
+    public event EventHandler TabClose;
 
     public String Text
     {
       get { return (string) _label.Content; }
       set { _label.Content = value ?? String.Empty; }
     }
+
+    public bool IsCloseable { get; set; }
 
     public CloseableTabHeader (string headerText, object closeButtonContent = null)
     {
@@ -46,7 +48,11 @@ namespace DesktopGap.Clients.Windows.Components
         closeButtonContent = c_defaultCloseButtonContent;
 
       _closeButton.Content = closeButtonContent;
-      _closeButton.Click += (s, e) => CloseTab (s, e);
+      _closeButton.Click += (s, e) =>
+                            {
+                              if (IsCloseable)
+                                TabClose (s, e);
+                            };
 
       _label.Content = headerText;
     }

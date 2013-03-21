@@ -20,6 +20,7 @@
 using System;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.WebBrowser;
+using DesktopGap.WebBrowser.EventArguments;
 
 namespace DesktopGap.AddIns.Events
 {
@@ -34,22 +35,22 @@ namespace DesktopGap.AddIns.Events
 
     public static void AddWebBrowser (IExtendedWebBrowser browser)
     {
-      browser.PageLoaded += (e) =>
+      browser.PageLoaded += (s, e) =>
                             {
                               if (PageLoaded != null)
                                 PageLoaded (e);
                             };
-      browser.DragDrop += (e) =>
+      browser.DragDrop += (s, e) =>
                           {
                             if (DragDrop != null)
                               DragDrop (e);
                           };
-      browser.DragLeave += (e) =>
+      browser.DragLeave += (s, e) =>
                            {
                              if (DragLeave != null)
                                DragLeave (e);
                            };
-      browser.WindowOpen += (e) =>
+      browser.WindowOpen += (s, e) =>
                             {
                               if (WindowOpen != null)
                                 WindowOpen (e);

@@ -20,6 +20,8 @@
 using System;
 using System.Collections.Generic;
 using DesktopGap.AddIns;
+using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Services;
 
 namespace DesktopGap.WebBrowser
 {

@@ -1,4 +1,3 @@
-﻿using DesktopGap.AddIns.Services;
 // This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
@@ -18,17 +17,35 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DesktopGap.AddIns
+using System;
+
+namespace JetBrains.Annotations
 {
-  public interface IServiceManager
+  /// <summary>
+  /// Specifies assertion type. If the assertion method argument satisifes the condition, then the execution continues. 
+  /// Otherwise, execution is assumed to be halted
+  /// </summary>
+  internal enum AssertionConditionType
   {
-    IExternalService GetService (string serviceName);
-    IEnumerable<IExternalService> Services { get; }
+    /// <summary>
+    /// Indicates that the marked parameter should be evaluated to true
+    /// </summary>
+    IS_TRUE = 0,
+
+    /// <summary>
+    /// Indicates that the marked parameter should be evaluated to false
+    /// </summary>
+    IS_FALSE = 1,
+
+    /// <summary>
+    /// Indicates that the marked parameter should be evaluated to null value
+    /// </summary>
+    IS_NULL = 2,
+
+    /// <summary>
+    /// Indicates that the marked parameter should be evaluated to not null value
+    /// </summary>
+    IS_NOT_NULL = 3,
   }
 }

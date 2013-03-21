@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,16 +17,49 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
+using System.ComponentModel.Composition.Hosting;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace DesktopGap.Clients.Windows
 {
   /// <summary>
   /// Interaction logic for App.xaml
   /// </summary>
-  public partial class App 
+  public partial class App
   {
+    private const string c_addInDirectory = @".";
+
+    
+
+    private void Application_Startup (object sender, StartupEventArgs e)
+    {
+      var catalog = new AggregateCatalog();
+      catalog.Catalogs.Add (new DirectoryCatalog (c_addInDirectory));
+      var container = new CompositionContainer (catalog);
+
+      var browserFactory = new TridentWebBrowserFactory(container);
+
+
+
+      try
+      {
+        var mainWindow = new Browser(browserFactory);
+        mainWindow.Show();
+      }
+      catch (Exception ex)
+      {
+        MessageBox.Show (ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        Shutdown();
+      }
+    }
+
+    private void Application_DispatcherUnhandledException (object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+      MessageBox.Show (e.Exception.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+      e.Handled = true;
+      Shutdown();
+    }
   }
 }

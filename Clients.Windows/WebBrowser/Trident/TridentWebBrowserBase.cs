@@ -52,6 +52,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     protected DWebBrowserEvents2 _BrowserEvents { get; set; }
 
+    private static readonly string[] s_validElements = new string[] { "text", "password" };
+    private bool _controlPressed;
+
     /// <summary>
     /// Retrieve the _axIWebBrowser2 implementation from the .NET WebBrowser. 
     /// </summary>
@@ -62,7 +65,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     {
       this._axIWebBrowser2 =
           (IWebBrowser2) nativeActiveXObject;
-
+      
       base.AttachInterfaces (nativeActiveXObject);
     }
 
@@ -115,6 +118,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       _cookie = null;
     }
 
+    /// <summary>
+    /// Whether to register the WebBrowser's IDropTarget. 
+    /// </summary>
     protected bool RegisterAsDropTarget
     {
       get { return _axIWebBrowser2 != null && _axIWebBrowser2.RegisterAsDropTarget; }
@@ -127,6 +133,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       }
     }
 
+    /// <summary>
+    /// Use a custom IDocHostUIHandler instead of the default. Used for intercepting keyboard and mouse events.
+    /// </summary>
+    /// <param name="desktopGapDocumentUiHandler">The custom handler.</param>
     protected void InstallCustomUIHandler (IDocHostUIHandler desktopGapDocumentUiHandler)
     {
       RegisterAsDropTarget = false;
@@ -135,6 +145,63 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 
       var customDoc = (ICustomDoc) _axIWebBrowser2.Document;
       customDoc.SetUIHandler (desktopGapDocumentUiHandler);
+    }
+
+    /// <summary>
+    /// Handler for KeyDown events to surpress default handling of well-known keyboard shortcuts.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    internal void OnBrowserKeyDown (object sender, KeyEventArgs e)
+    {
+      var browser = (TridentWebBrowserBase) sender;
+
+      switch (e.KeyCode)
+      {
+        case Keys.F5:
+        case Keys.BrowserStop:
+        case Keys.BrowserSearch:
+        case Keys.BrowserRefresh:
+        case Keys.BrowserHome:
+        case Keys.BrowserForward:
+        case Keys.BrowserFavorites:
+        case Keys.BrowserBack:
+          e.Handled = true;
+          break;
+
+        case Keys.Back:
+          if (browser.Document != null && browser.Document.ActiveElement != null)
+          {
+            bool isReadOnly;
+
+            var activeElement = browser.Document.ActiveElement;
+            Boolean.TryParse (activeElement.GetAttribute ("readonly"), out isReadOnly);
+
+            var tagname = activeElement.TagName.ToLower();
+            var type = activeElement.GetAttribute ("type").ToLower();
+
+            if (((tagname == "input" && Array.IndexOf (s_validElements, type) > 0) || tagname == "textarea")
+                && !isReadOnly)
+              return;
+          }
+
+          e.Handled = true;
+          break;
+
+        case Keys.ControlKey:
+          _controlPressed = true;
+          break;
+
+        case Keys.P:
+        case Keys.Print:
+          e.Handled = _controlPressed || e.KeyCode == Keys.Print;
+          break;
+
+        default:
+          e.Handled = e.Modifiers == Keys.Alt;
+          _controlPressed = false;
+          break;
+      }
     }
   }
 }

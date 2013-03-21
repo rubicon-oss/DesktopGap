@@ -35,7 +35,7 @@ namespace DesktopGap.Clients.Windows.Components
     public IExtendedWebBrowser ExtendedWebBrowser { get; private set; }
 
     private readonly ItemsControl _parent;
-
+    
     public BrowserTab (ItemsControl parent, WFWebBrowser extendedWebBrowser)
     {
       if (parent == null)
@@ -46,9 +46,8 @@ namespace DesktopGap.Clients.Windows.Components
 
       _parent = parent;
 
-      var host = new WindowsFormsHost();
-      host.Child = extendedWebBrowser;
-      this.AddChild (host);
+      var host = new WindowsFormsHost { Child = extendedWebBrowser };
+      AddChild (host);
 
       var webBrowser = extendedWebBrowser as IExtendedWebBrowser;
       if (webBrowser == null)
@@ -58,23 +57,29 @@ namespace DesktopGap.Clients.Windows.Components
       ExtendedWebBrowser.PageLoaded += OnPageLoaded;
     }
 
-    private void OnPageLoaded (IExtendedWebBrowser webBrowser)
+    private void OnPageLoaded (object sender, IExtendedWebBrowser webBrowser)
     {
       if (webBrowser == null)
         throw new ArgumentNullException ("webBrowser");
       var header = new CloseableTabHeader (ExtendedWebBrowser.Title);
-      header.CloseTab += OnTabClose;
+      header.TabClose += OnTabClose;
       Header = header;
-
-      // remove event handler to avoid memory leaks
-      //ExtendedWebBrowser.PageLoaded -= OnPageLoaded;
     }
 
     private void OnTabClose (object sender, EventArgs e)
     {
       _parent.Items.Remove (this);
+      CleanUp();
+
     }
 
-    
+    private void CleanUp()
+    {
+      // remove event handler to avoid memory leaks
+      ExtendedWebBrowser.PageLoaded -= OnPageLoaded;
+      ExtendedWebBrowser = null;
+    }
+
+
   }
 }

@@ -19,17 +19,21 @@
 // 
 using System;
 using System.ComponentModel.Composition;
+using System.Runtime.InteropServices;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.AddIns
 {
-  [InheritedExport (typeof (IExternalEvent))]
-  public interface IExternalEvent
+  [ComVisible (true)]
+  public class UploadService : IExternalService
   {
-    String Name { get; }
+    public string Name
+    {
+      get { return "UploadService"; }
+    }
 
-    void RegisterEvents (IEventManager eventManager);
-
-    void OnBeforeLoad ();
-    void OnBeforeUnload ();
+    public void Upload (dynamic url)
+    {
+    }
   }
 }

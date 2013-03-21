@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -19,17 +19,32 @@
 // 
 using System;
 using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.WebBrowser
 {
-  [InheritedExport (typeof (IExternalEvent))]
-  public interface IExternalEvent
+  public abstract class WebBrowserFactoryBase : IWebBrowserFactory
   {
-    String Name { get; }
+    private readonly CompositionContainer _compositionContainer;
 
-    void RegisterEvents (IEventManager eventManager);
+    protected WebBrowserFactoryBase (CompositionContainer compositionContainer)
+    {
+      _compositionContainer = compositionContainer;
+    }
 
-    void OnBeforeLoad ();
-    void OnBeforeUnload ();
+    protected abstract IExtendedWebBrowser CreateBrowser (IServiceManager serviceManager, IEventManager eventManager);
+
+    public IExtendedWebBrowser CreateBrowser ()
+    {
+      var serviceManager = new ServiceManager();
+      var eventManager = new EventManager();
+      _compositionContainer.ComposeParts (serviceManager);
+      _compositionContainer.ComposeParts (eventManager);
+
+
+      return CreateBrowser (serviceManager, eventManager);
+    }
   }
 }

@@ -18,23 +18,27 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Runtime.InteropServices;
-using DesktopGap.WebBrowser;
+using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.AddIns
+namespace DesktopGap.Clients.Windows
 {
-  [ComVisible(true)]
-  public class APIFacade : IAPIFacade
+  [ComVisible (true)]
+  public class APIFacade
   {
     public IServiceManager ServiceManager { get; private set; }
     public IEventManager EventManager { get; private set; }
+
+    private static readonly ConcurrentDictionary<Type, bool> _comVisible = new ConcurrentDictionary<Type, bool>();
 
     public APIFacade (IServiceManager serviceManager, IEventManager eventManager)
     {
       if (serviceManager == null)
         throw new ArgumentNullException ("serviceManager");
-      
+
       if (eventManager == null)
         throw new ArgumentNullException ("eventManager");
 
@@ -44,7 +48,16 @@ namespace DesktopGap.AddIns
 
     public object GetService (string serviceName)
     {
-      return ServiceManager.GetService (serviceName);
+      var serviceObject = ServiceManager.GetService (serviceName);
+      bool comVisible;
+      if (!_comVisible.TryGetValue (serviceObject.GetType(), out comVisible))
+      {
+        var serviceType = serviceObject.GetType();
+        var comAttributes = serviceType.GetCustomAttributes (typeof (ComVisibleAttribute), true);
+        comVisible = comAttributes.Any (a => ((ComVisibleAttribute) a).Value);
+        _comVisible.TryAdd (serviceType, comVisible);
+      }
+      return !comVisible ? new ComServiceDecorator (serviceObject) : serviceObject;
     }
 
     public string[] GetServiceNames ()

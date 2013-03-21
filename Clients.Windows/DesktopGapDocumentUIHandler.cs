@@ -31,20 +31,14 @@ namespace DesktopGap.Clients.Windows
 {
   public class DesktopGapDocumentUIHandler : DocHostUIHandlerBase, IDropTarget
   {
-    private readonly ExtendedTridentWebBrowser _extendedTridentWebBrowser;
+    private readonly TridentWebBrowser _extendedTridentWebBrowser;
 
-    public DesktopGapDocumentUIHandler (ExtendedTridentWebBrowser browser)
+    public DesktopGapDocumentUIHandler (TridentWebBrowser browser)
         : base (browser)
     {
       _extendedTridentWebBrowser = browser;
     }
-
-    public override int GetDropTarget (IDropTarget dropTarget, out IDropTarget target)
-    {
-      target = this;
-      return HResult.S_OK;
-    }
-
+    #region Util functions
     private NativeDragDropEffects ToNative (DragDropEffects dragDropEffects)
     {
       var nativeDragDropEffects = NativeDragDropEffects.NONE;
@@ -63,7 +57,16 @@ namespace DesktopGap.Clients.Windows
 
       return dragDropEffects;
     }
+    #endregion
 
+
+    public override int GetDropTarget (IDropTarget dropTarget, out IDropTarget target)
+    {
+      target = this;
+      return HResult.S_OK;
+    }
+
+ 
     public int DragEnter (IDataObject pDataObj, uint grfKeyState, tagPOINT pt, ref uint pdwEffect)
     {
       System.Windows.Forms.IDataObject dataObject = null;
@@ -140,6 +143,19 @@ namespace DesktopGap.Clients.Windows
       }
 
       return HResult.S_OK;
+    }
+
+
+
+    public override int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
+    {
+      if (msg.message != (int) WindowsMessages.WM_KEYDOWN)
+        return HResult.S_FALSE;
+
+      var keyEventArgs = new KeyEventArgs ((Keys) msg.wParam);
+      _extendedTridentWebBrowser.OnBrowserKeyDown (_extendedTridentWebBrowser, keyEventArgs);
+
+      return keyEventArgs.Handled ? HResult.S_OK : HResult.S_FALSE;
     }
   }
 }

@@ -21,11 +21,18 @@ using System;
 
 namespace DesktopGap.AddIns.Events
 {
-  public class ScriptArgs
+  //Json.NET Attribute
+  public class JsonData
   {
   }
 
-  public class FileScriptArgs : ScriptArgs
+  public class ScriptEventArgs : EventArgs
+  {
+    public string Function { get; set; }
+    public JsonData ScriptArgs { get; set; }
+  }
+
+  public class FileScriptArgs : JsonData
   {
     public string Path { get; private set; }
 
@@ -38,7 +45,7 @@ namespace DesktopGap.AddIns.Events
 
     public override string ToString ()
     {
-      return "{\"Path\":\"" + Path + "\"}";
+      return String.Format (@"'{{""Path"":""{0}""}}'", Path);
     }
   }
 }

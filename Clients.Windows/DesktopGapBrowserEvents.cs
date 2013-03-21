@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,11 +17,12 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using DesktopGap.WebBrowser;
-using WFWebBrowser = System.Windows.Forms.WebBrowser;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
+using DesktopGap.WebBrowser;
+using DesktopGap.WebBrowser.EventArguments;
+using Remotion.Dms.Shared.Utilities;
+using WFWebBrowser = System.Windows.Forms.WebBrowser;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -33,9 +34,9 @@ namespace DesktopGap.Clients.Windows
     /// <summary>
     /// The corresponding WebBrowser control
     /// </summary>
-    private readonly ExtendedTridentWebBrowser _browserControl;
+    private readonly TridentWebBrowser _browserControl;
 
-    public DesktopGapBrowserEvents (ExtendedTridentWebBrowser browserControl)
+    public DesktopGapBrowserEvents (TridentWebBrowser browserControl)
     {
       _browserControl = browserControl;
     }
@@ -47,21 +48,22 @@ namespace DesktopGap.Clients.Windows
 
     public override void NewWindow2 (ref object ppDisp, ref bool Cancel)
     {
-      var ppDispOriginal = ppDisp;
-      var eventArgs = new WindowOpenEventArgs (false, Cancel, null, false);
-      _browserControl.OnNewWindow (eventArgs);
-      ppDisp = (WFWebBrowser) eventArgs.TargetWindow ?? ppDispOriginal; // TODO change to a new DesktopGap Window
-      Cancel = eventArgs.Cancel;
+      //NewWindow3 (ref ppDisp, ref Cancel, 0, null, null); // TODO what to do here?
     }
 
     public override void NewWindow3 (ref object ppDisp, ref bool Cancel, uint dwFlags, string bstrUrlContext, string bstrUrl)
     {
+      ArgumentUtility.CheckNotNullOrEmpty ("bstrUrl", bstrUrl);
+      ArgumentUtility.CheckNotNullOrEmpty ("bstrUrlContext", bstrUrlContext);
+            
+    
       var ppDispOriginal = ppDisp;
-      var eventArgs = new WindowOpenEventArgs (false, Cancel, bstrUrl, false);
+      var eventArgs = new WindowOpenEventArgs (false, Cancel, bstrUrl, false, "");
       _browserControl.OnNewWindow (eventArgs);
-      ppDisp = (WFWebBrowser) eventArgs.TargetWindow ?? ppDispOriginal; // TODO change to a new DesktopGap Window
+      if (eventArgs.TargetWindow != null)
+        ppDisp = (eventArgs.TargetWindow as TridentWebBrowserBase).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
       Cancel = eventArgs.Cancel;
-
     }
+
   }
 }
