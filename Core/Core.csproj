@@ -45,6 +45,8 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="AddIns\Events\EventManager.cs" />
+    <Compile Include="AddIns\Events\IEventHost.cs" />
+    <Compile Include="AddIns\Events\IEventArgument.cs" />
     <Compile Include="AddIns\Events\IExternalEvent.cs" />
     <Compile Include="AddIns\Events\ScriptArgs.cs" />
     <Compile Include="AddIns\Events\SystemEventHub.cs" />

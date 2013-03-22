@@ -19,10 +19,8 @@
 // 
 using System;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
-using DesktopGap.WebBrowser;
+using DesktopGap.Utilities;
 using DesktopGap.WebBrowser.EventArguments;
-using Remotion.Dms.Shared.Utilities;
-using WFWebBrowser = System.Windows.Forms.WebBrowser;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -41,6 +39,11 @@ namespace DesktopGap.Clients.Windows
       _browserControl = browserControl;
     }
 
+    public override void NavigateComplete2 (object pDisp, ref object URL)
+    {
+      _browserControl.OnDocumentLoaded();
+    }
+
     public override void DownloadComplete ()
     {
       _browserControl.OnLoadFinished();
@@ -55,8 +58,8 @@ namespace DesktopGap.Clients.Windows
     {
       ArgumentUtility.CheckNotNullOrEmpty ("bstrUrl", bstrUrl);
       ArgumentUtility.CheckNotNullOrEmpty ("bstrUrlContext", bstrUrlContext);
-            
-    
+
+
       var ppDispOriginal = ppDisp;
       var eventArgs = new WindowOpenEventArgs (false, Cancel, bstrUrl, false, "");
       _browserControl.OnNewWindow (eventArgs);
@@ -64,6 +67,5 @@ namespace DesktopGap.Clients.Windows
         ppDisp = (eventArgs.TargetWindow as TridentWebBrowserBase).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
       Cancel = eventArgs.Cancel;
     }
-
   }
 }

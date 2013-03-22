@@ -38,7 +38,6 @@ namespace DesktopGap.Clients.Windows
     {
       _extendedTridentWebBrowser = browser;
     }
-    #region Util functions
     private NativeDragDropEffects ToNative (DragDropEffects dragDropEffects)
     {
       var nativeDragDropEffects = NativeDragDropEffects.NONE;
@@ -57,7 +56,6 @@ namespace DesktopGap.Clients.Windows
 
       return dragDropEffects;
     }
-    #endregion
 
 
     public override int GetDropTarget (IDropTarget dropTarget, out IDropTarget target)

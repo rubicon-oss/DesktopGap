@@ -20,74 +20,69 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
-using Remotion.Dms.Shared.Utilities;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Services
 {
-  internal class ServiceManager : IServiceManager //TODO add something for built-in services
+  public class ServiceManager : IServiceManager //TODO add something for built-in services
   {
+    private readonly IDictionary<string, IExternalService> _services = new Dictionary<string, IExternalService>();
+
+    public ServiceManager ()
+    {
+    }
+
+    public void Dispose ()
+    {
+    }
+
     [ImportMany (typeof (IExternalService), RequiredCreationPolicy = CreationPolicy.Any)]
     public IEnumerable<IExternalService> Services
     {
-      get { return _services; }
       set
       {
-        _services = value;
-        _servicesDict.Clear();
-        foreach (var service in _services)
-        {
+        ArgumentUtility.CheckNotNull ("value", value);
+
+        _services.Clear();
+        foreach (var service in value)
           RegisterService (service);
-        }
       }
     }
-
-    private readonly IDictionary<string, IExternalService> _servicesDict =
-        new Dictionary<string, IExternalService>();
-
-    private IEnumerable<IExternalService> _services;
-
-  public ServiceManager ()
-    {
-      Services = new List<IExternalService>();
-    }
-
 
     public void RegisterService (IExternalService service)
     {
       ArgumentUtility.CheckNotNull ("service", service);
 
-
-      if (TryGetService (service) != null)
-        throw new InvalidOperationException (String.Format ("Service {0} already registered", service.Name));
-
-      _servicesDict[service.Name] = service;
+      GetService (service.Name, name => new InvalidOperationException (string.Format ("Service '{0}' already registered.", name)));
+      _services[service.Name] = service;
     }
 
     public void UnregisterService (IExternalService service)
     {
       ArgumentUtility.CheckNotNull ("service", service);
 
-
-      if (TryGetService (service) == null)
-        throw new InvalidOperationException (String.Format ("Service {0} not registered", service.Name));
-
-      _servicesDict.Remove (service.Name);
+      GetService (service.Name, name => new InvalidOperationException (string.Format ("Service '{0}' not registered.", name)));
+      _services.Remove (service.Name);
     }
 
     public IExternalService GetService (string serviceName)
     {
-      IExternalService service;
-      if (!_servicesDict.TryGetValue (serviceName, out service))
-        throw new InvalidOperationException (String.Format ("Service {0} not found", serviceName));
-      return service;
+      return GetService (serviceName, name => new InvalidOperationException (string.Format ("Service '{0}' not found.", name)));
     }
 
-    private IExternalService TryGetService (IExternalService service)
+    public bool HasService (string name)
     {
       IExternalService s;
-      _servicesDict.TryGetValue (service.Name, out s);
-      return s;
+      return _services.TryGetValue (name, out s);
+    }
+
+    private IExternalService GetService<TException> (string serviceName, Func<string, TException> createServiceNotFoundException)
+        where TException : Exception
+    {
+      IExternalService service;
+      if (!_services.TryGetValue (serviceName, out service))
+        throw createServiceNotFoundException (serviceName);
+      return service;
     }
   }
 }

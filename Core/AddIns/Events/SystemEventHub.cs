@@ -26,11 +26,11 @@ namespace DesktopGap.AddIns.Events
 {
   public static class SystemEventHub
   {
-    public static event Action<IExtendedWebBrowser> PageLoaded;
-    public static event Action<WindowOpenEventArgs> WindowOpen;
+    public static event EventHandler<IExtendedWebBrowser> PageLoaded;
+    public static event EventHandler<WindowOpenEventArgs> WindowOpen;
 
-    public static event Action<ExtendedDragEventHandlerArgs> DragDrop;
-    public static event Action<ExtendedDragEventHandlerArgs> DragLeave;
+    public static event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
+    public static event EventHandler DragLeave;
 
 
     public static void AddWebBrowser (IExtendedWebBrowser browser)
@@ -38,22 +38,22 @@ namespace DesktopGap.AddIns.Events
       browser.PageLoaded += (s, e) =>
                             {
                               if (PageLoaded != null)
-                                PageLoaded (e);
+                                PageLoaded (s, e);
                             };
       browser.DragDrop += (s, e) =>
                           {
                             if (DragDrop != null)
-                              DragDrop (e);
+                              DragDrop (s, e);
                           };
       browser.DragLeave += (s, e) =>
                            {
                              if (DragLeave != null)
-                               DragLeave (e);
+                               DragLeave (s, e);
                            };
       browser.WindowOpen += (s, e) =>
                             {
                               if (WindowOpen != null)
-                                WindowOpen (e);
+                                WindowOpen (s, e);
                             };
     }
   }

@@ -19,21 +19,36 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 
 namespace DesktopGap.AddIns.Events
 {
-  public delegate void ScriptEvent (EventInfo sender, ScriptEventArgs args);
+  public delegate void ScriptEvent (IExternalEvent source, string eventName, ScriptEventArgs scriptEventArgs);
 
-  public interface IEventManager
+  public interface IEventDispatcher: IDisposable
   {
+    /// <summary>
+    /// 
+    /// </summary>
     event EventHandler<ScriptEventArgs> EventFired;
 
-    IEnumerable<IExternalEvent> Events { get; }
-    void Register (string eventName, string callbackName, string moduleName);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="eventName"></param>
+    /// <param name="callbackName"></param>
+    /// <param name="moduleName"></param>
+    /// <param name="argument"></param>
+    void Register (string eventName, string callbackName, string moduleName, IEventArgument argument);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="eventName"></param>
+    /// <param name="callbackName"></param>
+    /// <param name="moduleName"></param>
     void Unregister (string eventName, string callbackName, string moduleName);
 
-    void RegisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent);
-    void UnregisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent);
+    bool HasEvent (string name);
   }
 }

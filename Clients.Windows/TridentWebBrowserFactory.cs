@@ -28,16 +28,13 @@ namespace DesktopGap.Clients.Windows
   public class TridentWebBrowserFactory : WebBrowserFactoryBase
   {
     public TridentWebBrowserFactory (CompositionContainer compositionContainer)
-      :base (compositionContainer)
+        : base (compositionContainer)
     {
-
     }
 
-    protected override IExtendedWebBrowser CreateBrowser (IServiceManager serviceManager, IEventManager eventManager)
+    protected override IExtendedWebBrowser CreateBrowser (Func<IServiceManager> serviceManager, Func<IEventDispatcher> eventManager)
     {
-      var apiFacade = new APIFacade (serviceManager, eventManager);
-
-      return new TridentWebBrowser (apiFacade);
+      return new TridentWebBrowser (() => new ApiFacade (serviceManager(), eventManager()));
     }
   }
 }

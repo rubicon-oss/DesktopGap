@@ -23,6 +23,7 @@ using System.Windows.Forms;
 using DesktopGap.AddIns.Events;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.OleLibraryDependencies;
+using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.EventArguments;
 
@@ -31,11 +32,13 @@ namespace DesktopGap.Clients.Windows
 {
   public class TridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IDropTarget
   {
+    private readonly Func<ApiFacade> _apiFacadeFactory;
     public event EventHandler<IExtendedWebBrowser> PageLoaded;
     public event EventHandler<EventArgs> ContentReloaded;
     public event EventHandler<WindowOpenEventArgs> WindowOpen;
+    public new event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
-    public new event EventHandler<ExtendedDragEventHandlerArgs> DragLeave;
+    public new event EventHandler DragLeave;
 
     /// <summary>
     /// 
@@ -43,13 +46,15 @@ namespace DesktopGap.Clients.Windows
     public event Action<string> Output;
 
 
-    public TridentWebBrowser (APIFacade apiFacade)
+    public TridentWebBrowser (Func<ApiFacade> apiFacadeFactory)
     {
-      ObjectForScripting = apiFacade;
-      this._BrowserEvents = new DesktopGapBrowserEvents (this);
+      ArgumentUtility.CheckNotNull ("apiFacadeFactory", apiFacadeFactory);
+
+      _apiFacadeFactory = apiFacadeFactory;
+
+      _BrowserEvents = new DesktopGapBrowserEvents (this);
       Navigate ("about:blank");
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
-      apiFacade.EventManager.EventFired += OnEventFired;
     }
 
     protected override void Dispose (bool disposing)
@@ -66,6 +71,7 @@ namespace DesktopGap.Clients.Windows
     {
       get { return Document == null ? String.Empty : Document.Title; }
     }
+
 
     public void OnLoadFinished ()
     {
@@ -101,17 +107,23 @@ namespace DesktopGap.Clients.Windows
 
     public void OnDragEnter (ExtendedDragEventHandlerArgs e)
     {
+      e.Current = ElementAt (e.X, e.Y);
       var ok = MayDrop (this, e);
       e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
+      if (DragEnter != null)
+        DragEnter (this, e);
+
       e.Handled = true;
     }
 
     public void OnDragDrop (ExtendedDragEventHandlerArgs e)
     {
+      e.Current = ElementAt (e.X, e.Y);
       var ok = MayDrop (this, e);
       e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
       Output ("DragDrop: " + ok.ToString());
-      DragDrop (this, e);
+      if (DragDrop != null)
+        DragDrop (this, e);
 
       e.Handled = true;
     }
@@ -119,20 +131,44 @@ namespace DesktopGap.Clients.Windows
 
     public new void OnDragLeave (EventArgs e)
     {
-      //Output ("DragLeave" + MayDrop (this, e).ToString());
+      if (DragLeave != null)
+        DragLeave (this, e);
     }
 
     public void OnDragOver (ExtendedDragEventHandlerArgs e)
     {
-      var ok = MayDrop (this, e);
-      e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
-      e.Handled = true;
-      // Output ("DragOver" + MayDrop (this, e).ToString());
     }
 
     private void OnEventFired (object sender, ScriptEventArgs args)
     {
-      Document.InvokeScript (args.Function, new object[] { args.ScriptArgs });
+      if (Document != null)
+        Document.InvokeScript (args.Function, new object[] { args.ScriptArgs });
+    }
+
+    private HtmlElement ElementAt (int x, int y)
+    {
+      if (Document == null)
+        return null;
+
+      var locationOnScreen = PointToScreen (Location);
+      return Document.GetElementFromPoint (new Point (x - locationOnScreen.X, y - locationOnScreen.Y));
+    }
+
+
+    public void OnDocumentUnload (object sender)
+    {
+      var apiFacade = (ApiFacade) ObjectForScripting;
+
+      ObjectForScripting = null;
+      apiFacade.Dispose();
+    }
+
+    public void OnDocumentLoaded ()
+    {
+      var apiFacade = _apiFacadeFactory();
+
+      ObjectForScripting = apiFacade;
+      apiFacade.EventDispatched += OnEventFired;
     }
   }
 }

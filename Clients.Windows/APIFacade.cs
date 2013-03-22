@@ -18,23 +18,23 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Concurrent;
-using System.Linq;
 using System.Runtime.InteropServices;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows
 {
   [ComVisible (true)]
-  public class APIFacade
+  public class ApiFacade : IDisposable
   {
+    public event EventHandler<ScriptEventArgs> EventDispatched;
+
+
     public IServiceManager ServiceManager { get; private set; }
-    public IEventManager EventManager { get; private set; }
+    public IEventDispatcher EventManager { get; private set; }
 
-    private static readonly ConcurrentDictionary<Type, bool> _comVisible = new ConcurrentDictionary<Type, bool>();
-
-    public APIFacade (IServiceManager serviceManager, IEventManager eventManager)
+    public ApiFacade (IServiceManager serviceManager, IEventDispatcher eventManager)
     {
       if (serviceManager == null)
         throw new ArgumentNullException ("serviceManager");
@@ -44,38 +44,57 @@ namespace DesktopGap.Clients.Windows
 
       ServiceManager = serviceManager;
       EventManager = eventManager;
+      EventManager.EventFired += (s, e) =>
+                                 {
+                                   if (EventDispatched != null)
+                                     EventDispatched (s, e);
+                                 };
+    }
+
+    public void Dispose ()
+    {
+      ServiceManager.Dispose();
+      EventManager.Dispose();
     }
 
     public object GetService (string serviceName)
     {
-      var serviceObject = ServiceManager.GetService (serviceName);
-      bool comVisible;
-      if (!_comVisible.TryGetValue (serviceObject.GetType(), out comVisible))
-      {
-        var serviceType = serviceObject.GetType();
-        var comAttributes = serviceType.GetCustomAttributes (typeof (ComVisibleAttribute), true);
-        comVisible = comAttributes.Any (a => ((ComVisibleAttribute) a).Value);
-        _comVisible.TryAdd (serviceType, comVisible);
-      }
-      return !comVisible ? new ComServiceDecorator (serviceObject) : serviceObject;
+      ArgumentUtility.CheckNotNullOrEmpty ("serviceName", serviceName);
+
+      return ServiceManager.GetService (serviceName);
     }
 
-    public string[] GetServiceNames ()
+    public bool HasService (string name)
     {
-      return (from s in ServiceManager.Services select s.Name).ToArray<string>();
+      ArgumentUtility.CheckNotNull ("name", name);
+
+      return ServiceManager.HasService (name);
     }
 
-    public string[] GetEventNames ()
+    public bool HasEvent (string name)
     {
-      return (from e in EventManager.Events select e.Name).ToArray<string>();
+            ArgumentUtility.CheckNotNull ("name", name);
+
+      return EventManager.HasEvent (name);
     }
 
-    public void addEventListener (string eventName, string callbackName, string moduleName)
+    public string CreateGuid()
     {
-      EventManager.Register (eventName, callbackName, moduleName);
+      return Guid.NewGuid().ToString();
     }
 
-    public void removeEventListener (string eventName, string callbackName, string moduleName)
+    public void AddEventListener (string eventName, string callbackName, string moduleName, dynamic argument)
+    {
+      IEventArgument eventArgument = null;
+      if (argument != null)
+        eventArgument = argument as IEventArgument;
+      if (eventArgument == null)
+        throw new Exception ("argument is the wrong class"); // TODO use proper exception class
+
+      EventManager.Register (eventName, callbackName, moduleName, eventArgument);
+    }
+
+    public void RemoveEventListener (string eventName, string callbackName, string moduleName)
     {
       EventManager.Unregister (eventName, callbackName, moduleName);
     }

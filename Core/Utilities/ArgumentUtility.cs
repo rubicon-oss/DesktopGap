@@ -21,7 +21,7 @@
 using System;
 using JetBrains.Annotations;
 
-namespace Remotion.Dms.Shared.Utilities
+namespace DesktopGap.Utilities
 {
   public static class ArgumentUtility
   {

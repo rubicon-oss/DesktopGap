@@ -28,7 +28,7 @@ namespace DesktopGap.WebBrowser
   public interface ISession
   {
     IEnumerable<IExtendedWebBrowser> WebBrowsers { get; }
-    IEventManager EventManager { get; }
+    IEventDispatcher EventManager { get; }
     IServiceManager ServiceManager { get; }
   }
 }

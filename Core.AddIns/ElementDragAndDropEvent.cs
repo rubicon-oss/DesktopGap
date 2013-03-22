@@ -24,9 +24,7 @@ using DesktopGap.AddIns.Events;
 
 namespace DesktopGap.AddIns
 {
-
   [PartCreationPolicy (CreationPolicy.NonShared)]
-
   public class ElementDragAndDropEvent : IExternalEvent
   {
     private const string c_name = "ElementDragAndDrop";
@@ -36,351 +34,43 @@ namespace DesktopGap.AddIns
       get { return c_name; }
     }
 
-    private event ScriptEvent ItemDropped;
+    public event ScriptEvent ItemDropped;
+
+    public void UnregisterEvents (IEventHost eventHost)
+    {
+      eventHost.UnregisterEvent (this, ref ItemDropped, "ItemDropped");
+    }
 
     public void OnBeforeLoad ()
     {
-      SystemEventHub.DragDrop += (e) =>
+      SystemEventHub.DragDrop += (s, e) =>
                                  {
                                    var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
+
                                    ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
+                                       this,
+                                       "ItemDropped",
                                        new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
                                  };
     }
 
 
-    public void RegisterEvents (IEventManager eventManager)
+    public bool CheckArgument (IEventArgument argument)
     {
-      eventManager.RegisterEvent (this, ref ItemDropped);
+      return true;
+    }
+
+    public void RegisterEvents (IEventHost eventHost)
+    {
+      eventHost.RegisterEvent (this, ref ItemDropped, "ItemDropped");
     }
 
 
     public void OnBeforeUnload ()
     {
     }
-  }
 
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent2 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
-    {
-    }
-  }
-
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent3 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
-    {
-    }
-  }
-
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent4 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
-    {
-    }
-  }
-
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent5 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
-    {
-    }
-  }
-
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent6 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
-    {
-    }
-  }
-
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent7 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
-    {
-    }
-  }
-
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent8 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
-    {
-    }
-  }
-
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent9 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
-    {
-    }
-  }
-
-
-  [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent10 : IExternalEvent
-  {
-    private const string c_name = "ElementDragAndDrop";
-
-    public string Name
-    {
-      get { return c_name; }
-    }
-
-    private event ScriptEvent ItemDropped;
-
-    public void OnBeforeLoad ()
-    {
-      SystemEventHub.DragDrop += (e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-                                   ItemDropped (
-                                       this.GetType().GetEvent ("ItemDropped"),
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
-                                 };
-    }
-
-
-    public void RegisterEvents (IEventManager eventManager)
-    {
-      eventManager.RegisterEvent (this, ref ItemDropped);
-    }
-
-
-    public void OnBeforeUnload ()
+    public void Dispose ()
     {
     }
   }

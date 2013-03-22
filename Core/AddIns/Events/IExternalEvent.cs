@@ -23,11 +23,14 @@ using System.ComponentModel.Composition;
 namespace DesktopGap.AddIns.Events
 {
   [InheritedExport (typeof (IExternalEvent))]
-  public interface IExternalEvent
+  public interface IExternalEvent : IDisposable
   {
     String Name { get; }
 
-    void RegisterEvents (IEventManager eventManager);
+    bool CheckArgument (IEventArgument argument);
+
+    void RegisterEvents (IEventHost eventHost);
+    void UnregisterEvents (IEventHost eventHost);
 
     void OnBeforeLoad ();
     void OnBeforeUnload ();

@@ -18,7 +18,6 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
 
 // This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
@@ -42,7 +41,7 @@ using System.Collections.Generic;
 
 namespace DesktopGap.AddIns.Services
 {
-  public interface IServiceManager
+  public interface IServiceManager : IDisposable
   {
     /// <summary>
     /// 
@@ -51,9 +50,12 @@ namespace DesktopGap.AddIns.Services
     /// <returns></returns>
     IExternalService GetService (string serviceName);
 
+
     /// <summary>
     /// 
     /// </summary>
-    IEnumerable<IExternalService> Services { get; }
+    /// <param name="name"></param>
+    /// <returns></returns>
+    bool HasService (string name);
   }
 }

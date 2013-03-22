@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -21,31 +21,22 @@ using System;
 
 namespace DesktopGap.AddIns.Events
 {
-  //Json.NET Attribute
-  public class JsonData
+  public interface IEventHost
   {
-  }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="externalEvent"></param>
+    /// <param name="scriptEvent"></param>
+    /// <param name="name"></param>
+    void RegisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent, string name);
 
-  public class ScriptEventArgs : EventArgs
-  {
-    public string Function { get; set; }
-    public JsonData ScriptArgs { get; set; }
-  }
-
-  public class FileScriptArgs : JsonData
-  {
-    public string Path { get; private set; }
-
-    public FileScriptArgs (string path)
-    {
-      if (path == null)
-        throw new ArgumentNullException ("path");
-      Path = path;
-    }
-
-    public override string ToString ()
-    {
-      return String.Format (@"'{{Path:""{0}""}}'", Path);
-    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="externalEvent"></param>
+    /// <param name="scriptEvent"></param>
+    /// <param name="name"></param>
+    void UnregisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent, string name);
   }
 }

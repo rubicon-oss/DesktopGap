@@ -28,7 +28,7 @@ namespace DesktopGap.WebBrowser
   public class Session : ISession
   {
     public IEnumerable<IExtendedWebBrowser> WebBrowsers { get; private set; }
-    public IEventManager EventManager { get; private set; }
+    public IEventDispatcher EventManager { get; private set; }
     public IServiceManager ServiceManager { get; private set; }
 
     public Session ()
@@ -36,7 +36,7 @@ namespace DesktopGap.WebBrowser
       
     }
 
-    public Session (IEnumerable<IExtendedWebBrowser> webBrowsers, IEventManager eventManager, IServiceManager serviceManager)
+    public Session (IEnumerable<IExtendedWebBrowser> webBrowsers, IEventDispatcher eventManager, IServiceManager serviceManager)
     {
       if (webBrowsers == null)
         throw new ArgumentNullException ("webBrowsers");

@@ -34,17 +34,33 @@ namespace DesktopGap.WebBrowser
       _compositionContainer = compositionContainer;
     }
 
-    protected abstract IExtendedWebBrowser CreateBrowser (IServiceManager serviceManager, IEventManager eventManager);
+    protected abstract IExtendedWebBrowser CreateBrowser (Func<IServiceManager> serviceManager, Func<IEventDispatcher> eventManager);
 
     public IExtendedWebBrowser CreateBrowser ()
     {
-      var serviceManager = new ServiceManager();
-      var eventManager = new EventManager();
-      _compositionContainer.ComposeParts (serviceManager);
-      _compositionContainer.ComposeParts (eventManager);
+      //var serviceManager = new ServiceManager();
+      //var eventManager = new EventManager();
+      //_compositionContainer.ComposeParts (serviceManager);
+      //_compositionContainer.ComposeParts (eventManager);
 
 
-      return CreateBrowser (serviceManager, eventManager);
+      //Func<IServiceManager> serviceManagerFactory = () => _compositionContainer.GetExportedValue<ServiceManager>();
+      //Func<IEventDispatcher> eventManagerFactory = () => _compositionContainer.GetExportedValue<EventManager>();
+
+      Func<IServiceManager> serviceManagerFactory = () =>
+                                                    {
+                                                      var serviceManager = new ServiceManager();
+                                                      _compositionContainer.ComposeParts (serviceManager);
+                                                      return serviceManager;
+                                                    };
+      Func<IEventDispatcher> eventManagerFactory = () =>
+                                                   {
+                                                     var eventManager = new EventManager();
+                                                     _compositionContainer.ComposeParts (eventManager);
+                                                     return eventManager;
+                                                   };
+
+      return CreateBrowser (serviceManagerFactory, eventManagerFactory);
     }
   }
 }

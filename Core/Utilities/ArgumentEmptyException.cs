@@ -21,7 +21,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace Remotion.Dms.Shared.Utilities
+namespace DesktopGap.Utilities
 {
   /// <summary>
   /// This exception is thrown if an argument is empty although it must have a content.

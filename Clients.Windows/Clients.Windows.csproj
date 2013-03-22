@@ -94,7 +94,7 @@
     <Compile Include="WebBrowser\ComTypes\UIHandler\IOleInPlaceFrame.cs" />
     <Compile Include="WebBrowser\ComTypes\UIHandler\IOleInPlaceUIWindow.cs" />
     <Compile Include="WebBrowser\ComTypes\Web\DWebBrowserEvents2.cs" />
-    <Compile Include="ExtendedTridentWebBrowser.cs">
+    <Compile Include="TridentWebBrowser.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WebBrowser\ComTypes\HResult.cs" />

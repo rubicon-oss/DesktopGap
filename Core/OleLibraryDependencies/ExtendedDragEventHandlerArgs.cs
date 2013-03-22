@@ -20,6 +20,7 @@
 
 using System;
 using System.Windows.Forms;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.OleLibraryDependencies
 {
@@ -34,6 +35,8 @@ namespace DesktopGap.OleLibraryDependencies
     /// If false, the underlying control has full control over the DragDropEffects (modifications won't be applied)
     /// </summary>
     public bool Handled { get; set; }
+
+    public object Current { get; set; }
 
     public ExtendedDragEventHandlerArgs (IDataObject data, int keyState, int x, int y, DragDropEffects allowedEffect, DragDropEffects effect)
         : base (data, keyState, x, y, allowedEffect, effect)

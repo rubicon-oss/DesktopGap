@@ -33,8 +33,9 @@ namespace DesktopGap.WebBrowser
     event EventHandler<EventArgs> ContentReloaded; // Reload event
     event EventHandler<WindowOpenEventArgs> WindowOpen;
 
+    event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
-    event EventHandler<ExtendedDragEventHandlerArgs> DragLeave;
+    event EventHandler DragLeave;
 
     void Navigate (string to);
   }

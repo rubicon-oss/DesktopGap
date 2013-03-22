@@ -20,63 +20,101 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Reflection;
+using System.Linq;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Events
 {
-  internal class EventManager : IEventManager
+  public class EventManager : IEventDispatcher, IEventHost
   {
     private const string c_moduleEventSeperator = ".";
 
-    private readonly IDictionary<string, IList<string>> _clients = new Dictionary<string, IList<string>>();
+    private readonly Dictionary<string, IList<KeyValuePair<string, IEventArgument>>> _clients =
+        new Dictionary<string, IList<KeyValuePair<string, IEventArgument>>>();
 
-    private IEnumerable<IExternalEvent> _events;
+    private IEnumerable<IExternalEvent> _eventsShared;
+    private IEnumerable<IExternalEvent> _eventsNonShared;
+
 
     public event EventHandler<ScriptEventArgs> EventFired;
 
     [ImportMany (typeof (IExternalEvent), RequiredCreationPolicy = CreationPolicy.Any)]
-    public IEnumerable<IExternalEvent> Events
+    public IEnumerable<IExternalEvent> NonSharedEvents
     {
-      get { return _events; }
-      set
-      {
-        _events = value;
-        ReloadEvents();
-      }
+      get { return _eventsNonShared; }
+      set { _eventsNonShared = value; }
     }
+
+    //[ImportMany (typeof (IExternalEvent), RequiredCreationPolicy = CreationPolicy.Shared)]
+    //public IEnumerable<IExternalEvent> SharedEvents
+    //{
+    //  get { return _eventsShared; }
+    //  set { _eventsShared = value; }
+    //}
 
 
     public EventManager ()
     {
-      Events = new List<IExternalEvent>();
+      NonSharedEvents = new List<IExternalEvent>();
+    }
+
+    public void Dispose ()
+    {
+      foreach (var nonSharedEvent in NonSharedEvents)
+      {
+        nonSharedEvent.OnBeforeUnload();
+        nonSharedEvent.Dispose();
+      }
     }
 
 
-    public void Register (string eventName, string callbackName, string moduleName)
+    public void Register (string eventName, string callbackName, string moduleName, IEventArgument argument)
     {
-      IList<string> subscriptions = GetSubscriptions (eventName, moduleName);
-      subscriptions.Add (callbackName);
+      ArgumentUtility.CheckNotNull ("moduleName", moduleName);
+      ArgumentUtility.CheckNotNull ("eventName", eventName);
+      ArgumentUtility.CheckNotNull ("callbackName", callbackName);
+
+      var subscriptions = GetSubscriptions (eventName, moduleName);
+
+      subscriptions.Add (new KeyValuePair<string, IEventArgument> (callbackName, argument));
     }
 
     public void Unregister (string eventName, string callbackName, string moduleName)
     {
-      IList<string> subscriptions = GetSubscriptions (eventName, moduleName);
-      subscriptions.Remove (callbackName);
+      ArgumentUtility.CheckNotNull ("moduleName", moduleName);
+      ArgumentUtility.CheckNotNull ("eventName", eventName);
+      ArgumentUtility.CheckNotNull ("callbackName", callbackName);
+
+
+      var subscriptions = GetSubscriptions (eventName, moduleName);
+      foreach (var registration in subscriptions.Where (s => s.Key == callbackName))
+      {
+        subscriptions.Remove (registration);
+      }
     }
 
-    public void RegisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent)
+    public bool HasEvent (string name)
+    {
+      ArgumentUtility.CheckNotNull ("name", name);
+
+      IExternalEvent e;
+      return true;
+    }
+
+    public void RegisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
       scriptEvent += FireEvent;
 
-      var name = externalEvent.Name + c_moduleEventSeperator + scriptEvent.GetMethodInfo().Name;
+      var name = externalEvent.Name + c_moduleEventSeperator + eventName;
+
       InitializeClients (name);
     }
 
-    public void UnregisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent)
+    public void UnregisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
       if (scriptEvent == null)
         throw new ArgumentNullException ("scriptEvent");
-      var name = externalEvent.Name + c_moduleEventSeperator + scriptEvent.Method.Name;
+      var name = externalEvent.Name + c_moduleEventSeperator + eventName;
 
       var eventClients = GetClients (name);
 
@@ -90,11 +128,11 @@ namespace DesktopGap.AddIns.Events
       eventClients.Clear();
     }
 
-    private IList<string> GetSubscriptions (string eventName, string moduleName)
+    private IList<KeyValuePair<string, IEventArgument>> GetSubscriptions (string eventName, string moduleName)
     {
       var eventIdentifier = moduleName + c_moduleEventSeperator + eventName;
 
-      IList<string> registrations = null;
+      IList<KeyValuePair<string, IEventArgument>> registrations;
       if (!_clients.TryGetValue (eventIdentifier, out registrations))
         throw new InvalidOperationException (String.Format ("Event {0} in module {1} not found", eventName, moduleName));
 
@@ -104,7 +142,7 @@ namespace DesktopGap.AddIns.Events
     private void ReloadEvents ()
     {
       _clients.Clear();
-      foreach (var evt in Events)
+      foreach (var evt in NonSharedEvents)
       {
         evt.OnBeforeLoad();
         evt.RegisterEvents (this);
@@ -116,27 +154,28 @@ namespace DesktopGap.AddIns.Events
       if (GetClients (name) != null)
         throw new InvalidOperationException (String.Format ("Event {0} already registered", name));
 
-      _clients[name] = new List<string>();
+      _clients[name] = new List<KeyValuePair<string, IEventArgument>>();
     }
 
 
-    private IList<string> GetClients (string eventName)
+    private IList<KeyValuePair<string, IEventArgument>> GetClients (string eventName)
     {
-      IList<string> eventClients = null;
+      IList<KeyValuePair<string, IEventArgument>> eventClients = null;
       _clients.TryGetValue (eventName, out eventClients);
       return eventClients;
     }
 
-    private void FireEvent (EventInfo sender, ScriptEventArgs args)
+    private void FireEvent (IExternalEvent source, string eventName, ScriptEventArgs args)
     {
-      var name = sender.ReflectedType + c_moduleEventSeperator + sender.Name;
-      IList<string> callbackNames;
+      var name = source.Name + c_moduleEventSeperator + eventName;
+      IList<KeyValuePair<string, IEventArgument>> callbackNames;
       if (!_clients.TryGetValue (name, out callbackNames))
-        throw new InvalidOperationException (String.Format ("Event {0} not registered", name));
+        throw new InvalidOperationException (String.Format ("Event {0} never registered", name));
 
       foreach (var callbackName in callbackNames)
       {
-        EventFired (this, args);
+        if (source.CheckArgument (callbackName.Value))
+          EventFired (this, args);
       }
     }
   }

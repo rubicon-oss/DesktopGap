@@ -21,31 +21,9 @@ using System;
 
 namespace DesktopGap.AddIns.Events
 {
-  //Json.NET Attribute
-  public class JsonData
+  public interface IEventArgument
   {
-  }
-
-  public class ScriptEventArgs : EventArgs
-  {
-    public string Function { get; set; }
-    public JsonData ScriptArgs { get; set; }
-  }
-
-  public class FileScriptArgs : JsonData
-  {
-    public string Path { get; private set; }
-
-    public FileScriptArgs (string path)
-    {
-      if (path == null)
-        throw new ArgumentNullException ("path");
-      Path = path;
-    }
-
-    public override string ToString ()
-    {
-      return String.Format (@"'{{Path:""{0}""}}'", Path);
-    }
+    string EventId { get; }
+    dynamic Criteria { get; }
   }
 }
