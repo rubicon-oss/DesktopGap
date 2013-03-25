@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -21,9 +21,15 @@ using System;
 
 namespace DesktopGap.AddIns.Events
 {
-  public interface IEventArgument
+  public class EventArgument
   {
-    string EventId { get; }
-    dynamic Criteria { get; }
+    public string EventId { get; private set; }
+    public dynamic Criteria { get; private set; }
+
+    public EventArgument (dynamic arg)
+    {
+      EventId = arg.EventId;
+      Criteria = arg.Criteria;
+    }
   }
 }

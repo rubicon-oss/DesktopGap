@@ -20,6 +20,7 @@
 using System;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Utilities;
+using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.EventArguments;
 
 namespace DesktopGap.Clients.Windows
@@ -39,19 +40,58 @@ namespace DesktopGap.Clients.Windows
       _browserControl = browserControl;
     }
 
-    public override void NavigateComplete2 (object pDisp, ref object URL)
-    {
-      _browserControl.OnDocumentLoaded();
-    }
-
-    public override void DownloadComplete ()
+    public override void DocumentComplete (object pDisp, ref object URL)
     {
       _browserControl.OnLoadFinished();
     }
 
+    public override void DownloadBegin ()
+    {
+      _browserControl.OnDownloadBegin();
+    }
+
+    public override void BeforeNavigate2 (
+        object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
+    {
+      BrowserWindowStartMode mode = BrowserWindowStartMode.Self;
+      var target = "";
+      if (TargetFrameName != null)
+      {
+        target = TargetFrameName.ToString();
+        
+        switch (target.ToLower()) // TODO redo this
+        {
+          case "_modal":
+            mode = BrowserWindowStartMode.ModalPopUp;
+            break;
+          case "_backgroundtab":
+            mode = BrowserWindowStartMode.BackgroundTab;
+            break;
+
+          case "_tab":
+            mode = BrowserWindowStartMode.Tab;
+            break;
+          case "_popup":
+            mode = BrowserWindowStartMode.PopUp;
+            break;
+        }
+      }
+
+      var eventArgs = new WindowOpenEventArgs (mode, Cancel, URL.ToString(), target);
+      _browserControl.OnBeforeNavigate (eventArgs);
+
+      Cancel = eventArgs.Cancel;
+    }
+
+    // TODO not pretty
     public override void NewWindow2 (ref object ppDisp, ref bool Cancel)
     {
-      //NewWindow3 (ref ppDisp, ref Cancel, 0, null, null); // TODO what to do here?
+      var ppDispOriginal = ppDisp;
+      var eventArgs = new WindowOpenEventArgs (BrowserWindowStartMode.Tab, Cancel, "", "");
+      _browserControl.OnNewWindow (eventArgs);
+      if (eventArgs.TargetWindow != null)
+        ppDisp = (eventArgs.TargetWindow as TridentWebBrowserBase).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
+      Cancel = eventArgs.Cancel;
     }
 
     public override void NewWindow3 (ref object ppDisp, ref bool Cancel, uint dwFlags, string bstrUrlContext, string bstrUrl)
@@ -61,7 +101,7 @@ namespace DesktopGap.Clients.Windows
 
 
       var ppDispOriginal = ppDisp;
-      var eventArgs = new WindowOpenEventArgs (false, Cancel, bstrUrl, false, "");
+      var eventArgs = new WindowOpenEventArgs (BrowserWindowStartMode.Tab, Cancel, bstrUrl, "");
       _browserControl.OnNewWindow (eventArgs);
       if (eventArgs.TargetWindow != null)
         ppDisp = (eventArgs.TargetWindow as TridentWebBrowserBase).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window

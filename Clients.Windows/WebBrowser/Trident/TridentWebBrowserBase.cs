@@ -37,6 +37,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     protected bool _automaticallyRegisterAsDropTarget = false;
 
+    protected bool _enableWebBrowserContextMenu = false;
+
     /// <summary>
     /// Object for returning the basic scripting interface when the .NET Framework demands it (Application property)
     /// </summary>
@@ -55,17 +57,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     private static readonly string[] s_validElements = new string[] { "text", "password" };
     private bool _controlPressed;
 
-    /// <summary>
+    protected TridentWebBrowserBase ()
+    {
+    }
+
+ /// <summary>
     /// Retrieve the _axIWebBrowser2 implementation from the .NET WebBrowser. 
     /// </summary>
     /// <param name="nativeActiveXObject"></param>
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
-    protected override void
-        AttachInterfaces (object nativeActiveXObject)
+    protected override void AttachInterfaces (object nativeActiveXObject)
     {
-      this._axIWebBrowser2 =
-          (IWebBrowser2) nativeActiveXObject;
-      
+      _axIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
+
       base.AttachInterfaces (nativeActiveXObject);
     }
 
@@ -75,7 +79,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void DetachInterfaces ()
     {
-      this._axIWebBrowser2 = null;
+      _axIWebBrowser2 = null;
       base.DetachInterfaces();
     }
 
@@ -99,10 +103,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       if (_BrowserEvents == null)
         return;
 
-      _cookie = new AxHost.ConnectionPointCookie (
-          this.ActiveXInstance,
-          _BrowserEvents,
-          typeof (DWebBrowserEvents2));
+      _cookie = new AxHost.ConnectionPointCookie (ActiveXInstance, _BrowserEvents, typeof (DWebBrowserEvents2));
     }
 
     /// <summary>
@@ -192,14 +193,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
           _controlPressed = true;
           break;
 
+        case Keys.R:
         case Keys.P:
         case Keys.Print:
           e.Handled = _controlPressed || e.KeyCode == Keys.Print;
           break;
 
         default:
-          e.Handled = e.Modifiers == Keys.Alt;
           _controlPressed = false;
+          e.Handled = true;
           break;
       }
     }

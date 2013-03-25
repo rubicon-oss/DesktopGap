@@ -26,6 +26,8 @@ namespace DesktopGap.WebBrowser.EventArguments
   {
     public bool IsModal { get; private set; }
 
+    public BrowserWindowStartMode StartMode { get; private set; }
+
     public bool IsInBackground { get; private set; }
 
     public bool Cancel { get; set; }
@@ -39,19 +41,20 @@ namespace DesktopGap.WebBrowser.EventArguments
     /// <summary>
     /// C'tor for the WindowOpen event arguments.
     /// </summary>
-    /// <param name="isModal">Is the window going to be modal?</param>
-    /// <param name="isInBackground">Is the window going to be loaded in the background?</param>
+    /// <param name="mode"> </param>
     /// <param name="cancel">Should the action be cancelled?</param>
     /// <param name="targetURL">The URL the window is going to open.</param>
+    /// <param name="target"> </param>
     /// <param name="targetWindow">Where should the new window be openend? (null means new DesktopGap window)</param>
-    public WindowOpenEventArgs (bool isModal, bool cancel, string targetURL, bool isInBackground, string target, IExtendedWebBrowser targetWindow = null)
+    public WindowOpenEventArgs (BrowserWindowStartMode mode, bool cancel, string targetURL, string target, IExtendedWebBrowser targetWindow = null)
     {
-      IsModal = isModal;
+      IsModal = mode == BrowserWindowStartMode.ModalPopUp;
       Cancel = cancel;
       URL = targetURL;
-      IsInBackground = isInBackground;
+      IsInBackground = mode == BrowserWindowStartMode.BackgroundTab;
       TargetWindow = targetWindow;
       Target = target;
+      StartMode = mode;
     }
   }
 }

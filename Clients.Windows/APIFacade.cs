@@ -18,10 +18,12 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
 using DesktopGap.Utilities;
+using System.Dynamic;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -85,12 +87,26 @@ namespace DesktopGap.Clients.Windows
 
     public void AddEventListener (string eventName, string callbackName, string moduleName, dynamic argument)
     {
-      IEventArgument eventArgument = null;
-      if (argument != null)
-        eventArgument = argument as IEventArgument;
-      if (eventArgument == null)
-        throw new Exception ("argument is the wrong class"); // TODO use proper exception class
+      EventArgument eventArgument = null;
 
+      if (argument != null)
+      { 
+       try // TODO find a better solution
+       {
+         eventArgument = new EventArgument (argument);
+       }catch(Exception ex)
+       {
+         throw new Exception ("argument is the wrong class"); // TODO use proper exception class
+       }
+
+
+        //var x = new ConvertBinder (IEventArgument, true);
+
+        //((DynamicObject) argument).TryConvert(ConvertBinder.)
+        //  // eventArgument = argument as IEventArgument;
+        //if (eventArgument == null)
+        
+      }
       EventManager.Register (eventName, callbackName, moduleName, eventArgument);
     }
 
@@ -98,5 +114,13 @@ namespace DesktopGap.Clients.Windows
     {
       EventManager.Unregister (eventName, callbackName, moduleName);
     }
+
+    //private IEventArgument TryConvert(dynamic dynamicObject)
+    //{
+    //  foreach (var method in typeof(IEventArgument).GetMethods())
+    //  {
+    //    if(((DynamicObject) dynamicObject).TryConvert)
+    //  }
+    //}
   }
 }

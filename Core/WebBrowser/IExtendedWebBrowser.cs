@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,9 +17,7 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using DesktopGap.AddIns;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.WebBrowser.EventArguments;
 
@@ -35,6 +33,8 @@ namespace DesktopGap.WebBrowser
 
     event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
+    event EventHandler<ExtendedDragEventHandlerArgs> DragOver;
+
     event EventHandler DragLeave;
 
     void Navigate (string to);

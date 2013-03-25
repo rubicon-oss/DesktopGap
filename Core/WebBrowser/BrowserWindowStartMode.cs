@@ -18,21 +18,20 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.WebBrowser
 {
-  [InheritedExport (typeof (IExternalEvent))]
-  public interface IExternalEvent : IDisposable
+  public enum BrowserWindowStartMode
   {
-    String Name { get; }
-
-    bool CheckArgument (EventArgument argument);
-
-    void RegisterEvents (IEventHost eventHost);
-    void UnregisterEvents (IEventHost eventHost);
-
-    void OnBeforeLoad ();
-    void OnBeforeUnload ();
+    PopUp,
+    ModalPopUp,
+    Tab,
+    BackgroundTab,
+    Self,
+    Window
   }
 }

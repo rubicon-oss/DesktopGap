@@ -50,12 +50,12 @@ namespace DesktopGap.AddIns
                                    ItemDropped (
                                        this,
                                        "ItemDropped",
-                                       new ScriptEventArgs() { ScriptArgs = new FileScriptArgs (filePaths[0]) });
+                                       new FileScriptArgs (filePaths[0]));
                                  };
     }
 
 
-    public bool CheckArgument (IEventArgument argument)
+    public bool CheckArgument (EventArgument argument)
     {
       return true;
     }

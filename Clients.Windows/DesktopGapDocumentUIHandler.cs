@@ -38,6 +38,7 @@ namespace DesktopGap.Clients.Windows
     {
       _extendedTridentWebBrowser = browser;
     }
+
     private NativeDragDropEffects ToNative (DragDropEffects dragDropEffects)
     {
       var nativeDragDropEffects = NativeDragDropEffects.NONE;
@@ -46,7 +47,6 @@ namespace DesktopGap.Clients.Windows
 
       return nativeDragDropEffects;
     }
-
 
     private DragDropEffects ToWinForms (NativeDragDropEffects nativeDragDropEffects)
     {
@@ -57,14 +57,12 @@ namespace DesktopGap.Clients.Windows
       return dragDropEffects;
     }
 
-
     public override int GetDropTarget (IDropTarget dropTarget, out IDropTarget target)
     {
       target = this;
       return HResult.S_OK;
     }
 
- 
     public int DragEnter (IDataObject pDataObj, uint grfKeyState, tagPOINT pt, ref uint pdwEffect)
     {
       System.Windows.Forms.IDataObject dataObject = null;
@@ -143,8 +141,7 @@ namespace DesktopGap.Clients.Windows
       return HResult.S_OK;
     }
 
-
-
+ 
     public override int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
     {
       if (msg.message != (int) WindowsMessages.WM_KEYDOWN)

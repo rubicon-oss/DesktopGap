@@ -38,6 +38,8 @@ namespace DesktopGap.Clients.Windows
     public event EventHandler<WindowOpenEventArgs> WindowOpen;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
+    public new event EventHandler<ExtendedDragEventHandlerArgs> DragOver;
+
     public new event EventHandler DragLeave;
 
     /// <summary>
@@ -45,15 +47,14 @@ namespace DesktopGap.Clients.Windows
     /// </summary>
     public event Action<string> Output;
 
-
     public TridentWebBrowser (Func<ApiFacade> apiFacadeFactory)
     {
       ArgumentUtility.CheckNotNull ("apiFacadeFactory", apiFacadeFactory);
 
       _apiFacadeFactory = apiFacadeFactory;
-
       _BrowserEvents = new DesktopGapBrowserEvents (this);
       Navigate ("about:blank");
+
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
     }
 
@@ -63,13 +64,26 @@ namespace DesktopGap.Clients.Windows
       WindowOpen = null;
       DragDrop = null;
       DragLeave = null;
+      DragOver = null;
+      DragEnter = null;
 
+      DisposeObjectForScripting();
       base.Dispose (disposing);
     }
 
     public string Title
     {
       get { return Document == null ? String.Empty : Document.Title; }
+    }
+
+    //
+    // NAVIGATION EVENTS
+    // 
+
+
+    public void OnDownloadBegin ()
+    {
+      InitializeObjectForScripting();
     }
 
 
@@ -85,31 +99,18 @@ namespace DesktopGap.Clients.Windows
         WindowOpen (this, eventArgs);
     }
 
-    //TODO restructure
-    private bool MayDrop (IExtendedWebBrowser browser, DragEventArgs e)
+    public void OnBeforeNavigate (WindowOpenEventArgs navigationEventArgs)
     {
-      var browserControl = (Control) browser;
-      var extendedBrowser = (TridentWebBrowser) browser;
-      var doc = extendedBrowser.Document;
-      var locationOnScreen = browserControl.PointToScreen (browserControl.Location);
-      var elementAtPoint = doc.GetElementFromPoint (new Point (e.X - locationOnScreen.X, e.Y - locationOnScreen.Y));
-
-      var currentElement = elementAtPoint;
-      var isDropTarget = false;
-      while (currentElement != null && ! Boolean.TryParse (currentElement.GetAttribute ("droptarget"), out isDropTarget))
-      {
-        currentElement = currentElement.Parent;
-      }
-
-      return isDropTarget;
     }
 
+
+    //
+    // INTERACTION EVENTS
+    // 
 
     public void OnDragEnter (ExtendedDragEventHandlerArgs e)
     {
       e.Current = ElementAt (e.X, e.Y);
-      var ok = MayDrop (this, e);
-      e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
       if (DragEnter != null)
         DragEnter (this, e);
 
@@ -119,15 +120,12 @@ namespace DesktopGap.Clients.Windows
     public void OnDragDrop (ExtendedDragEventHandlerArgs e)
     {
       e.Current = ElementAt (e.X, e.Y);
-      var ok = MayDrop (this, e);
-      e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
-      Output ("DragDrop: " + ok.ToString());
+
       if (DragDrop != null)
         DragDrop (this, e);
 
       e.Handled = true;
     }
-
 
     public new void OnDragLeave (EventArgs e)
     {
@@ -137,12 +135,48 @@ namespace DesktopGap.Clients.Windows
 
     public void OnDragOver (ExtendedDragEventHandlerArgs e)
     {
+      e.Current = ElementAt (e.X, e.Y);
+      if (DragOver != null)
+        DragOver (this, e);
+      e.Handled = true;
     }
 
+
+    //
+    // OTHER METHODS & EVENTS
+    // 
+
+    /// <summary>
+    /// Occurs when an event was dispatched by the event manager.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="args"></param>
     private void OnEventFired (object sender, ScriptEventArgs args)
     {
       if (Document != null)
-        Document.InvokeScript (args.Function, new object[] { args.ScriptArgs });
+        Document.InvokeScript (args.Function, new object[] { args.ScriptArgs.ToString() });
+    }
+
+    private void InitializeObjectForScripting ()
+    {
+      if (ObjectForScripting != null)
+        return;
+
+      var apiFacade = _apiFacadeFactory();
+
+      ObjectForScripting = apiFacade;
+      apiFacade.EventDispatched += OnEventFired;
+    }
+
+    private void DisposeObjectForScripting ()
+    {
+      var apiFacade = (ApiFacade) ObjectForScripting;
+
+      if (apiFacade == null)
+        return;
+
+      ObjectForScripting = null;
+      apiFacade.Dispose();
     }
 
     private HtmlElement ElementAt (int x, int y)
@@ -153,22 +187,38 @@ namespace DesktopGap.Clients.Windows
       var locationOnScreen = PointToScreen (Location);
       return Document.GetElementFromPoint (new Point (x - locationOnScreen.X, y - locationOnScreen.Y));
     }
-
-
-    public void OnDocumentUnload (object sender)
-    {
-      var apiFacade = (ApiFacade) ObjectForScripting;
-
-      ObjectForScripting = null;
-      apiFacade.Dispose();
-    }
-
-    public void OnDocumentLoaded ()
-    {
-      var apiFacade = _apiFacadeFactory();
-
-      ObjectForScripting = apiFacade;
-      apiFacade.EventDispatched += OnEventFired;
-    }
   }
+
+  #region keep for later 
+
+  //TODO restructure
+  //private bool MayDrop (IExtendedWebBrowser browser, DragEventArgs e)
+  //{
+  //  var browserControl = (Control) browser;
+  //  var extendedBrowser = (TridentWebBrowser) browser;
+  //  var doc = extendedBrowser.Document;
+  //  var locationOnScreen = browserControl.PointToScreen (browserControl.Location);
+  //  var elementAtPoint = doc.GetElementFromPoint (new Point (e.X - locationOnScreen.X, e.Y - locationOnScreen.Y));
+
+  //  var currentElement = elementAtPoint;
+  //  var isDropTarget = false;
+  //  while (currentElement != null && ! Boolean.TryParse (currentElement.GetAttribute ("droptarget"), out isDropTarget))
+  //    currentElement = currentElement.Parent;
+
+  //  return isDropTarget;
+  //} 
+
+  //  public void OnDragDrop (ExtendedDragEventHandlerArgs e)
+  //{
+  //  e.Current = ElementAt (e.X, e.Y);
+  //  var ok = MayDrop (this, e);
+  //  e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
+  //  Output ("DragDrop: " + ok.ToString());
+  //  if (DragDrop != null)
+  //    DragDrop (this, e);
+
+  //  e.Handled = true;
+  //}
+
+  #endregion
 }

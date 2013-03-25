@@ -53,7 +53,8 @@ namespace DesktopGap.AddIns.Services
     {
       ArgumentUtility.CheckNotNull ("service", service);
 
-      GetService (service.Name, name => new InvalidOperationException (string.Format ("Service '{0}' already registered.", name)));
+      if(HasService (service.Name))
+        throw new InvalidOperationException (string.Format ("Service '{0}' already registered.", service.Name));
       _services[service.Name] = service;
     }
 
@@ -75,6 +76,7 @@ namespace DesktopGap.AddIns.Services
       IExternalService s;
       return _services.TryGetValue (name, out s);
     }
+
 
     private IExternalService GetService<TException> (string serviceName, Func<string, TException> createServiceNotFoundException)
         where TException : Exception
