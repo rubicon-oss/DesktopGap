@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,25 +18,18 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition.Hosting;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
-using DesktopGap.Resources;
-using DesktopGap.WebBrowser;
+using System.IO;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Resources
 {
-  public class TridentWebBrowserFactory : WebBrowserFactoryBase
+  public interface IResourceManager
   {
-    public TridentWebBrowserFactory (CompositionContainer compositionContainer)
-        : base (compositionContainer)
-    {
-    }
+    string GetFullPath (Guid guid);
 
-    protected override IExtendedWebBrowser CreateBrowser (
-        Func<IServiceManager> serviceManager, Func<IEventDispatcher> eventManager)
-    {
-      return new TridentWebBrowser (() => new ApiFacade (serviceManager(), eventManager()));
-    }
+    FileSystemInfo GetResource (Guid guid);
+    
+    Guid GetTempDirectory ();
+    
+    Guid GetDataDirectory ();
   }
 }

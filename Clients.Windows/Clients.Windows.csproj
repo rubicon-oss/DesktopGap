@@ -41,6 +41,7 @@
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
     <Reference Include="System.Security" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -71,10 +72,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Browser.xaml.cs">
-      <DependentUpon>Browser.xaml</DependentUpon>
+    <Compile Include="BrowserWindow.xaml.cs">
+      <DependentUpon>BrowserWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ComServiceDecorator.cs" />
     <Compile Include="Components\BrowserTab.cs" />
     <Compile Include="Components\CloseableTabHeader.xaml.cs">
       <DependentUpon>CloseableTabHeader.xaml</DependentUpon>
@@ -82,7 +82,9 @@
     <Compile Include="DesktopGapBrowserEvents.cs" />
     <Compile Include="DesktopGapDocumentUIHandler.cs" />
     <Compile Include="TridentWebBrowserFactory.cs" />
+    <Compile Include="WebBrowser\BrowserMode.cs" />
     <Compile Include="WebBrowser\ComTypes\UIHandler\WindowsMessages.cs" />
+    <Compile Include="WebBrowser\Trident\TridentFeatures.cs" />
     <Compile Include="WebBrowser\Trident\WebBrowserEventsBase.cs" />
     <Compile Include="WebBrowser\Trident\TridentWebBrowserBase.cs">
       <SubType>Component</SubType>
@@ -124,7 +126,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Browser.xaml">
+    <Page Include="BrowserWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -22,6 +22,7 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
+using DesktopGap.Resources;
 
 namespace DesktopGap.WebBrowser
 {
@@ -34,7 +35,8 @@ namespace DesktopGap.WebBrowser
       _compositionContainer = compositionContainer;
     }
 
-    protected abstract IExtendedWebBrowser CreateBrowser (Func<IServiceManager> serviceManager, Func<IEventDispatcher> eventManager);
+    protected abstract IExtendedWebBrowser CreateBrowser (
+        Func<IServiceManager> serviceManager, Func<IEventDispatcher> eventManager);
 
     public IExtendedWebBrowser CreateBrowser ()
     {

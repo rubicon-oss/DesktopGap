@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
@@ -31,11 +30,10 @@ namespace DesktopGap.Clients.Windows.Components
   /// </summary>
   public sealed class BrowserTab : TabItem
   {
-    
     public IExtendedWebBrowser ExtendedWebBrowser { get; private set; }
 
     private readonly ItemsControl _parent;
-    
+
     public BrowserTab (ItemsControl parent, WFWebBrowser extendedWebBrowser)
     {
       if (parent == null)
@@ -52,7 +50,7 @@ namespace DesktopGap.Clients.Windows.Components
       var webBrowser = extendedWebBrowser as IExtendedWebBrowser;
       if (webBrowser == null)
         return;
-      
+
       ExtendedWebBrowser = webBrowser;
       ExtendedWebBrowser.PageLoaded += OnPageLoaded;
     }
@@ -70,16 +68,13 @@ namespace DesktopGap.Clients.Windows.Components
     {
       _parent.Items.Remove (this);
       CleanUp();
-
     }
 
-    private void CleanUp()
+    private void CleanUp ()
     {
       // remove event handler to avoid memory leaks
       ExtendedWebBrowser.PageLoaded -= OnPageLoaded;
       ExtendedWebBrowser = null;
     }
-
-
   }
 }

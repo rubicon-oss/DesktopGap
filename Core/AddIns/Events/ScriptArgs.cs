@@ -18,13 +18,17 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Runtime.InteropServices;
+using System.Security.Permissions;
 
 namespace DesktopGap.AddIns.Events
 {
   //Json.NET Attribute
+  [PermissionSet (SecurityAction.Demand, Name = "FullTrust")]
+  [ComVisible (true)]
   public class JsonData
   {
-    public string EventId { get; set; }
+    public string EventId;
   }
 
   public class ScriptEventArgs : EventArgs

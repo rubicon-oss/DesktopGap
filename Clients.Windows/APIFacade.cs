@@ -18,12 +18,10 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Linq;
 using System.Runtime.InteropServices;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
 using DesktopGap.Utilities;
-using System.Dynamic;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -32,25 +30,18 @@ namespace DesktopGap.Clients.Windows
   {
     public event EventHandler<ScriptEventArgs> EventDispatched;
 
-
     public IServiceManager ServiceManager { get; private set; }
     public IEventDispatcher EventManager { get; private set; }
 
     public ApiFacade (IServiceManager serviceManager, IEventDispatcher eventManager)
     {
-      if (serviceManager == null)
-        throw new ArgumentNullException ("serviceManager");
+      ArgumentUtility.CheckNotNull ("eventManager", eventManager);
+      ArgumentUtility.CheckNotNull ("serviceManager", serviceManager);
 
-      if (eventManager == null)
-        throw new ArgumentNullException ("eventManager");
 
       ServiceManager = serviceManager;
       EventManager = eventManager;
-      EventManager.EventFired += (s, e) =>
-                                 {
-                                   if (EventDispatched != null)
-                                     EventDispatched (s, e);
-                                 };
+      EventManager.EventFired += OnEventFired;
     }
 
     public void Dispose ()
@@ -58,6 +49,23 @@ namespace DesktopGap.Clients.Windows
       ServiceManager.Dispose();
       EventManager.Dispose();
     }
+
+    //
+    // General
+    //
+
+    public string CreateGuid ()
+    {
+      return Guid.NewGuid().ToString();
+    }
+
+    //
+    // Resources
+    //
+
+    //
+    // Services
+    //
 
     public object GetService (string serviceName)
     {
@@ -73,31 +81,24 @@ namespace DesktopGap.Clients.Windows
       return ServiceManager.HasService (name);
     }
 
-    public bool HasEvent (string name)
-    {
-            ArgumentUtility.CheckNotNull ("name", name);
-
-      return EventManager.HasEvent (name);
-    }
-
-    public string CreateGuid()
-    {
-      return Guid.NewGuid().ToString();
-    }
+    //
+    // Events
+    //
 
     public void AddEventListener (string eventName, string callbackName, string moduleName, dynamic argument)
     {
       EventArgument eventArgument = null;
 
       if (argument != null)
-      { 
-       try // TODO find a better solution
-       {
-         eventArgument = new EventArgument (argument);
-       }catch(Exception ex)
-       {
-         throw new Exception ("argument is the wrong class"); // TODO use proper exception class
-       }
+      {
+        try // TODO find a better solution
+        {
+          eventArgument = new EventArgument (argument);
+        }
+        catch (Exception ex)
+        {
+          throw new Exception ("argument is the wrong class"); // TODO use proper exception class
+        }
 
 
         //var x = new ConvertBinder (IEventArgument, true);
@@ -105,7 +106,6 @@ namespace DesktopGap.Clients.Windows
         //((DynamicObject) argument).TryConvert(ConvertBinder.)
         //  // eventArgument = argument as IEventArgument;
         //if (eventArgument == null)
-        
       }
       EventManager.Register (eventName, callbackName, moduleName, eventArgument);
     }
@@ -115,12 +115,17 @@ namespace DesktopGap.Clients.Windows
       EventManager.Unregister (eventName, callbackName, moduleName);
     }
 
-    //private IEventArgument TryConvert(dynamic dynamicObject)
-    //{
-    //  foreach (var method in typeof(IEventArgument).GetMethods())
-    //  {
-    //    if(((DynamicObject) dynamicObject).TryConvert)
-    //  }
-    //}
+    public bool HasEvent (string name)
+    {
+      ArgumentUtility.CheckNotNull ("name", name);
+
+      return EventManager.HasEvent (name);
+    }
+
+    private void OnEventFired (object sender, ScriptEventArgs args)
+    {
+      if (EventDispatched != null)
+        EventDispatched (sender, args);
+    }
   }
 }

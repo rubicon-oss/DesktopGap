@@ -22,6 +22,7 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
@@ -56,12 +57,28 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 
     private static readonly string[] s_validElements = new string[] { "text", "password" };
     private bool _controlPressed;
+    protected readonly TridentFeatures _features;
 
     protected TridentWebBrowserBase ()
     {
+      IsWebBrowserContextMenuEnabled = _enableWebBrowserContextMenu;
+      WebBrowserShortcutsEnabled = false;
+      _features = new TridentFeatures();
     }
 
- /// <summary>
+    public bool IsGPUAccelerated
+    {
+      get { return _features.GpuAcceleration; }
+      set { _features.GpuAcceleration = value; }
+    }
+
+    public WebBrowserMode BrowserMode
+    {
+      get { return _features.BrowserEmulationMode; }
+      set { _features.BrowserEmulationMode = value; }
+    }
+
+    /// <summary>
     /// Retrieve the _axIWebBrowser2 implementation from the .NET WebBrowser. 
     /// </summary>
     /// <param name="nativeActiveXObject"></param>
@@ -140,11 +157,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <param name="desktopGapDocumentUiHandler">The custom handler.</param>
     protected void InstallCustomUIHandler (IDocHostUIHandler desktopGapDocumentUiHandler)
     {
+      ArgumentUtility.CheckNotNull ("desktopGapDocumentUiHandler", desktopGapDocumentUiHandler);
       RegisterAsDropTarget = false;
-      if (desktopGapDocumentUiHandler == null)
-        throw new ArgumentNullException ("desktopGapDocumentUiHandler");
 
       var customDoc = (ICustomDoc) _axIWebBrowser2.Document;
+      
       customDoc.SetUIHandler (desktopGapDocumentUiHandler);
     }
 
@@ -201,7 +218,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 
         default:
           _controlPressed = false;
-          e.Handled = true;
           break;
       }
     }

@@ -21,6 +21,7 @@ using System;
 using System.Windows;
 using DesktopGap.AddIns.Events;
 using DesktopGap.Clients.Windows.Components;
+using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.EventArguments;
 using WFWebBrowser = System.Windows.Forms.WebBrowser;
@@ -30,14 +31,14 @@ namespace DesktopGap.Clients.Windows
   /// <summary>
   /// Interaction logic for Browser.xaml
   /// </summary>
-  public partial class Browser
+  public partial class BrowserWindow
   {
     private readonly TridentWebBrowserFactory _browserFactory;
 
-    public Browser (TridentWebBrowserFactory browserFactory)
+    public BrowserWindow (TridentWebBrowserFactory browserFactory)
     {
-      if (browserFactory == null)
-        throw new ArgumentNullException ("browserFactory");
+      ArgumentUtility.CheckNotNull ("browserFactory", browserFactory);
+      
 
       _browserFactory = browserFactory;
       InitializeComponent();

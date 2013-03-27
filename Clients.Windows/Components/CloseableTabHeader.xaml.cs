@@ -20,13 +20,14 @@
 
 using System;
 using System.Windows.Controls;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.Components
 {
   /// <summary>
   /// Interaction logic for CloseableTabHeader.xaml
   /// </summary>
-  public partial class CloseableTabHeader : UserControl
+  public partial class CloseableTabHeader
   {
     private const string c_defaultCloseButtonContent = "X";
 
@@ -40,8 +41,11 @@ namespace DesktopGap.Clients.Windows.Components
 
     public bool IsCloseable { get; set; }
 
-    public CloseableTabHeader (string headerText, object closeButtonContent = null)
+    public CloseableTabHeader (string headerText, bool isCloseable = true, object closeButtonContent = null)
     {
+      ArgumentUtility.CheckNotNull ("headerText", headerText);
+      
+      IsCloseable = isCloseable;
       InitializeComponent();
 
       if (closeButtonContent == null)
@@ -50,7 +54,7 @@ namespace DesktopGap.Clients.Windows.Components
       _closeButton.Content = closeButtonContent;
       _closeButton.Click += (s, e) =>
                             {
-                              if (IsCloseable)
+                              if (IsCloseable && TabClose != null)
                                 TabClose (s, e);
                             };
 

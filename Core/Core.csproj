@@ -50,6 +50,9 @@
     <Compile Include="AddIns\Events\IExternalEvent.cs" />
     <Compile Include="AddIns\Events\ScriptArgs.cs" />
     <Compile Include="AddIns\Events\SystemEventHub.cs" />
+    <Compile Include="GlobalEventRouter.cs" />
+    <Compile Include="Resources\IResourceManager.cs" />
+    <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Utilities\ArgumentEmptyException.cs" />
     <Compile Include="Utilities\ArgumentUtility.cs" />
     <Compile Include="Utilities\ReSharperAnnotations\AssertionConditionAttribute.cs" />

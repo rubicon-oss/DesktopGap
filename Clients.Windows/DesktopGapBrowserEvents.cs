@@ -28,26 +28,16 @@ namespace DesktopGap.Clients.Windows
   /// <summary>
   /// DesktopGap's custom events.
   /// </summary>
-  public class DesktopGapBrowserEvents : WebBrowserEventsBase
+  public class DesktopGapWebBrowserEvents : WebBrowserEventsBase
   {
     /// <summary>
     /// The corresponding WebBrowser control
     /// </summary>
     private readonly TridentWebBrowser _browserControl;
 
-    public DesktopGapBrowserEvents (TridentWebBrowser browserControl)
+    public DesktopGapWebBrowserEvents (TridentWebBrowser browserControl)
     {
       _browserControl = browserControl;
-    }
-
-    public override void DocumentComplete (object pDisp, ref object URL)
-    {
-      _browserControl.OnLoadFinished();
-    }
-
-    public override void DownloadBegin ()
-    {
-      _browserControl.OnDownloadBegin();
     }
 
     public override void BeforeNavigate2 (

@@ -18,25 +18,26 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition.Hosting;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
-using DesktopGap.Resources;
-using DesktopGap.WebBrowser;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Clients.Windows.WebBrowser
 {
-  public class TridentWebBrowserFactory : WebBrowserFactoryBase
+  /// <summary>
+  /// The enumatrion of the various BrowserModes for the BrowserEmulation Setting of the WebBrowser Control/IE
+  /// 
+  /// For more info see:
+  /// http://blogs.msdn.com/b/ie/archive/2009/03/10/more-ie8-extensibility-improvements.aspx
+  /// http://msdn.microsoft.com/en-us/library/ee330730%28v=vs.85%29.aspx#browser_emulation
+  /// </summary>
+  public enum WebBrowserMode
   {
-    public TridentWebBrowserFactory (CompositionContainer compositionContainer)
-        : base (compositionContainer)
-    {
-    }
-
-    protected override IExtendedWebBrowser CreateBrowser (
-        Func<IServiceManager> serviceManager, Func<IEventDispatcher> eventManager)
-    {
-      return new TridentWebBrowser (() => new ApiFacade (serviceManager(), eventManager()));
-    }
+    // ReSharper disable InconsistentNaming
+    ForcedIE10 = 10001, // Forced = ignore !DOCTYPE
+    IE10 = 10000,
+    ForcedIE9 = 9999,
+    IE9 = 9000,
+    ForcedIE8 = 8888,
+    IE8 = 8000,
+    IE7 = 7000
+    // ReSharper restore InconsistentNaming
   }
 }

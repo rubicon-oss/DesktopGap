@@ -41,10 +41,9 @@ namespace DesktopGap.Clients.Windows
 
     private NativeDragDropEffects ToNative (DragDropEffects dragDropEffects)
     {
-      var nativeDragDropEffects = NativeDragDropEffects.NONE;
+      NativeDragDropEffects nativeDragDropEffects;
       if (!NativeDragDropEffects.TryParse (dragDropEffects.ToString(), true, result: out nativeDragDropEffects))
         throw new Exception ("Invalid effect");
-
       return nativeDragDropEffects;
     }
 
@@ -70,8 +69,7 @@ namespace DesktopGap.Clients.Windows
       {
         dataObject = new DataObject (pDataObj);
       }
-
-
+      
       var dragEnterHandler = new ExtendedDragEventHandlerArgs (
           dataObject,
           (int) grfKeyState,

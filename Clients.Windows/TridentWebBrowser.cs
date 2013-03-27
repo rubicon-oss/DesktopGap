@@ -21,6 +21,7 @@ using System;
 using System.Drawing;
 using System.Windows.Forms;
 using DesktopGap.AddIns.Events;
+using DesktopGap.Clients.Windows.WebBrowser;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.Utilities;
@@ -50,10 +51,11 @@ namespace DesktopGap.Clients.Windows
     public TridentWebBrowser (Func<ApiFacade> apiFacadeFactory)
     {
       ArgumentUtility.CheckNotNull ("apiFacadeFactory", apiFacadeFactory);
-
       _apiFacadeFactory = apiFacadeFactory;
-      _BrowserEvents = new DesktopGapBrowserEvents (this);
-      Navigate ("about:blank");
+      _BrowserEvents = new DesktopGapWebBrowserEvents (this);
+
+      Navigate ("about:blank"); // bootstrap
+      BrowserMode = WebBrowserMode.IE10;
 
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
     }
@@ -86,7 +88,6 @@ namespace DesktopGap.Clients.Windows
       InitializeObjectForScripting();
     }
 
-
     public void OnLoadFinished ()
     {
       if (PageLoaded != null)
@@ -101,6 +102,7 @@ namespace DesktopGap.Clients.Windows
 
     public void OnBeforeNavigate (WindowOpenEventArgs navigationEventArgs)
     {
+      InitializeObjectForScripting();
     }
 
 
@@ -111,6 +113,8 @@ namespace DesktopGap.Clients.Windows
     public void OnDragEnter (ExtendedDragEventHandlerArgs e)
     {
       e.Current = ElementAt (e.X, e.Y);
+      e.Effect = DragDropEffects.Copy;
+
       if (DragEnter != null)
         DragEnter (this, e);
 
@@ -120,7 +124,6 @@ namespace DesktopGap.Clients.Windows
     public void OnDragDrop (ExtendedDragEventHandlerArgs e)
     {
       e.Current = ElementAt (e.X, e.Y);
-
       if (DragDrop != null)
         DragDrop (this, e);
 
@@ -154,7 +157,7 @@ namespace DesktopGap.Clients.Windows
     private void OnEventFired (object sender, ScriptEventArgs args)
     {
       if (Document != null)
-        Document.InvokeScript (args.Function, new object[] { args.ScriptArgs.ToString() });
+        Document.InvokeScript (args.Function, new object[] { args.ScriptArgs });
     }
 
     private void InitializeObjectForScripting ()
@@ -187,6 +190,11 @@ namespace DesktopGap.Clients.Windows
       var locationOnScreen = PointToScreen (Location);
       return Document.GetElementFromPoint (new Point (x - locationOnScreen.X, y - locationOnScreen.Y));
     }
+
+
+    //
+    //
+    //
   }
 
   #region keep for later 

@@ -45,7 +45,7 @@ namespace DesktopGap.Clients.Windows
 
       try
       {
-        var mainWindow = new Browser(browserFactory);
+        var mainWindow = new BrowserWindow(browserFactory);
         mainWindow.Show();
       }
       catch (Exception ex)
