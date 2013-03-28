@@ -187,7 +187,7 @@ namespace DesktopGap.AddIns.Events
 
       foreach (var callback in callbackNames.Where (c => source.CheckArgument (c.Value)))
       {
-        args.EventId = callback.Value.EventId;
+        args.EventId = callback.Value.EventID;
         var eventArgs = new ScriptEventArgs() { ScriptArgs = args, Function = callback.Key };
         EventFired (this, eventArgs);
       }

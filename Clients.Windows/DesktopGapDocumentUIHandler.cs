@@ -140,15 +140,15 @@ namespace DesktopGap.Clients.Windows
     }
 
  
-    public override int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
-    {
-      if (msg.message != (int) WindowsMessages.WM_KEYDOWN)
-        return HResult.S_FALSE;
+    //public override int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
+    //{
+    //  if (msg.message != (int) WindowsMessages.WM_KEYDOWN)
+    //    return HResult.S_FALSE;
 
-      var keyEventArgs = new KeyEventArgs ((Keys) msg.wParam);
-      _extendedTridentWebBrowser.OnBrowserKeyDown (_extendedTridentWebBrowser, keyEventArgs);
+    //  var keyEventArgs = new KeyEventArgs ((Keys) msg.wParam);
+    //  _extendedTridentWebBrowser.OnBrowserKeyDown (_extendedTridentWebBrowser, keyEventArgs);
 
-      return keyEventArgs.Handled ? HResult.S_OK : HResult.S_FALSE;
-    }
+    //  return keyEventArgs.Handled ? HResult.S_OK : HResult.S_FALSE;
+    //}
   }
 }

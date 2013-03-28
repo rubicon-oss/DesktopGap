@@ -23,12 +23,12 @@ namespace DesktopGap.AddIns.Events
 {
   public class EventArgument
   {
-    public string EventId { get; private set; }
+    public string EventID { get; private set; }
     public dynamic Criteria { get; private set; }
 
     public EventArgument (dynamic arg)
     {
-      EventId = arg.EventId;
+      EventID = arg.EventId;
       Criteria = arg.Criteria;
     }
   }

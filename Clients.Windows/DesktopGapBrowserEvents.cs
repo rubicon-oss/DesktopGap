@@ -48,7 +48,7 @@ namespace DesktopGap.Clients.Windows
       if (TargetFrameName != null)
       {
         target = TargetFrameName.ToString();
-        
+
         switch (target.ToLower()) // TODO redo this
         {
           case "_modal":

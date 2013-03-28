@@ -45,6 +45,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     private IWebBrowser2 _axIWebBrowser2;
 
+
+
     /// <summary>
     /// Connection point for attacing custom interfaces to the WebBrowser
     /// </summary>
@@ -64,6 +66,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       IsWebBrowserContextMenuEnabled = _enableWebBrowserContextMenu;
       WebBrowserShortcutsEnabled = false;
       _features = new TridentFeatures();
+
+      
     }
 
     public bool IsGPUAccelerated
@@ -85,9 +89,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void AttachInterfaces (object nativeActiveXObject)
     {
-      _axIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
-
-      base.AttachInterfaces (nativeActiveXObject);
+      IWebBrowser2 wrapper = new WebBrowserWrapper ((IWebBrowser2) nativeActiveXObject);
+      _axIWebBrowser2 = (IWebBrowser2)wrapper;
+      base.AttachInterfaces (_axIWebBrowser2);
     }
 
     /// <summary>

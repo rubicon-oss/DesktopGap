@@ -60,10 +60,6 @@ namespace DesktopGap.Clients.Windows
     }
 
     //
-    // Resources
-    //
-
-    //
     // Services
     //
 
