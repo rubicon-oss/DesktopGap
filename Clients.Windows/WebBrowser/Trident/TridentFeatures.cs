@@ -34,14 +34,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 
     public TridentFeatures ()
     {
-      _featureControl = Registry.LocalMachine;
-      _featureControl = Registry.LocalMachine.OpenSubKey (@"SOFTWARE\Wow6432Node") ?? Registry.LocalMachine.OpenSubKey ("SOFTWARE");
+      _featureControl = Registry.CurrentUser.OpenSubKey (@"SOFTWARE\Wow6432Node", true) ?? Registry.CurrentUser.OpenSubKey ("SOFTWARE", true);
 
       if (_featureControl == null)
         throw new Exception ("Registry key error"); // TODO use something proper
 
       _featureControl = _featureControl.OpenSubKey (@"Microsoft\Internet Explorer\MAIN\FeatureControl")
-                        ?? _featureControl.CreateSubKey (@"Microsoft\Internet Explorer\MAIN\FeatureControl", RegistryKeyPermissionCheck.ReadSubTree);
+                        ?? _featureControl.CreateSubKey (@"Microsoft\Internet Explorer\MAIN\FeatureControl", RegistryKeyPermissionCheck.ReadWriteSubTree);//", RegistryKeyPermissionCheck.ReadSubTree);
 
       _applicationName = AppDomain.CurrentDomain.FriendlyName;
     }
@@ -62,11 +61,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     }
 
     private void SetKey (string keyName, string value)
-    {
+    { 
       var key = _featureControl.OpenSubKey (keyName, true) ?? _featureControl.CreateSubKey (keyName, RegistryKeyPermissionCheck.ReadWriteSubTree);
       Debug.Assert (key != null);
       key.SetValue (_applicationName, value, RegistryValueKind.DWord);
-      key.Close();
+      key.Close(); 
     }
 
     private string GetKey (string keyName)

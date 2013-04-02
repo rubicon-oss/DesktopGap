@@ -46,7 +46,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     private IWebBrowser2 _axIWebBrowser2;
 
 
-
     /// <summary>
     /// Connection point for attacing custom interfaces to the WebBrowser
     /// </summary>
@@ -66,8 +65,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       IsWebBrowserContextMenuEnabled = _enableWebBrowserContextMenu;
       WebBrowserShortcutsEnabled = false;
       _features = new TridentFeatures();
-
-      
     }
 
     public bool IsGPUAccelerated
@@ -89,8 +86,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void AttachInterfaces (object nativeActiveXObject)
     {
-      IWebBrowser2 wrapper = new WebBrowserWrapper ((IWebBrowser2) nativeActiveXObject);
-      _axIWebBrowser2 = (IWebBrowser2)wrapper;
+      //dynamic wrapper = new WebBrowserWrapper ((IWebBrowser2) nativeActiveXObject);
+      _axIWebBrowser2 = nativeActiveXObject as IWebBrowser2;
       base.AttachInterfaces (_axIWebBrowser2);
     }
 
@@ -109,7 +106,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     public object Application
     {
-      get { return _axIWebBrowser2.Application; }
+      //get { return _axIWebBrowser2.Application; }
+      get { return this; }
     }
 
     /// <summary>
@@ -140,20 +138,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       _cookie = null;
     }
 
-    /// <summary>
-    /// Whether to register the WebBrowser's IDropTarget. 
-    /// </summary>
-    protected bool RegisterAsDropTarget
-    {
-      get { return _axIWebBrowser2 != null && _axIWebBrowser2.RegisterAsDropTarget; }
-      set
-      {
-        if (_axIWebBrowser2 == null)
-          return;
-
-        _axIWebBrowser2.RegisterAsDropTarget = value;
-      }
-    }
 
     /// <summary>
     /// Use a custom IDocHostUIHandler instead of the default. Used for intercepting keyboard and mouse events.
@@ -162,11 +146,22 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     protected void InstallCustomUIHandler (IDocHostUIHandler desktopGapDocumentUiHandler)
     {
       ArgumentUtility.CheckNotNull ("desktopGapDocumentUiHandler", desktopGapDocumentUiHandler);
-      RegisterAsDropTarget = false;
+      _axIWebBrowser2.RegisterAsDropTarget = false;
 
       var customDoc = (ICustomDoc) _axIWebBrowser2.Document;
-      
+
       customDoc.SetUIHandler (desktopGapDocumentUiHandler);
+    }
+
+    public new bool CanGoBack
+    {
+      get { return false; }
+
+    }
+
+
+    public new void Refresh ()
+    {
     }
 
     /// <summary>
@@ -176,54 +171,54 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <param name="e"></param>
     internal void OnBrowserKeyDown (object sender, KeyEventArgs e)
     {
-      var browser = (TridentWebBrowserBase) sender;
+      //var browser = (TridentWebBrowserBase) sender;
 
-      switch (e.KeyCode)
-      {
-        case Keys.F5:
-        case Keys.BrowserStop:
-        case Keys.BrowserSearch:
-        case Keys.BrowserRefresh:
-        case Keys.BrowserHome:
-        case Keys.BrowserForward:
-        case Keys.BrowserFavorites:
-        case Keys.BrowserBack:
-          e.Handled = true;
-          break;
+      //switch (e.KeyCode)
+      //{
+      //  case Keys.F5:
+      //  case Keys.BrowserStop:
+      //  case Keys.BrowserSearch:
+      //  case Keys.BrowserRefresh:
+      //  case Keys.BrowserHome:
+      //  case Keys.BrowserForward:
+      //  case Keys.BrowserFavorites:
+      //  case Keys.BrowserBack:
+      //    e.Handled = true;
+      //    break;
 
-        case Keys.Back:
-          if (browser.Document != null && browser.Document.ActiveElement != null)
-          {
-            bool isReadOnly;
+      //  case Keys.Back:
+      //    if (browser.Document != null && browser.Document.ActiveElement != null)
+      //    {
+      //      bool isReadOnly;
 
-            var activeElement = browser.Document.ActiveElement;
-            Boolean.TryParse (activeElement.GetAttribute ("readonly"), out isReadOnly);
+      //      var activeElement = browser.Document.ActiveElement;
+      //      Boolean.TryParse (activeElement.GetAttribute ("readonly"), out isReadOnly);
 
-            var tagname = activeElement.TagName.ToLower();
-            var type = activeElement.GetAttribute ("type").ToLower();
+      //      var tagname = activeElement.TagName.ToLower();
+      //      var type = activeElement.GetAttribute ("type").ToLower();
 
-            if (((tagname == "input" && Array.IndexOf (s_validElements, type) > 0) || tagname == "textarea")
-                && !isReadOnly)
-              return;
-          }
+      //      if (((tagname == "input" && Array.IndexOf (s_validElements, type) > 0) || tagname == "textarea")
+      //          && !isReadOnly)
+      //        return;
+      //    }
 
-          e.Handled = true;
-          break;
+      //    e.Handled = true;
+      //    break;
 
-        case Keys.ControlKey:
-          _controlPressed = true;
-          break;
+      //  case Keys.ControlKey:
+      //    _controlPressed = true;
+      //    break;
 
-        case Keys.R:
-        case Keys.P:
-        case Keys.Print:
-          e.Handled = _controlPressed || e.KeyCode == Keys.Print;
-          break;
+      //  case Keys.R:
+      //  case Keys.P:
+      //  case Keys.Print:
+      //    e.Handled = _controlPressed || e.KeyCode == Keys.Print;
+      //    break;
 
-        default:
-          _controlPressed = false;
-          break;
-      }
+      //  default:
+      //    _controlPressed = false;
+      //    break;
+      //}
     }
   }
 }

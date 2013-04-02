@@ -19,7 +19,6 @@
 // 
 using System;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Utilities;
 
@@ -163,7 +162,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       set { _inner.FullScreen = value; }
     }
 
-    public WebBrowserReadyState ReadyState
+    public tagREADYSTATE ReadyState
     {
       get { return _inner.ReadyState; }
     }
@@ -255,9 +254,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       _inner.Quit();
     }
 
-    public void ClientToWindow (out int pcx, out int pcy)
+    public void ClientToWindow (ref int pcx, ref int pcy)
     {
-      _inner.ClientToWindow (out pcx, out pcy);
+      _inner.ClientToWindow (ref pcx, ref pcy);
     }
 
     public void PutProperty (string Property, object vtValue)
@@ -297,7 +296,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       }
     }
 
-    public void ExecWB (OLECMDID cmdID, OLECMDEXECOPT cmdexecopt, ref object pvaIn, IntPtr pvaOut)
+    public void ExecWB (OLECMDID cmdID, OLECMDEXECOPT cmdexecopt, ref object pvaIn, ref object pvaOut)
     {
       switch (cmdID)
       {
@@ -317,7 +316,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       }
     }
 
-   
+
     public void ShowBrowserBar (ref object pvaClsid, ref object pvarShow, ref object pvarSize)
     {
       _inner.ShowBrowserBar (ref pvaClsid, ref pvarShow, ref pvarSize);
