@@ -38,7 +38,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     protected bool _automaticallyRegisterAsDropTarget = false;
 
-    protected bool _enableWebBrowserContextMenu = false;
+    protected bool _enableWebBrowserContextMenu = true;
 
     /// <summary>
     /// Object for returning the basic scripting interface when the .NET Framework demands it (Application property)
@@ -86,8 +86,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void AttachInterfaces (object nativeActiveXObject)
     {
-      //dynamic wrapper = new WebBrowserWrapper ((IWebBrowser2) nativeActiveXObject);
-      _axIWebBrowser2 = nativeActiveXObject as IWebBrowser2;
+      var wrapper = WebBrowserWrapper.CreateInstance (
+          (IWebBrowser2) nativeActiveXObject, nativeActiveXObject.GetType());
+      _axIWebBrowser2 = wrapper as IWebBrowser2;
       base.AttachInterfaces (_axIWebBrowser2);
     }
 
@@ -106,8 +107,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     public object Application
     {
-      //get { return _axIWebBrowser2.Application; }
-      get { return this; }
+      get { return _axIWebBrowser2; }
     }
 
     /// <summary>
@@ -151,17 +151,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       var customDoc = (ICustomDoc) _axIWebBrowser2.Document;
 
       customDoc.SetUIHandler (desktopGapDocumentUiHandler);
-    }
-
-    public new bool CanGoBack
-    {
-      get { return false; }
-
-    }
-
-
-    public new void Refresh ()
-    {
     }
 
     /// <summary>

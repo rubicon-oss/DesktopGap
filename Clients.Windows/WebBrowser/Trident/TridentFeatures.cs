@@ -62,10 +62,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 
     private void SetKey (string keyName, string value)
     { 
-      var key = _featureControl.OpenSubKey (keyName, true) ?? _featureControl.CreateSubKey (keyName, RegistryKeyPermissionCheck.ReadWriteSubTree);
-      Debug.Assert (key != null);
-      key.SetValue (_applicationName, value, RegistryValueKind.DWord);
-      key.Close(); 
+      //var key = _featureControl.OpenSubKey (keyName, true) ?? _featureControl.CreateSubKey (keyName, RegistryKeyPermissionCheck.ReadWriteSubTree);
+      //Debug.Assert (key != null);
+      //key.SetValue (_applicationName, value, RegistryValueKind.DWord);
+      //key.Close(); 
     }
 
     private string GetKey (string keyName)

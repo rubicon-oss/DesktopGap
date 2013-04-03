@@ -18,22 +18,58 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Runtime.Remoting;
+using System.Runtime.Remoting.Messaging;
+using System.Runtime.Remoting.Proxies;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
   [ComVisible (true)]
-  public class WebBrowserWrapper : IWebBrowser2
+  public class WebBrowserWrapper : RealProxy, IWebBrowser2, IRemotingTypeInfo
   {
     private readonly IWebBrowser2 _inner;
+    private readonly Type _targetType;
 
-    public WebBrowserWrapper (IWebBrowser2 inner)
+    private WebBrowserWrapper (IWebBrowser2 target, Type type)
+        : base (type)
     {
-      ArgumentUtility.CheckNotNull ("inner", inner);
+      _inner = target;
+      _targetType = GetType();
+    }
 
-      _inner = inner;
+
+    public static object CreateInstance (IWebBrowser2 target, Type type)
+    {
+      ArgumentUtility.CheckNotNull ("type", type);
+      ArgumentUtility.CheckNotNull ("target", target);
+      return new WebBrowserWrapper (target, type).GetTransparentProxy();
+    }
+
+    public override ObjRef CreateObjRef (Type requestedType)
+    {
+      throw new NotSupportedException ("Remoting of an interposed object is not supported.");
+    }
+
+    public override IMessage Invoke (IMessage message)
+    {
+      IMethodCallMessage methodMessage = new MethodCallMessageWrapper ((IMethodCallMessage) message);
+
+      var methodInfo = _targetType.GetMethod (methodMessage.MethodBase.Name);
+      var returnValue = methodInfo.Invoke (this, methodMessage.Args);
+
+      // Finally, form a return message containing the return 
+      // value along with any and all parameters that may have been 
+      // modified by the method call (those that are out or ref). 
+      return new ReturnMessage (
+          returnValue,
+          methodMessage.Args,
+          methodMessage.ArgCount,
+          methodMessage.LogicalCallContext,
+          methodMessage);
     }
 
 
@@ -321,5 +357,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     {
       _inner.ShowBrowserBar (ref pvaClsid, ref pvarShow, ref pvarSize);
     }
+
+    public bool CanCastTo (Type fromType, object o)
+    {
+      return true;
+    }
+
+    public string TypeName { get; set; }
   }
 }
