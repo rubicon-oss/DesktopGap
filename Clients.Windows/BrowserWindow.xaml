@@ -27,7 +27,6 @@
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="20px"/>
-            <RowDefinition Height="80px"/>
 
         </Grid.RowDefinitions>
         <TabControl Name="_tabControl" Grid.Row="0">
@@ -37,7 +36,6 @@
             <TextBox Name="_urlTextBox" MinWidth="400" Text="\\rubicon\home\claus.matzinger\test.html"/>
             <Button  Name="btnAddNew" Click="btnAddNew_Click_1" MinWidth="50" >Go!</Button>
         </StackPanel>
-        <ListBox Grid.Row ="2" Name="_ConsoleListBox"  ></ListBox>
     </Grid>
 
 </Window>

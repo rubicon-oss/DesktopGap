@@ -19,7 +19,6 @@
 // 
 using System;
 using System.Windows;
-using DesktopGap.AddIns.Events;
 using DesktopGap.Clients.Windows.Components;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
@@ -33,13 +32,11 @@ namespace DesktopGap.Clients.Windows
   /// </summary>
   public partial class BrowserWindow
   {
-    private readonly TridentWebBrowserFactory _browserFactory;
+    private readonly IWebBrowserFactory _browserFactory;
 
-    public BrowserWindow (TridentWebBrowserFactory browserFactory)
+    public BrowserWindow (IWebBrowserFactory browserFactory)
     {
       ArgumentUtility.CheckNotNull ("browserFactory", browserFactory);
-      
-
       _browserFactory = browserFactory;
       InitializeComponent();
     }
@@ -59,25 +56,17 @@ namespace DesktopGap.Clients.Windows
 
     private BrowserTab CreateBrowserTab (IExtendedWebBrowser browser)
     {
-      SystemEventHub.AddWebBrowser (browser);
-      var browserTab = new BrowserTab (_tabControl, (WFWebBrowser) browser);
+      var browserTab = new BrowserTab (_tabControl, (TridentWebBrowser) browser);
 
-      browserTab.ExtendedWebBrowser.PageLoaded += (s, b) => _ConsoleListBox.Items.Add (b.ToString() + " loaded");
-      browserTab.ExtendedWebBrowser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
-      ((TridentWebBrowser) browser).Output += ToConsole;
+      browser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
       return browserTab;
-    }
-
-    private void ToConsole (string s)
-    {
-      _ConsoleListBox.Items.Add (s + " passed");
-      _ConsoleListBox.ScrollIntoView (_ConsoleListBox.Items[_ConsoleListBox.Items.Count - 1]);
     }
 
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
     {
-      var newTab = CreateBrowserTab (_browserFactory.CreateBrowser());
-      newTab.ExtendedWebBrowser.Navigate (_urlTextBox.Text);
+      var browser = _browserFactory.CreateBrowser();
+      var newTab = CreateBrowserTab (browser);
+      browser.Navigate (_urlTextBox.Text);
 
       _tabControl.Items.Add (newTab);
       newTab.Focus();

@@ -25,9 +25,9 @@ using DesktopGap.AddIns.Services;
 namespace DesktopGap.AddIns
 {
   [ComVisible (true)]
-  public class UploadService : IExternalService
+  public class UploadService : ExternalServiceBase
   {
-    public string Name
+    public override string Name
     {
       get { return "UploadService"; }
     }

@@ -181,7 +181,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     ///S_FALSE 	The message was not handled. Host default behavior is allowed. </returns>
     public virtual int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
     {
-      return HResult.S_FALSE;
+      return HResult.E_NOTIMPL;
     }
 
     /// <summary>
@@ -204,7 +204,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int GetDropTarget (IDropTarget pDropTarget, out IDropTarget ppDropTarget)
     {
-      ppDropTarget = pDropTarget;
+      ppDropTarget = null;
       return HResult.E_NOTIMPL;
     }
 

@@ -42,7 +42,7 @@ namespace DesktopGap.Clients.Windows
     private NativeDragDropEffects ToNative (DragDropEffects dragDropEffects)
     {
       NativeDragDropEffects nativeDragDropEffects;
-      if (!NativeDragDropEffects.TryParse (dragDropEffects.ToString(), true, result: out nativeDragDropEffects))
+      if (!NativeDragDropEffects.TryParse (dragDropEffects.ToString(), true, out nativeDragDropEffects))
         throw new Exception ("Invalid effect");
       return nativeDragDropEffects;
     }
@@ -50,7 +50,7 @@ namespace DesktopGap.Clients.Windows
     private DragDropEffects ToWinForms (NativeDragDropEffects nativeDragDropEffects)
     {
       var dragDropEffects = DragDropEffects.None;
-      if (!DragDropEffects.TryParse (nativeDragDropEffects.ToString(), true, result: out nativeDragDropEffects))
+      if (!DragDropEffects.TryParse (nativeDragDropEffects.ToString(), true, out nativeDragDropEffects))
         throw new Exception ("Invalid effect");
 
       return dragDropEffects;
@@ -69,7 +69,7 @@ namespace DesktopGap.Clients.Windows
       {
         dataObject = new DataObject (pDataObj);
       }
-      
+
       var dragEnterHandler = new ExtendedDragEventHandlerArgs (
           dataObject,
           (int) grfKeyState,
@@ -139,12 +139,9 @@ namespace DesktopGap.Clients.Windows
       return HResult.S_OK;
     }
 
- 
+
     public override int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
     {
-      if (msg.message != (int) WindowsMessages.WM_KEYDOWN)
-        return HResult.S_FALSE;
-
       var keyEventArgs = new KeyEventArgs ((Keys) msg.wParam);
       _extendedTridentWebBrowser.OnBrowserKeyDown (_extendedTridentWebBrowser, keyEventArgs);
 

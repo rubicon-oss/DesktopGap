@@ -73,6 +73,11 @@ namespace DesktopGap.Clients.Windows
       Cancel = eventArgs.Cancel;
     }
 
+
+    public override void DownloadComplete ()
+    {
+      _browserControl.OnLoadFinished ();
+    }
     // TODO not pretty
     public override void NewWindow2 (ref object ppDisp, ref bool Cancel)
     {
@@ -80,7 +85,7 @@ namespace DesktopGap.Clients.Windows
       var eventArgs = new WindowOpenEventArgs (BrowserWindowStartMode.Tab, Cancel, "", "");
       _browserControl.OnNewWindow (eventArgs);
       if (eventArgs.TargetWindow != null)
-        ppDisp = (eventArgs.TargetWindow as TridentWebBrowserBase).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
+        ppDisp = ((TridentWebBrowserBase)eventArgs.TargetWindow).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
       Cancel = eventArgs.Cancel;
     }
 
@@ -94,7 +99,7 @@ namespace DesktopGap.Clients.Windows
       var eventArgs = new WindowOpenEventArgs (BrowserWindowStartMode.Tab, Cancel, bstrUrl, "");
       _browserControl.OnNewWindow (eventArgs);
       if (eventArgs.TargetWindow != null)
-        ppDisp = (eventArgs.TargetWindow as TridentWebBrowserBase).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
+        ppDisp = ((TridentWebBrowserBase)eventArgs.TargetWindow).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
       Cancel = eventArgs.Cancel;
     }
   }

@@ -26,7 +26,7 @@ namespace DesktopGap.AddIns.Services
 {
   public class ServiceManager : IServiceManager //TODO add something for built-in services
   {
-    private readonly IDictionary<string, IExternalService> _services = new Dictionary<string, IExternalService>();
+    private readonly IDictionary<string, KeyValuePair<ExternalServiceBase, bool>> _services = new Dictionary<string, KeyValuePair<ExternalServiceBase, bool>>();
 
     public ServiceManager ()
     {
@@ -36,8 +36,8 @@ namespace DesktopGap.AddIns.Services
     {
     }
 
-    [ImportMany (typeof (IExternalService), RequiredCreationPolicy = CreationPolicy.Any)]
-    public IEnumerable<IExternalService> Services
+    [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.NonShared)]
+    public IEnumerable<ExternalServiceBase> NonSharedServices
     {
       set
       {
@@ -45,20 +45,31 @@ namespace DesktopGap.AddIns.Services
 
         _services.Clear();
         foreach (var service in value)
-          RegisterService (service);
+          RegisterService (service, false);
       }
     }
 
-    public void RegisterService (IExternalService service)
+    [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.Shared)]
+    public IEnumerable<ExternalServiceBase> SharedServices
     {
-      ArgumentUtility.CheckNotNull ("service", service);
+      set
+      {
+        ArgumentUtility.CheckNotNull ("value", value);
 
-      if(HasService (service.Name))
-        throw new InvalidOperationException (string.Format ("Service '{0}' already registered.", service.Name));
-      _services[service.Name] = service;
+        _services.Clear();
+        foreach (var service in value)
+          RegisterService (service, true);
+      }
     }
 
-    public void UnregisterService (IExternalService service)
+    private void RegisterService (ExternalServiceBase service, bool singletonBehavior)
+    {
+      if(HasService (service.Name))
+        throw new InvalidOperationException (string.Format ("Service '{0}' already registered.", service.Name));
+      _services[service.Name] = new KeyValuePair<ExternalServiceBase, bool>(service, singletonBehavior);
+    }
+
+    public void UnregisterService (ExternalServiceBase service)
     {
       ArgumentUtility.CheckNotNull ("service", service);
 
@@ -66,25 +77,25 @@ namespace DesktopGap.AddIns.Services
       _services.Remove (service.Name);
     }
 
-    public IExternalService GetService (string serviceName)
+    public ExternalServiceBase GetService (string serviceName)
     {
       return GetService (serviceName, name => new InvalidOperationException (string.Format ("Service '{0}' not found.", name)));
     }
 
     public bool HasService (string name)
     {
-      IExternalService s;
+      KeyValuePair<ExternalServiceBase, bool> s;
       return _services.TryGetValue (name, out s);
     }
 
 
-    private IExternalService GetService<TException> (string serviceName, Func<string, TException> createServiceNotFoundException)
+    private ExternalServiceBase GetService<TException> (string serviceName, Func<string, TException> createServiceNotFoundException)
         where TException : Exception
     {
-      IExternalService service;
+      KeyValuePair<ExternalServiceBase, bool> service;
       if (!_services.TryGetValue (serviceName, out service))
         throw createServiceNotFoundException (serviceName);
-      return service;
+      return service.Value? service.Key: service.Key;
     }
   }
 }

@@ -47,10 +47,11 @@
     <Compile Include="AddIns\Events\EventArgument.cs" />
     <Compile Include="AddIns\Events\EventManager.cs" />
     <Compile Include="AddIns\Events\IEventHost.cs" />
-    <Compile Include="AddIns\Events\IExternalEvent.cs" />
+    <Compile Include="AddIns\Events\ExternalEventBase.cs" />
+    <Compile Include="AddIns\Events\IGlobalEventSubscriber.cs" />
     <Compile Include="AddIns\Events\ScriptArgs.cs" />
-    <Compile Include="AddIns\Events\SystemEventHub.cs" />
-    <Compile Include="GlobalEventRouter.cs" />
+    <Compile Include="AddIns\Events\GlobalEventRouter.cs" />
+    <Compile Include="AddIns\Events\IGlobalEventRouter.cs" />
     <Compile Include="Resources\IResourceManager.cs" />
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Utilities\ArgumentEmptyException.cs" />
@@ -65,7 +66,7 @@
     <Compile Include="AddIns\Events\IEventDispatcher.cs" />
     <Compile Include="AddIns\Services\IServiceManager.cs" />
     <Compile Include="AddIns\Services\ServiceManager.cs" />
-    <Compile Include="AddIns\Services\IExternalService.cs" />
+    <Compile Include="AddIns\Services\ExternalServiceBase.cs" />
     <Compile Include="OleLibraryDependencies\ExtendedDragEventHandlerArgs.cs" />
     <Compile Include="WebBrowser\IExtendedWebBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

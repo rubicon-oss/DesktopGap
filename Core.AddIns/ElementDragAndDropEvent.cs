@@ -19,58 +19,72 @@
 // 
 using System;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Windows.Forms;
 using DesktopGap.AddIns.Events;
 
 namespace DesktopGap.AddIns
 {
   [PartCreationPolicy (CreationPolicy.NonShared)]
-  public class ElementDragAndDropEvent : IExternalEvent
+  public class ElementDragAndDropEvent : ExternalEventBase
   {
     private const string c_name = "ElementDragAndDrop";
 
-    public string Name
+    public override string Name
     {
       get { return c_name; }
     }
 
     public event ScriptEvent ItemDropped;
 
-    public void UnregisterEvents (IEventHost eventHost)
+    public override void UnregisterEvents (IEventHost eventHost)
     {
       eventHost.UnregisterEvent (this, ref ItemDropped, "ItemDropped");
     }
 
-    public void OnBeforeLoad ()
+    public override void OnBeforeLoad ()
     {
-      SystemEventHub.DragDrop += (s, e) =>
-                                 {
-                                   var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
+      //SystemEventHub.DragDrop += (s, e) =>
+      //                           {
+      //                             if (Boolean.Parse (((HtmlElement) e.Current).GetAttribute ("droptarget")))
+      //                             {
+      //                               e.Effect = DragDropEffects.Copy;
+      //                               var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
 
-                                   ItemDropped (
-                                       this,
-                                       "ItemDropped",
-                                       new FileScriptArgs (filePaths[0]));
-                                 };
+      //                               ItemDropped (
+      //                                   this,
+      //                                   "ItemDropped",
+      //                                   new FileScriptArgs (filePaths[0]));
+      //                             }
+      //                             e.Effect = DragDropEffects.None;
+      //                           };
     }
 
 
-    public bool CheckArgument (EventArgument argument)
+    public override bool CheckArgument (EventArgument argument)
     {
-      return true;
+      try
+      {
+        return argument.Criteria.elementId == "realDropTarget";
+      }catch
+      {
+        Debug.WriteLine ("something is wrong here");
+        return false;
+      }
     }
 
-    public void RegisterEvents (IEventHost eventHost)
+    public override void RegisterEvents (IEventHost eventHost)
     {
       eventHost.RegisterEvent (this, ref ItemDropped, "ItemDropped");
     }
 
 
-    public void OnBeforeUnload ()
+    public override void OnBeforeUnload ()
     {
     }
 
-    public void Dispose ()
+    public override void Dispose ()
+
     {
     }
   }

@@ -1,4 +1,5 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿using DesktopGap.WebBrowser;
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -30,8 +31,7 @@ namespace DesktopGap.Clients.Windows
   public partial class App
   {
     private const string c_addInDirectory = @".";
-
-    
+    private IWebBrowserFactory _browserFactory;
 
     private void Application_Startup (object sender, StartupEventArgs e)
     {
@@ -39,13 +39,11 @@ namespace DesktopGap.Clients.Windows
       catalog.Catalogs.Add (new DirectoryCatalog (c_addInDirectory));
       var container = new CompositionContainer (catalog);
 
-      var browserFactory = new TridentWebBrowserFactory(container);
-
-
+      _browserFactory = new TridentWebBrowserFactory(container);
 
       try
       {
-        var mainWindow = new BrowserWindow(browserFactory);
+        var mainWindow = new BrowserWindow(_browserFactory);
         mainWindow.Show();
       }
       catch (Exception ex)

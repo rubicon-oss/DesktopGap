@@ -33,12 +33,30 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
   {
     // Source: http://www.codeproject.com/Articles/13598/Extended-NET-2-0-WebBrowser-Control
 
+
+    protected class XWebBrowserSite : System.Windows.Forms.WebBrowser.WebBrowserSite
+    {
+      public XWebBrowserSite (System.Windows.Forms.WebBrowser host)
+          : base(host)
+      {
+
+      }
+    }
+
     /// <summary>
     /// Avoid default registration as IDropTarget by the WebBrowser.
     /// </summary>
     protected bool _automaticallyRegisterAsDropTarget = false;
 
-    protected bool _enableWebBrowserContextMenu = true;
+    protected bool _enableWebBrowserContextMenu = false;
+
+    protected bool _enableWebBrowserShortcuts = false;
+
+
+    /// <summary>
+    /// Enables/disables shortcuts for editing (ctrl-A, ctrl-X, ctrl-C, ...)
+    /// </summary>
+    protected bool _enableWebBrowserEditingShortcuts = true;
 
     /// <summary>
     /// Object for returning the basic scripting interface when the .NET Framework demands it (Application property)
@@ -56,14 +74,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     protected DWebBrowserEvents2 _BrowserEvents { get; set; }
 
-    private static readonly string[] s_validElements = new string[] { "text", "password" };
-    private bool _controlPressed;
     protected readonly TridentFeatures _features;
 
     protected TridentWebBrowserBase ()
     {
       IsWebBrowserContextMenuEnabled = _enableWebBrowserContextMenu;
-      WebBrowserShortcutsEnabled = false;
+
       _features = new TridentFeatures();
     }
 
@@ -89,6 +105,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       var wrapper = WebBrowserWrapper.CreateInstance (
           (IWebBrowser2) nativeActiveXObject, nativeActiveXObject.GetType());
       _axIWebBrowser2 = wrapper as IWebBrowser2;
+      //_axIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
+      //object x = 0;
+      //  object  y = 0;
+      //_axIWebBrowser2.ExecWB (OLECMDID.OLECMDID_OPTICAL_ZOOM,OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT, ref y, ref x);
       base.AttachInterfaces (_axIWebBrowser2);
     }
 
@@ -107,7 +127,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     public object Application
     {
-      get { return _axIWebBrowser2; }
+      get { return _axIWebBrowser2.Application; }
     }
 
     /// <summary>
@@ -149,65 +169,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       _axIWebBrowser2.RegisterAsDropTarget = false;
 
       var customDoc = (ICustomDoc) _axIWebBrowser2.Document;
-
+      //var frames = Document.Window.Frames[0].
       customDoc.SetUIHandler (desktopGapDocumentUiHandler);
-    }
-
-    /// <summary>
-    /// Handler for KeyDown events to surpress default handling of well-known keyboard shortcuts.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    internal void OnBrowserKeyDown (object sender, KeyEventArgs e)
-    {
-      //var browser = (TridentWebBrowserBase) sender;
-
-      //switch (e.KeyCode)
-      //{
-      //  case Keys.F5:
-      //  case Keys.BrowserStop:
-      //  case Keys.BrowserSearch:
-      //  case Keys.BrowserRefresh:
-      //  case Keys.BrowserHome:
-      //  case Keys.BrowserForward:
-      //  case Keys.BrowserFavorites:
-      //  case Keys.BrowserBack:
-      //    e.Handled = true;
-      //    break;
-
-      //  case Keys.Back:
-      //    if (browser.Document != null && browser.Document.ActiveElement != null)
-      //    {
-      //      bool isReadOnly;
-
-      //      var activeElement = browser.Document.ActiveElement;
-      //      Boolean.TryParse (activeElement.GetAttribute ("readonly"), out isReadOnly);
-
-      //      var tagname = activeElement.TagName.ToLower();
-      //      var type = activeElement.GetAttribute ("type").ToLower();
-
-      //      if (((tagname == "input" && Array.IndexOf (s_validElements, type) > 0) || tagname == "textarea")
-      //          && !isReadOnly)
-      //        return;
-      //    }
-
-      //    e.Handled = true;
-      //    break;
-
-      //  case Keys.ControlKey:
-      //    _controlPressed = true;
-      //    break;
-
-      //  case Keys.R:
-      //  case Keys.P:
-      //  case Keys.Print:
-      //    e.Handled = _controlPressed || e.KeyCode == Keys.Print;
-      //    break;
-
-      //  default:
-      //    _controlPressed = false;
-      //    break;
-      //}
     }
   }
 }

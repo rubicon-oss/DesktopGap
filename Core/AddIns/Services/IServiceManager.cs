@@ -48,7 +48,7 @@ namespace DesktopGap.AddIns.Services
     /// </summary>
     /// <param name="serviceName"></param>
     /// <returns></returns>
-    IExternalService GetService (string serviceName);
+    ExternalServiceBase GetService (string serviceName);
 
 
     /// <summary>

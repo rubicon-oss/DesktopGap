@@ -31,7 +31,7 @@ using DesktopGap.WebBrowser.EventArguments;
 
 namespace DesktopGap.Clients.Windows
 {
-  public class TridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IDropTarget
+  public class TridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser
   {
     private readonly Func<ApiFacade> _apiFacadeFactory;
     public event EventHandler<IExtendedWebBrowser> PageLoaded;
@@ -40,13 +40,10 @@ namespace DesktopGap.Clients.Windows
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragOver;
+    public event EventHandler Focussed;
+
 
     public new event EventHandler DragLeave;
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public event Action<string> Output;
 
     public TridentWebBrowser (Func<ApiFacade> apiFacadeFactory)
     {
@@ -56,7 +53,6 @@ namespace DesktopGap.Clients.Windows
 
       Navigate ("about:blank"); // bootstrap
       BrowserMode = WebBrowserMode.IE10;
-
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
     }
 
@@ -81,8 +77,6 @@ namespace DesktopGap.Clients.Windows
     //
     // NAVIGATION EVENTS
     // 
-
-
     public void OnDownloadBegin ()
     {
       InitializeObjectForScripting();
@@ -104,7 +98,12 @@ namespace DesktopGap.Clients.Windows
     {
       InitializeObjectForScripting();
     }
-
+    
+    public void OnFocussed (object sender, EventArgs eventArgs)
+    {
+      if (Focussed != null)
+        Focussed (sender, eventArgs);
+    }
 
     //
     // INTERACTION EVENTS
@@ -139,9 +138,33 @@ namespace DesktopGap.Clients.Windows
     public void OnDragOver (ExtendedDragEventHandlerArgs e)
     {
       e.Current = ElementAt (e.X, e.Y);
+      e.Effect = DragDropEffects.Copy;
+
       if (DragOver != null)
         DragOver (this, e);
       e.Handled = true;
+    }
+
+    public void OnBrowserKeyDown (TridentWebBrowser extendedTridentWebBrowser, KeyEventArgs keyEventArgs)
+    {
+      var keyCode = keyEventArgs.KeyCode | ModifierKeys;
+
+      if (!Enum.IsDefined (typeof (Shortcut), (Shortcut) keyCode))
+        return;
+
+      switch (keyCode)
+      {
+        case Keys.Control | Keys.A: // Select All
+        case Keys.Control | Keys.C: // Copy
+        case Keys.Control | Keys.V: // Paste
+        case Keys.Control | Keys.X: // Cut
+        case Keys.Delete: // Delete
+          keyEventArgs.Handled = !_enableWebBrowserEditingShortcuts;
+          break;
+        default:
+          keyEventArgs.Handled = !_enableWebBrowserShortcuts;
+          break;
+      }
     }
 
 

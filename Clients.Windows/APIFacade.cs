@@ -51,15 +51,6 @@ namespace DesktopGap.Clients.Windows
     }
 
     //
-    // General
-    //
-
-    public string CreateGuid ()
-    {
-      return Guid.NewGuid().ToString();
-    }
-
-    //
     // Services
     //
 

@@ -21,7 +21,7 @@ using System;
 
 namespace DesktopGap.AddIns.Events
 {
-  public delegate void ScriptEvent (IExternalEvent source, string eventName, JsonData arguments);
+  public delegate void ScriptEvent (ExternalEventBase source, string eventName, JsonData arguments);
 
   public interface IEventDispatcher : IDisposable
   {

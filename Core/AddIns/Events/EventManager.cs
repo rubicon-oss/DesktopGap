@@ -32,20 +32,19 @@ namespace DesktopGap.AddIns.Events
     private readonly Dictionary<string, IList<KeyValuePair<string, EventArgument>>> _clients =
         new Dictionary<string, IList<KeyValuePair<string, EventArgument>>>();
 
-    private IEnumerable<IExternalEvent> _eventsShared;
-    private IEnumerable<IExternalEvent> _eventsNonShared;
+    private IEnumerable<ExternalEventBase> _eventsShared;
+    private IEnumerable<ExternalEventBase> _eventsNonShared;
 
 
     public event EventHandler<ScriptEventArgs> EventFired;
 
-    [ImportMany (typeof (IExternalEvent), RequiredCreationPolicy = CreationPolicy.Any)]
-    public IEnumerable<IExternalEvent> NonSharedEvents
+    [ImportMany (typeof (ExternalEventBase), RequiredCreationPolicy = CreationPolicy.NonShared)]
+    public IEnumerable<ExternalEventBase> NonSharedEvents
     {
       get { return _eventsNonShared; }
       set
       {
         ArgumentUtility.CheckNotNull ("value", value);
-
 
         _eventsNonShared = value;
 
@@ -57,17 +56,26 @@ namespace DesktopGap.AddIns.Events
       }
     }
 
-    //[ImportMany (typeof (IExternalEvent), RequiredCreationPolicy = CreationPolicy.Shared)]
-    //public IEnumerable<IExternalEvent> SharedEvents
-    //{
-    //  get { return _eventsShared; }
-    //  set { _eventsShared = value; }
-    //}
+    [ImportMany (typeof (ExternalEventBase), RequiredCreationPolicy = CreationPolicy.Shared)]
+    public IEnumerable<ExternalEventBase> SharedEvents
+    {
+      get { return _eventsShared; }
+      set
+      {
+        ArgumentUtility.CheckNotNull ("value", value);
+
+        _eventsShared = value;
+        foreach (var evt in value)
+        {
+          evt.RegisterEvents (this);
+        }
+      }
+    }
 
 
     public EventManager ()
     {
-      NonSharedEvents = new List<IExternalEvent>();
+      NonSharedEvents = new List<ExternalEventBase>();
     }
 
     public void Dispose ()
@@ -76,6 +84,11 @@ namespace DesktopGap.AddIns.Events
       {
         nonSharedEvent.OnBeforeUnload();
         nonSharedEvent.Dispose();
+      }
+
+      foreach (var sharedEvent in SharedEvents)
+      {
+        sharedEvent.UnregisterEvents (this);
       }
     }
 
@@ -114,7 +127,7 @@ namespace DesktopGap.AddIns.Events
       return _clients.TryGetValue (name, out e);
     }
 
-    public void RegisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent, string eventName)
+    public void RegisterEvent (ExternalEventBase externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
       scriptEvent += FireEvent;
 
@@ -123,7 +136,7 @@ namespace DesktopGap.AddIns.Events
       InitializeClients (name);
     }
 
-    public void UnregisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent, string eventName)
+    public void UnregisterEvent (ExternalEventBase externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
       if (scriptEvent == null)
         throw new ArgumentNullException ("scriptEvent");
@@ -152,17 +165,7 @@ namespace DesktopGap.AddIns.Events
       return registrations;
     }
 
-    private void ReloadEvents ()
-    {
-      _clients.Clear();
-      foreach (var evt in NonSharedEvents)
-      {
-        evt.OnBeforeLoad();
-        evt.RegisterEvents (this);
-      }
-    }
-
-    private void InitializeClients (string name)
+  private void InitializeClients (string name)
     {
       if (GetClients (name) != null)
         throw new InvalidOperationException (String.Format ("Event {0} already registered", name));
@@ -178,7 +181,7 @@ namespace DesktopGap.AddIns.Events
       return eventClients;
     }
 
-    private void FireEvent (IExternalEvent source, string eventName, JsonData args)
+    private void FireEvent (ExternalEventBase source, string eventName, JsonData args)
     {
       var name = source.Name + c_moduleEventSeperator + eventName;
       IList<KeyValuePair<string, EventArgument>> callbackNames;

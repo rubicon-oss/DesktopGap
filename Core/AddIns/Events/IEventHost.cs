@@ -29,7 +29,7 @@ namespace DesktopGap.AddIns.Events
     /// <param name="externalEvent"></param>
     /// <param name="scriptEvent"></param>
     /// <param name="name"></param>
-    void RegisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent, string name);
+    void RegisterEvent (ExternalEventBase externalEvent, ref ScriptEvent scriptEvent, string name);
 
     /// <summary>
     /// 
@@ -37,6 +37,6 @@ namespace DesktopGap.AddIns.Events
     /// <param name="externalEvent"></param>
     /// <param name="scriptEvent"></param>
     /// <param name="name"></param>
-    void UnregisterEvent (IExternalEvent externalEvent, ref ScriptEvent scriptEvent, string name);
+    void UnregisterEvent (ExternalEventBase externalEvent, ref ScriptEvent scriptEvent, string name);
   }
 }
