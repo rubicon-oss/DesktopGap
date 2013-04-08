@@ -26,10 +26,10 @@ namespace DesktopGap.AddIns.Events
   [InheritedExport (typeof (ExternalEventBase))]
   public abstract class ExternalEventBase : IDisposable
   {
-    [Import(typeof(IResourceManager), AllowDefault = true)]
+    [Import (typeof (IResourceManager), AllowDefault = true)]
     protected IResourceManager ResourceManager { get; private set; }
 
-    [Import(typeof(IGlobalEventRouter), AllowDefault = true)]
+    [Import (typeof (IGlobalEventRouter), AllowDefault = true)]
     protected IGlobalEventRouter EventRouter { get; private set; }
 
 
@@ -40,8 +40,14 @@ namespace DesktopGap.AddIns.Events
     public abstract void RegisterEvents (IEventHost eventHost);
     public abstract void UnregisterEvents (IEventHost eventHost);
 
-    public abstract void OnBeforeLoad ();
-    public abstract void OnBeforeUnload ();
+    public virtual void OnBeforeLoad ()
+    {
+    }
+
+
+    public virtual void OnBeforeUnload ()
+    {
+    }
 
     public abstract void Dispose ();
   }

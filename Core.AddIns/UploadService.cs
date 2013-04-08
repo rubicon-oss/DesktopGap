@@ -19,17 +19,37 @@
 // 
 using System;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using DesktopGap.AddIns.Services;
 
 namespace DesktopGap.AddIns
 {
   [ComVisible (true)]
+  [PartCreationPolicy(CreationPolicy.NonShared)]
   public class UploadService : ExternalServiceBase
   {
     public override string Name
     {
       get { return "UploadService"; }
+    }
+
+    public UploadService ()
+    {
+      Debug.WriteLine ("UploadService created");
+    }
+
+    public override void Dispose ()
+    {
+      
+    }
+
+    public override void OnBeforeLoad ()
+    {
+    }
+
+    public override void OnBeforeUnload ()
+    {
     }
 
     public void Upload (dynamic url)

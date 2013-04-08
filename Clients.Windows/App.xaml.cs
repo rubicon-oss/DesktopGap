@@ -39,9 +39,7 @@ namespace DesktopGap.Clients.Windows
     {
       var catalog = new AggregateCatalog();
       catalog.Catalogs.Add (new DirectoryCatalog (c_addInDirectory));
-      var container = new CompositionContainer (catalog);
-
-      _browserFactory = new TridentWebBrowserFactory(container);
+      _browserFactory = new TridentWebBrowserFactory(catalog);
 
       try
       {

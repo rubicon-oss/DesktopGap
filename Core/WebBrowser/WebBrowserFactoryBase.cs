@@ -18,51 +18,59 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
+using System.ComponentModel.Composition.Primitives;
+using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
-using DesktopGap.Resources;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.WebBrowser
 {
   public abstract class WebBrowserFactoryBase : IWebBrowserFactory
   {
-    private readonly CompositionContainer _compositionContainer;
+    private readonly ComposablePartCatalog _catalog;
 
-    protected WebBrowserFactoryBase (CompositionContainer compositionContainer)
+    protected WebBrowserFactoryBase (ComposablePartCatalog catalog)
     {
-      _compositionContainer = compositionContainer;
+      ArgumentUtility.CheckNotNull ("catalog", catalog);
+
+      _catalog = catalog;
     }
 
     protected abstract IExtendedWebBrowser CreateBrowser (
-        Func<IServiceManager> serviceManager, Func<IEventDispatcher> eventManager);
+        IServiceManagerFactory serviceManagerFactory, IEventDispatcherFactory eventDispatcherFactory, IAddInManager addInManager);
+
+    //public IExtendedWebBrowser CreateBrowser ()
+    //{
+    //  //var serviceManager = new ServiceManager();
+    //  //var eventManager = new EventManager();
+    //  //_compositionContainer.ComposeParts (serviceManager);
+    //  //_compositionContainer.ComposeParts (eventManager);
+
+
+    //  //Func<IServiceManager> serviceManagerFactory = () => _compositionContainer.GetExportedValue<ServiceManager>();
+    //  //Func<IEventDispatcher> eventManagerFactory = () => _compositionContainer.GetExportedValue<EventManager>();
+
+    //  Func<IServiceManager> serviceManagerFactory = () =>
+    //                                                {
+    //                                                  var serviceManager = new ServiceManager();
+    //                                                  _compositionContainer.ComposeParts (serviceManager);
+    //                                                  return serviceManager;
+    //                                                };
+    //  Func<IEventDispatcher> eventManagerFactory = () =>
+    //                                               {
+    //                                                 var eventManager = new EventManager();
+    //                                                 _compositionContainer.ComposeParts (eventManager);
+    //                                                 return eventManager;
+    //                                               };
+
+    //  return CreateBrowser (serviceManagerFactory, eventManagerFactory);
+    //}
 
     public IExtendedWebBrowser CreateBrowser ()
     {
-      //var serviceManager = new ServiceManager();
-      //var eventManager = new EventManager();
-      //_compositionContainer.ComposeParts (serviceManager);
-      //_compositionContainer.ComposeParts (eventManager);
-
-
-      //Func<IServiceManager> serviceManagerFactory = () => _compositionContainer.GetExportedValue<ServiceManager>();
-      //Func<IEventDispatcher> eventManagerFactory = () => _compositionContainer.GetExportedValue<EventManager>();
-
-      Func<IServiceManager> serviceManagerFactory = () =>
-                                                    {
-                                                      var serviceManager = new ServiceManager();
-                                                      _compositionContainer.ComposeParts (serviceManager);
-                                                      return serviceManager;
-                                                    };
-      Func<IEventDispatcher> eventManagerFactory = () =>
-                                                   {
-                                                     var eventManager = new EventManager();
-                                                     _compositionContainer.ComposeParts (eventManager);
-                                                     return eventManager;
-                                                   };
-
-      return CreateBrowser (serviceManagerFactory, eventManagerFactory);
+      var addInManager = new AddInManager (_catalog);
+      return CreateBrowser (addInManager, addInManager, addInManager);
     }
   }
 }

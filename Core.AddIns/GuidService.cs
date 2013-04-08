@@ -30,6 +30,7 @@ namespace DesktopGap.AddIns
   public class GuidService : ExternalServiceBase
   {
 
+
     public GuidService ()
     {
       Debug.WriteLine ("GuidService created");
@@ -37,6 +38,19 @@ namespace DesktopGap.AddIns
     public override string Name
     {
       get { return "GuidService"; }
+    }
+
+    public override void Dispose ()
+    {
+
+    }
+
+    public override void OnBeforeLoad ()
+    {
+    }
+
+    public override void OnBeforeUnload ()
+    {
     }
 
     public string CreateGuid ()

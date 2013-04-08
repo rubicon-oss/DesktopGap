@@ -18,27 +18,21 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition.Primitives;
-using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
-using DesktopGap.Clients.Windows.WebBrowser.Scripting;
-using DesktopGap.Clients.Windows.WebBrowser.UI;
-using DesktopGap.WebBrowser;
 
-namespace DesktopGap.Clients.Windows.WebBrowser
+namespace DesktopGap.AddIns
 {
-  public class TridentWebBrowserFactory : WebBrowserFactoryBase
+  public interface IAddInManager :IDisposable
   {
-    public TridentWebBrowserFactory (ComposablePartCatalog catalog)
-        : base (catalog)
-    {
-    }
 
-    protected override IExtendedWebBrowser CreateBrowser (
-        IServiceManagerFactory serviceManagerFactory, IEventDispatcherFactory eventDispatcherFactory, IAddInManager addInManager)
-    {
-      return new TridentWebBrowser (() => new ApiFacade (serviceManagerFactory, eventDispatcherFactory, addInManager));
-    }
+    void AddEventDispatcher (object key, IEventDispatcher eventDispatcher);
+    IEventDispatcher GetEventDispatcher (Guid guid);
+    void RemoveEventDispatcher (Guid guid);
+
+    void AddServiceManager (object key, IServiceManager serviceManager);
+    IServiceManager GetServiceManager (Guid guid);
+    void RemoveServiceManager (Guid guid);
+
   }
 }

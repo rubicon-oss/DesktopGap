@@ -25,9 +25,8 @@ using System.Threading.Tasks;
 
 namespace DesktopGap.AddIns.Events
 {
-  public static class EventProvider
+  public interface IEventDispatcherFactory
   {
-
-
+    IEventDispatcher CreateEventDispatcher ();
   }
 }

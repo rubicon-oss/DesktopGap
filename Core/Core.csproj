@@ -47,13 +47,16 @@
     </Compile>
     <Compile Include="AddIns\Events\EventArgument.cs" />
     <Compile Include="AddIns\Events\EventManager.cs" />
-    <Compile Include="AddIns\Events\EventProvider.cs" />
+    <Compile Include="AddIns\AddInManager.cs" />
+    <Compile Include="AddIns\Events\IEventDispatcherFactory.cs" />
     <Compile Include="AddIns\Events\IEventHost.cs" />
     <Compile Include="AddIns\Events\ExternalEventBase.cs" />
     <Compile Include="AddIns\Events\IGlobalEventSubscriber.cs" />
     <Compile Include="AddIns\Events\ScriptArgs.cs" />
     <Compile Include="AddIns\Events\GlobalEventRouter.cs" />
     <Compile Include="AddIns\Events\IGlobalEventRouter.cs" />
+    <Compile Include="AddIns\IAddInManager.cs" />
+    <Compile Include="AddIns\Services\IServiceManagerFactory.cs" />
     <Compile Include="Resources\IResourceManager.cs" />
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Utilities\ArgumentEmptyException.cs" />
