@@ -17,50 +17,51 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Windows.Controls;
 using System.Windows.Forms.Integration;
+using DesktopGap.Clients.Windows.Components;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using WFWebBrowser = System.Windows.Forms.WebBrowser;
 
-namespace DesktopGap.Clients.Windows.Components
+namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   /// <summary>
   /// Interaction logic for BrowserTab.xaml
   /// </summary>
   public sealed class BrowserTab : TabItem
   {
-    private TridentWebBrowser _extendedWebBrowser;
+    private readonly WebBrowserHost _webBrowserHost;
 
     private readonly ItemsControl _parent;
     private readonly bool _isCloseable;
 
-    public BrowserTab (ItemsControl parent, TridentWebBrowser extendedWebBrowser, bool isCloseable = false)
+    public BrowserTab (ItemsControl parent, WebBrowserHost webBrowserHost, bool isCloseable = true)
     {
-      ArgumentUtility.CheckNotNull ("extendedWebBrowser", extendedWebBrowser);
+      ArgumentUtility.CheckNotNull ("webBrowserHost", webBrowserHost);
       ArgumentUtility.CheckNotNull ("parent", parent);
 
 
-      _extendedWebBrowser = extendedWebBrowser;
-      _extendedWebBrowser.PageLoaded += OnPageLoaded;
+      _webBrowserHost = webBrowserHost;
+      _webBrowserHost.WebBrowser.PageLoaded += OnPageLoaded;
       GotFocus += OnTabFocussed;
       
       _parent = parent;
+      _webBrowserHost = webBrowserHost;
       _isCloseable = isCloseable;
 
-      var host = new WindowsFormsHost { Child = extendedWebBrowser };
-      AddChild (host);
+      Content = _webBrowserHost;
     }
 
     private void OnTabFocussed (object sender, EventArgs e)
     {
-      _extendedWebBrowser.OnFocussed(sender, e);
+      _webBrowserHost.WebBrowser.OnFocussed(sender, e);
     }
 
     private void OnPageLoaded (object sender, IExtendedWebBrowser webBrowser)
     {
-      var header = new CloseableTabHeader (_extendedWebBrowser.Title, _isCloseable);
+      var header = new CloseableTabHeader (_webBrowserHost.WebBrowser.Title, _isCloseable);
       if (_isCloseable)
         header.TabClose += OnTabClose;
       Header = header;
@@ -75,8 +76,8 @@ namespace DesktopGap.Clients.Windows.Components
     private void CleanUp ()
     {
       // remove event handler to avoid memory leaks
-      _extendedWebBrowser.PageLoaded -= OnPageLoaded;
-      _extendedWebBrowser = null;
+      _webBrowserHost.WebBrowser.PageLoaded -= OnPageLoaded;
+      _webBrowserHost.WebBrowser = null;
     }
   }
 }

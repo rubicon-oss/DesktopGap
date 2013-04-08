@@ -65,25 +65,26 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="APIFacade.cs" />
+    <Compile Include="WebBrowser\Scripting\ApiFacade.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WebBrowser\ComTypes\Web\WindowOpenParameters.cs" />
     <Compile Include="WebBrowser\Trident\WebBrowserWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BrowserWindow.xaml.cs">
+    <Compile Include="WebBrowser\UI\BrowserWindow.xaml.cs">
       <DependentUpon>BrowserWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Components\BrowserTab.cs" />
+    <Compile Include="WebBrowser\UI\BrowserTab.cs" />
     <Compile Include="Components\CloseableTabHeader.xaml.cs">
       <DependentUpon>CloseableTabHeader.xaml</DependentUpon>
     </Compile>
-    <Compile Include="DesktopGapBrowserEvents.cs" />
-    <Compile Include="DesktopGapDocumentUIHandler.cs" />
-    <Compile Include="TridentWebBrowserFactory.cs" />
-    <Compile Include="WebBrowser\BrowserMode.cs" />
+    <Compile Include="WebBrowser\DesktopGapBrowserEvents.cs" />
+    <Compile Include="WebBrowser\DesktopGapDocumentUIHandler.cs" />
+    <Compile Include="WebBrowser\TridentWebBrowserFactory.cs" />
+    <Compile Include="WebBrowser\Trident\TridentWebBrowserMode.cs" />
     <Compile Include="WebBrowser\ComTypes\UIHandler\WindowsMessages.cs" />
     <Compile Include="WebBrowser\Trident\TridentFeatures.cs" />
     <Compile Include="WebBrowser\Trident\WebBrowserEventsBase.cs" />
@@ -97,7 +98,11 @@
     <Compile Include="WebBrowser\ComTypes\UIHandler\IOleInPlaceFrame.cs" />
     <Compile Include="WebBrowser\ComTypes\UIHandler\IOleInPlaceUIWindow.cs" />
     <Compile Include="WebBrowser\ComTypes\Web\DWebBrowserEvents2.cs" />
-    <Compile Include="TridentWebBrowser.cs">
+    <Compile Include="WebBrowser\UI\WebBrowserHost.cs" />
+    <Compile Include="WebBrowser\UI\PopUpWindow.xaml.cs">
+      <DependentUpon>PopUpWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WebBrowser\UI\TridentWebBrowser.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="WebBrowser\ComTypes\HResult.cs" />
@@ -127,11 +132,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="BrowserWindow.xaml">
+    <Page Include="WebBrowser\UI\BrowserWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Components\CloseableTabHeader.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="WebBrowser\UI\PopUpWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

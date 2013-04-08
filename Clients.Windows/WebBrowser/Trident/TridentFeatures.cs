@@ -54,9 +54,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       set { SetKey (c_gpuRenderingKey, value ? "1" : "0"); }
     }
 
-    public WebBrowserMode BrowserEmulationMode
+    public TridentWebBrowserMode BrowserEmulationMode
     {
-      get { return (WebBrowserMode) Enum.ToObject (typeof (WebBrowserMode), int.Parse (GetKey (c_browserModeKey))); }
+      get { return (TridentWebBrowserMode) Enum.ToObject (typeof (TridentWebBrowserMode), int.Parse (GetKey (c_browserModeKey))); }
       set { SetKey (c_browserModeKey, value.ToString ("D")); }
     }
 

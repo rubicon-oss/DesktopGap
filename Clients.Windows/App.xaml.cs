@@ -1,4 +1,6 @@
-﻿using DesktopGap.WebBrowser;
+﻿using DesktopGap.Clients.Windows.WebBrowser;
+using DesktopGap.Clients.Windows.WebBrowser.UI;
+using DesktopGap.WebBrowser;
 // This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 

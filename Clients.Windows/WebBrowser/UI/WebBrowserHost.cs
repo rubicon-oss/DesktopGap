@@ -18,42 +18,22 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
-using System.Web.Script.Serialization;
+using System.Windows.Controls;
+using System.Windows.Forms.Integration;
+using DesktopGap.Utilities;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
-  //Json.NET Attribute
-  [PermissionSet (SecurityAction.Demand, Name = "FullTrust")]
-  [ComVisible (true)]
-  public class JsonData
+  public class WebBrowserHost : ContentControl
   {
-    public string EventId;
-  }
+    public TridentWebBrowser WebBrowser;
 
-  public sealed class ScriptEventArgs : EventArgs
-  {
-    public string Function { get; set; }
-
-    public JsonData ScriptArgs { get; set; }
-
-    public string Serialize ()
+    public WebBrowserHost (TridentWebBrowser tridentWebBrowser)
     {
-      var serializer = new JavaScriptSerializer();
-      return serializer.Serialize (ScriptArgs);
-    }
-  }
+      ArgumentUtility.CheckNotNull ("tridentWebBrowser", tridentWebBrowser);
+      WebBrowser = tridentWebBrowser;
 
-  public class FileScriptArgs : JsonData
-  {
-    public string Path { get; private set; }
-
-    public FileScriptArgs (string path)
-    {
-      if (path == null)
-        throw new ArgumentNullException ("path");
-      Path = path;
+      Content = new WindowsFormsHost { Child = tridentWebBrowser };
     }
   }
 }

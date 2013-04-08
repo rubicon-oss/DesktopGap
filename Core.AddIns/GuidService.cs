@@ -19,14 +19,21 @@
 // 
 using System;
 using System.ComponentModel.Composition;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using DesktopGap.AddIns.Services;
 
 namespace DesktopGap.AddIns
 {
   [ComVisible (true)]
+  [PartCreationPolicy(CreationPolicy.Shared)]
   public class GuidService : ExternalServiceBase
   {
+
+    public GuidService ()
+    {
+      Debug.WriteLine ("GuidService created");
+    }
     public override string Name
     {
       get { return "GuidService"; }

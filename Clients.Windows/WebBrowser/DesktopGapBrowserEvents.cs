@@ -17,13 +17,16 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
+using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
+using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.EventArguments;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Clients.Windows.WebBrowser
 {
   /// <summary>
   /// DesktopGap's custom events.
@@ -40,32 +43,33 @@ namespace DesktopGap.Clients.Windows
       _browserControl = browserControl;
     }
 
+
     public override void BeforeNavigate2 (
         object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
     {
       BrowserWindowStartMode mode = BrowserWindowStartMode.Self;
       var target = "";
-      if (TargetFrameName != null)
-      {
-        target = TargetFrameName.ToString();
+      //if (TargetFrameName != null)
+      //{
+      //  target = TargetFrameName.ToString();
 
-        switch (target.ToLower()) // TODO redo this
-        {
-          case "_modal":
-            mode = BrowserWindowStartMode.ModalPopUp;
-            break;
-          case "_backgroundtab":
-            mode = BrowserWindowStartMode.BackgroundTab;
-            break;
+      //  switch (target.ToLower()) // TODO redo this
+      //  {
+      //    case "_modal":
+      //      mode = BrowserWindowStartMode.ModalPopUp;
+      //      break;
+      //    case "_backgroundtab":
+      //      mode = BrowserWindowStartMode.BackgroundTab;
+      //      break;
 
-          case "_tab":
-            mode = BrowserWindowStartMode.Tab;
-            break;
-          case "_popup":
-            mode = BrowserWindowStartMode.PopUp;
-            break;
-        }
-      }
+      //    case "_tab":
+      //      mode = BrowserWindowStartMode.Tab;
+      //      break;
+      //    case "_popup":
+      //      mode = BrowserWindowStartMode.PopUp;
+      //      break;
+      //  }
+      //}
 
       var eventArgs = new WindowOpenEventArgs (mode, Cancel, URL.ToString(), target);
       _browserControl.OnBeforeNavigate (eventArgs);
@@ -76,7 +80,6 @@ namespace DesktopGap.Clients.Windows
 
     public override void DownloadComplete ()
     {
-      _browserControl.OnLoadFinished ();
     }
     // TODO not pretty
     public override void NewWindow2 (ref object ppDisp, ref bool Cancel)
@@ -93,6 +96,42 @@ namespace DesktopGap.Clients.Windows
     {
       ArgumentUtility.CheckNotNullOrEmpty ("bstrUrl", bstrUrl);
       ArgumentUtility.CheckNotNullOrEmpty ("bstrUrlContext", bstrUrlContext);
+
+      var parameters = (WindowOpenParameters) dwFlags;
+      switch (parameters)
+      {
+        case WindowOpenParameters.None:
+          break;
+        case WindowOpenParameters.Unloading:
+          break;
+        case WindowOpenParameters.UserInitiated:
+          break;
+        case WindowOpenParameters.First:
+          break;
+        case WindowOpenParameters.OverrideKey:
+          break;
+        case WindowOpenParameters.ShowHelp:
+          break;
+        case WindowOpenParameters.HtmlDialog:
+          break;
+        case WindowOpenParameters.FromDialogChild:
+          break;
+        case WindowOpenParameters.UserRequested:
+          break;
+        case WindowOpenParameters.UserAllowed:
+          break;
+        case WindowOpenParameters.ForceWindow:
+          break;
+        case WindowOpenParameters.ForceTab:
+          break;
+        case WindowOpenParameters.SuggestWindow:
+          break;
+        case WindowOpenParameters.SuggestTab:
+          break;
+        case WindowOpenParameters.InactiveTab:
+          break;
+
+      }
 
 
       var ppDispOriginal = ppDisp;

@@ -18,26 +18,24 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.Utilities;
 
-namespace DesktopGap.Clients.Windows.WebBrowser
+namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   /// <summary>
-  /// The enumatrion of the various BrowserModes for the BrowserEmulation Setting of the WebBrowser Control/IE
-  /// 
-  /// For more info see:
-  /// http://blogs.msdn.com/b/ie/archive/2009/03/10/more-ie8-extensibility-improvements.aspx
-  /// http://msdn.microsoft.com/en-us/library/ee330730%28v=vs.85%29.aspx#browser_emulation
+  /// Interaction logic for PopUpWindow.xaml
   /// </summary>
-  public enum WebBrowserMode
+  public sealed partial class PopUpWindow
   {
-    // ReSharper disable InconsistentNaming
-    ForcedIE10 = 10001, // Forced = ignore !DOCTYPE
-    IE10 = 10000,
-    ForcedIE9 = 9999,
-    IE9 = 9000,
-    ForcedIE8 = 8888,
-    IE8 = 8000,
-    IE7 = 7000
-    // ReSharper restore InconsistentNaming
+    private readonly WebBrowserHost _browserHost;
+
+    public PopUpWindow (WebBrowserHost browserHost)
+    {
+      ArgumentUtility.CheckNotNull ("browserHost", browserHost);
+
+      _browserHost = browserHost;
+      InitializeComponent();
+      Content = _browserHost;
+    }
   }
 }

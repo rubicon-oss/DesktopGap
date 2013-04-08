@@ -17,14 +17,16 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.ComponentModel.Composition.Hosting;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
-using DesktopGap.Resources;
+using DesktopGap.Clients.Windows.WebBrowser.Scripting;
+using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.WebBrowser;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Clients.Windows.WebBrowser
 {
   public class TridentWebBrowserFactory : WebBrowserFactoryBase
   {
@@ -36,7 +38,7 @@ namespace DesktopGap.Clients.Windows
     protected override IExtendedWebBrowser CreateBrowser (
         Func<IServiceManager> serviceManager, Func<IEventDispatcher> eventManager)
     {
-      return new TridentWebBrowser (() => new ApiFacade (serviceManager(), eventManager()));
+      return new TridentWebBrowser (() => new ApiFacade (serviceManager(), eventManager));
     }
   }
 }

@@ -18,42 +18,26 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
-using System.Web.Script.Serialization;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.Clients.Windows.WebBrowser
 {
-  //Json.NET Attribute
-  [PermissionSet (SecurityAction.Demand, Name = "FullTrust")]
-  [ComVisible (true)]
-  public class JsonData
+  /// <summary>
+  /// The enumatrion of the various BrowserModes for the BrowserEmulation Setting of the WebBrowser Control/IE
+  /// 
+  /// For more info see:
+  /// http://blogs.msdn.com/b/ie/archive/2009/03/10/more-ie8-extensibility-improvements.aspx
+  /// http://msdn.microsoft.com/en-us/library/ee330730%28v=vs.85%29.aspx#browser_emulation
+  /// </summary>
+  public enum TridentWebBrowserMode
   {
-    public string EventId;
-  }
-
-  public sealed class ScriptEventArgs : EventArgs
-  {
-    public string Function { get; set; }
-
-    public JsonData ScriptArgs { get; set; }
-
-    public string Serialize ()
-    {
-      var serializer = new JavaScriptSerializer();
-      return serializer.Serialize (ScriptArgs);
-    }
-  }
-
-  public class FileScriptArgs : JsonData
-  {
-    public string Path { get; private set; }
-
-    public FileScriptArgs (string path)
-    {
-      if (path == null)
-        throw new ArgumentNullException ("path");
-      Path = path;
-    }
+    // ReSharper disable InconsistentNaming
+    ForcedIE10 = 10001, // Forced = ignore !DOCTYPE
+    IE10 = 10000,
+    ForcedIE9 = 9999,
+    IE9 = 9000,
+    ForcedIE8 = 8888,
+    IE8 = 8000,
+    IE7 = 7000
+    // ReSharper restore InconsistentNaming
   }
 }

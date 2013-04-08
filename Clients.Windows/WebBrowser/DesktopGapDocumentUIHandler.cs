@@ -23,6 +23,7 @@ using DesktopGap.Clients.Windows.OleLibraryDependencies;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
+using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.OleLibraryDependencies;
 using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 using IDropTarget = DesktopGap.Clients.Windows.OleLibraryDependencies.IDropTarget;

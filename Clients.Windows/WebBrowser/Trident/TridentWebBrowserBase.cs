@@ -89,7 +89,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       set { _features.GpuAcceleration = value; }
     }
 
-    public WebBrowserMode BrowserMode
+    public TridentWebBrowserMode BrowserMode
     {
       get { return _features.BrowserEmulationMode; }
       set { _features.BrowserEmulationMode = value; }

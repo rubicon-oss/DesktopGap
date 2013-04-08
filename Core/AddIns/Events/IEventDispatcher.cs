@@ -26,7 +26,7 @@ namespace DesktopGap.AddIns.Events
   public interface IEventDispatcher : IDisposable
   {
     /// <summary>
-    /// 
+    /// Occurs when a custom event has been dispatched. 
     /// </summary>
     event EventHandler<ScriptEventArgs> EventFired;
 

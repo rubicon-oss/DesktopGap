@@ -17,19 +17,18 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using DesktopGap.AddIns.Events;
-using DesktopGap.Clients.Windows.WebBrowser;
+using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.EventArguments;
 
-
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   public class TridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser
   {
@@ -43,6 +42,8 @@ namespace DesktopGap.Clients.Windows
     public event EventHandler Focussed;
 
 
+    private ApiFacade _apiFacade;
+
     public new event EventHandler DragLeave;
 
     public TridentWebBrowser (Func<ApiFacade> apiFacadeFactory)
@@ -52,8 +53,10 @@ namespace DesktopGap.Clients.Windows
       _BrowserEvents = new DesktopGapWebBrowserEvents (this);
 
       Navigate ("about:blank"); // bootstrap
-      BrowserMode = WebBrowserMode.IE10;
+      BrowserMode = TridentWebBrowserMode.IE10;
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
+
+      DocumentCompleted += TridentWebBrowser_DocumentCompleted;
     }
 
     protected override void Dispose (bool disposing)
@@ -77,17 +80,6 @@ namespace DesktopGap.Clients.Windows
     //
     // NAVIGATION EVENTS
     // 
-    public void OnDownloadBegin ()
-    {
-      InitializeObjectForScripting();
-    }
-
-    public void OnLoadFinished ()
-    {
-      if (PageLoaded != null)
-        PageLoaded (this, this);
-    }
-
     public void OnNewWindow (WindowOpenEventArgs eventArgs)
     {
       if (WindowOpen != null)
@@ -96,9 +88,9 @@ namespace DesktopGap.Clients.Windows
 
     public void OnBeforeNavigate (WindowOpenEventArgs navigationEventArgs)
     {
-      InitializeObjectForScripting();
+      InitializeScripting();
     }
-    
+
     public void OnFocussed (object sender, EventArgs eventArgs)
     {
       if (Focussed != null)
@@ -172,26 +164,14 @@ namespace DesktopGap.Clients.Windows
     // OTHER METHODS & EVENTS
     // 
 
-    /// <summary>
-    /// Occurs when an event was dispatched by the event manager.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="args"></param>
-    private void OnEventFired (object sender, ScriptEventArgs args)
-    {
-      if (Document != null)
-        Document.InvokeScript (args.Function, new object[] { args.ScriptArgs });
-    }
-
-    private void InitializeObjectForScripting ()
+    private void InitializeScripting ()
     {
       if (ObjectForScripting != null)
         return;
 
-      var apiFacade = _apiFacadeFactory();
+      _apiFacade = _apiFacadeFactory();
 
-      ObjectForScripting = apiFacade;
-      apiFacade.EventDispatched += OnEventFired;
+      ObjectForScripting = _apiFacade;
     }
 
     private void DisposeObjectForScripting ()
@@ -214,6 +194,27 @@ namespace DesktopGap.Clients.Windows
       return Document.GetElementFromPoint (new Point (x - locationOnScreen.X, y - locationOnScreen.Y));
     }
 
+
+    private void AddDocuments (HtmlWindow window)
+    {
+      if (window.Frames != null)
+        foreach (HtmlWindow w in window.Frames)
+          AddDocuments (w);
+
+      _apiFacade.AddDocument (window.Document);
+    }
+
+    private void TridentWebBrowser_DocumentCompleted (object sender, WebBrowserDocumentCompletedEventArgs e)
+    {
+      if (e.Url.AbsolutePath != Url.AbsolutePath)
+        return;
+
+      if (PageLoaded != null)
+        PageLoaded (this, (IExtendedWebBrowser) sender);
+
+      if (_apiFacade != null && Document != null && Document.Window != null)
+        AddDocuments (Document.Window);
+    }
 
     //
     //

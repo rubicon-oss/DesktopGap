@@ -18,42 +18,16 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Runtime.InteropServices;
-using System.Security.Permissions;
-using System.Web.Script.Serialization;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DesktopGap.AddIns.Events
 {
-  //Json.NET Attribute
-  [PermissionSet (SecurityAction.Demand, Name = "FullTrust")]
-  [ComVisible (true)]
-  public class JsonData
+  public static class EventProvider
   {
-    public string EventId;
-  }
 
-  public sealed class ScriptEventArgs : EventArgs
-  {
-    public string Function { get; set; }
 
-    public JsonData ScriptArgs { get; set; }
-
-    public string Serialize ()
-    {
-      var serializer = new JavaScriptSerializer();
-      return serializer.Serialize (ScriptArgs);
-    }
-  }
-
-  public class FileScriptArgs : JsonData
-  {
-    public string Path { get; private set; }
-
-    public FileScriptArgs (string path)
-    {
-      if (path == null)
-        throw new ArgumentNullException ("path");
-      Path = path;
-    }
   }
 }

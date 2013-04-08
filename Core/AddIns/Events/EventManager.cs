@@ -90,6 +90,7 @@ namespace DesktopGap.AddIns.Events
       {
         sharedEvent.UnregisterEvents (this);
       }
+      EventFired = null;
     }
 
 

@@ -17,15 +17,14 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Windows;
-using DesktopGap.Clients.Windows.Components;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.EventArguments;
-using WFWebBrowser = System.Windows.Forms.WebBrowser;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   /// <summary>
   /// Interaction logic for Browser.xaml
@@ -56,7 +55,7 @@ namespace DesktopGap.Clients.Windows
 
     private BrowserTab CreateBrowserTab (IExtendedWebBrowser browser)
     {
-      var browserTab = new BrowserTab (_tabControl, (TridentWebBrowser) browser);
+      var browserTab = new BrowserTab (_tabControl, new WebBrowserHost((TridentWebBrowser) browser));
 
       browser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
       return browserTab;
