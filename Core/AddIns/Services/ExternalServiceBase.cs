@@ -26,15 +26,9 @@ namespace DesktopGap.AddIns.Services
 {
   [InheritedExport (typeof (ExternalServiceBase))]
   [ComVisible (true)]
-  public abstract class ExternalServiceBase : IDisposable
+  public abstract class ExternalServiceBase : DesktopGapAddInBase
   {
     [Import (typeof (IResourceManager), AllowDefault = true)]
     protected IResourceManager ResourceManager { get; private set; }
-
-    public abstract String Name { get; }
-    public abstract void Dispose ();
-
-    public abstract void OnBeforeLoad ();
-    public abstract void OnBeforeUnload ();
   }
 }

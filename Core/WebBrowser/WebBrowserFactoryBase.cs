@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
@@ -28,49 +29,36 @@ namespace DesktopGap.WebBrowser
 {
   public abstract class WebBrowserFactoryBase : IWebBrowserFactory
   {
-    private readonly ComposablePartCatalog _catalog;
+    private readonly CompositionContainer _compositionContainer;
 
     protected WebBrowserFactoryBase (ComposablePartCatalog catalog)
     {
       ArgumentUtility.CheckNotNull ("catalog", catalog);
 
-      _catalog = catalog;
+      _compositionContainer = new CompositionContainer (catalog);
     }
 
+    /// <summary>
+    /// Method to construct the browser instance, should be overwritten; called by CreateBrowser().
+    /// </summary>
+    /// <param name="serviceManagerFactory"></param>
+    /// <param name="eventDispatcherFactory"></param>
+    /// <param name="addInManager"></param>
+    /// <returns>A new web browser instance.</returns>
     protected abstract IExtendedWebBrowser CreateBrowser (
         IServiceManagerFactory serviceManagerFactory, IEventDispatcherFactory eventDispatcherFactory, IAddInManager addInManager);
 
-    //public IExtendedWebBrowser CreateBrowser ()
-    //{
-    //  //var serviceManager = new ServiceManager();
-    //  //var eventManager = new EventManager();
-    //  //_compositionContainer.ComposeParts (serviceManager);
-    //  //_compositionContainer.ComposeParts (eventManager);
-
-
-    //  //Func<IServiceManager> serviceManagerFactory = () => _compositionContainer.GetExportedValue<ServiceManager>();
-    //  //Func<IEventDispatcher> eventManagerFactory = () => _compositionContainer.GetExportedValue<EventManager>();
-
-    //  Func<IServiceManager> serviceManagerFactory = () =>
-    //                                                {
-    //                                                  var serviceManager = new ServiceManager();
-    //                                                  _compositionContainer.ComposeParts (serviceManager);
-    //                                                  return serviceManager;
-    //                                                };
-    //  Func<IEventDispatcher> eventManagerFactory = () =>
-    //                                               {
-    //                                                 var eventManager = new EventManager();
-    //                                                 _compositionContainer.ComposeParts (eventManager);
-    //                                                 return eventManager;
-    //                                               };
-
-    //  return CreateBrowser (serviceManagerFactory, eventManagerFactory);
-    //}
-
+    /// <summary>
+    /// Factory method to create a web browser instance using the required parameters. For that, CreateBrowser(...) is called.
+    /// </summary>
+    /// <returns>A new webbrowser instance.</returns>
     public IExtendedWebBrowser CreateBrowser ()
     {
-      var addInManager = new AddInManager (_catalog);
-      return CreateBrowser (addInManager, addInManager, addInManager);
+      var serviceManagerFactory = new ServiceManagerFactory (_compositionContainer);
+      var eventDispatcherFactory = new EventDispatcherFactory( _compositionContainer);
+      var addInManager = new AddInManager ();
+
+      return CreateBrowser (serviceManagerFactory, eventDispatcherFactory, addInManager);
     }
   }
 }

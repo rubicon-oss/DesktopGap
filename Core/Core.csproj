@@ -45,6 +45,10 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="AddIns\Events\EventDispatcherFactory.cs" />
+    <Compile Include="AddIns\AddInBase.cs" />
+    <Compile Include="AddIns\Services\ServiceManagerFactory.cs" />
+    <Compile Include="WebBrowser\DocumentHandle.cs" />
     <Compile Include="AddIns\Events\EventArgument.cs" />
     <Compile Include="AddIns\Events\EventManager.cs" />
     <Compile Include="AddIns\AddInManager.cs" />
@@ -67,6 +71,8 @@
     <Compile Include="Utilities\ReSharperAnnotations\InvokerParameterNameAttribute.cs" />
     <Compile Include="Utilities\ReSharperAnnotations\NoEnumerationAttribute.cs" />
     <Compile Include="WebBrowser\BrowserWindowStartMode.cs" />
+    <Compile Include="WebBrowser\BrowserWindowTarget.cs" />
+    <Compile Include="WebBrowser\EventArguments\NavigationEventArgs.cs" />
     <Compile Include="WebBrowser\ISession.cs" />
     <Compile Include="AddIns\Events\IEventDispatcher.cs" />
     <Compile Include="AddIns\Services\IServiceManager.cs" />
@@ -76,6 +82,7 @@
     <Compile Include="WebBrowser\IExtendedWebBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebBrowser\IWebBrowserFactory.cs" />
+    <Compile Include="WebBrowser\IWebBrowserView.cs" />
     <Compile Include="WebBrowser\IWebBrowserWindow.cs" />
     <Compile Include="WebBrowser\Session.cs" />
     <Compile Include="WebBrowser\EventArguments\WindowOpenEventArgs.cs" />

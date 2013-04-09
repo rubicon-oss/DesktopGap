@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,20 +18,13 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DesktopGap.WebBrowser
 {
   public enum BrowserWindowStartMode
   {
-    PopUp,
-    ModalPopUp,
-    Tab,
-    BackgroundTab,
-    Self,
-    Window
+    Active,
+    Modal,
+    InBackground
   }
 }

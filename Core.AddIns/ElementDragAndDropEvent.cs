@@ -22,6 +22,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Windows.Forms;
 using DesktopGap.AddIns.Events;
+using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
@@ -42,7 +43,7 @@ namespace DesktopGap.AddIns
       eventHost.UnregisterEvent (this, ref ItemDropped, "ItemDropped");
     }
 
-    public override void OnBeforeLoad ()
+    public override void OnBeforeLoad (DocumentHandle document)
     {
       //SystemEventHub.DragDrop += (s, e) =>
       //                           {
@@ -61,7 +62,7 @@ namespace DesktopGap.AddIns
     }
 
 
-    public override bool CheckArgument (EventArgument argument)
+    public override bool CheckRaiseCondition (Condition argument)
     {
       try
       {
@@ -79,7 +80,7 @@ namespace DesktopGap.AddIns
     }
 
 
-    public override void OnBeforeUnload ()
+    public override void OnBeforeUnload  (DocumentHandle document)
     {
     }
 

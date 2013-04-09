@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
@@ -33,6 +32,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser
   /// </summary>
   public class DesktopGapWebBrowserEvents : WebBrowserEventsBase
   {
+    private const string c_ModalTargetPrefix = "_modal";
+    private const string c_BackgroundTargetPrefix = "_background";
+
+
     /// <summary>
     /// The corresponding WebBrowser control
     /// </summary>
@@ -47,31 +50,24 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public override void BeforeNavigate2 (
         object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
     {
-      BrowserWindowStartMode mode = BrowserWindowStartMode.Self;
-      var target = "";
-      //if (TargetFrameName != null)
-      //{
-      //  target = TargetFrameName.ToString();
+      var mode = BrowserWindowStartMode.Active;
+      var target = String.Empty;
+      if (TargetFrameName != null)
+      {
+        target = TargetFrameName.ToString();
 
-      //  switch (target.ToLower()) // TODO redo this
-      //  {
-      //    case "_modal":
-      //      mode = BrowserWindowStartMode.ModalPopUp;
-      //      break;
-      //    case "_backgroundtab":
-      //      mode = BrowserWindowStartMode.BackgroundTab;
-      //      break;
+        switch (target.ToLower())
+        {
+          case c_ModalTargetPrefix:
+            mode = BrowserWindowStartMode.Modal;
+            break;
+          case c_BackgroundTargetPrefix:
+            mode = BrowserWindowStartMode.InBackground;
+            break;
+        }
+      }
+      var eventArgs = new NavigationEventArgs (mode, Cancel, URL.ToString(), target);
 
-      //    case "_tab":
-      //      mode = BrowserWindowStartMode.Tab;
-      //      break;
-      //    case "_popup":
-      //      mode = BrowserWindowStartMode.PopUp;
-      //      break;
-      //  }
-      //}
-
-      var eventArgs = new WindowOpenEventArgs (mode, Cancel, URL.ToString(), target);
       _browserControl.OnBeforeNavigate (eventArgs);
 
       Cancel = eventArgs.Cancel;
@@ -81,15 +77,32 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public override void DownloadComplete ()
     {
     }
+
+
+    public override void WindowSetHeight (int height)
+    {
+      _browserControl.OnWindowSetHeight (height);
+    }
+
+    public override void WindowSetLeft (int left)
+    {
+      _browserControl.OnWindowSetLeft (left);
+    }
+
+    public override void WindowSetTop (int top)
+    {
+      _browserControl.OnWindowSetTop (top);
+    }
+
+    public override void WindowSetWidth (int width)
+    {
+      _browserControl.OnWindowSetWidth (width);
+    }
+
     // TODO not pretty
     public override void NewWindow2 (ref object ppDisp, ref bool Cancel)
     {
-      var ppDispOriginal = ppDisp;
-      var eventArgs = new WindowOpenEventArgs (BrowserWindowStartMode.Tab, Cancel, "", "");
-      _browserControl.OnNewWindow (eventArgs);
-      if (eventArgs.TargetWindow != null)
-        ppDisp = ((TridentWebBrowserBase)eventArgs.TargetWindow).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
-      Cancel = eventArgs.Cancel;
+      NewWindow3 (ref ppDisp, ref Cancel, 0, String.Empty, String.Empty);
     }
 
     public override void NewWindow3 (ref object ppDisp, ref bool Cancel, uint dwFlags, string bstrUrlContext, string bstrUrl)
@@ -97,48 +110,37 @@ namespace DesktopGap.Clients.Windows.WebBrowser
       ArgumentUtility.CheckNotNullOrEmpty ("bstrUrl", bstrUrl);
       ArgumentUtility.CheckNotNullOrEmpty ("bstrUrlContext", bstrUrlContext);
 
-      var parameters = (WindowOpenParameters) dwFlags;
-      switch (parameters)
+      var targetControl = BrowserWindowTarget.Tab;
+      switch ((WindowOpenParameters) dwFlags)
       {
-        case WindowOpenParameters.None:
-          break;
-        case WindowOpenParameters.Unloading:
-          break;
-        case WindowOpenParameters.UserInitiated:
-          break;
-        case WindowOpenParameters.First:
-          break;
-        case WindowOpenParameters.OverrideKey:
-          break;
-        case WindowOpenParameters.ShowHelp:
-          break;
-        case WindowOpenParameters.HtmlDialog:
-          break;
-        case WindowOpenParameters.FromDialogChild:
-          break;
-        case WindowOpenParameters.UserRequested:
-          break;
-        case WindowOpenParameters.UserAllowed:
-          break;
-        case WindowOpenParameters.ForceWindow:
-          break;
-        case WindowOpenParameters.ForceTab:
-          break;
-        case WindowOpenParameters.SuggestWindow:
-          break;
-        case WindowOpenParameters.SuggestTab:
-          break;
-        case WindowOpenParameters.InactiveTab:
-          break;
+          // DO NOTHING ON THESE FLAGS (= open in a tab)
+          //case WindowOpenParameters.None:
+          //case WindowOpenParameters.Unloading:
+          //case WindowOpenParameters.UserInitiated:
+          //case WindowOpenParameters.First:
+          //case WindowOpenParameters.OverrideKey:
+          //case WindowOpenParameters.ShowHelp:
+          //case WindowOpenParameters.ForceTab:
+          //case WindowOpenParameters.SuggestWindow:
+          //case WindowOpenParameters.SuggestTab:
+          //case WindowOpenParameters.FromDialogChild:
+          //case WindowOpenParameters.UserRequested:
+          //case WindowOpenParameters.UserAllowed:
 
+        case WindowOpenParameters.UserInitiated | WindowOpenParameters.First | WindowOpenParameters.SuggestWindow:
+        case WindowOpenParameters.UserInitiated | WindowOpenParameters.First | WindowOpenParameters.HtmlDialog:
+        case WindowOpenParameters.InactiveTab | WindowOpenParameters.HtmlDialog:
+        case WindowOpenParameters.InactiveTab | WindowOpenParameters.SuggestWindow:
+
+          targetControl = BrowserWindowTarget.PopUp;
+          break;
       }
 
-
       var ppDispOriginal = ppDisp;
-      var eventArgs = new WindowOpenEventArgs (BrowserWindowStartMode.Tab, Cancel, bstrUrl, "");
+      var eventArgs = new WindowOpenEventArgs (targetControl, Cancel, bstrUrl);
       _browserControl.OnNewWindow (eventArgs);
-      if (eventArgs.TargetWindow != null)
-        ppDisp = ((TridentWebBrowserBase)eventArgs.TargetWindow).Application ?? ppDispOriginal; // TODO change to a new DesktopGap Window
+      if (eventArgs.TargetView != null)
+        ppDisp = ((TridentWebBrowserBase) eventArgs.TargetView.WebBrowser).Application ?? ppDispOriginal;
       Cancel = eventArgs.Cancel;
     }
   }

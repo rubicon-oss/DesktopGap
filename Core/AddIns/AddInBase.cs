@@ -18,36 +18,22 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.WebBrowser;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.AddIns
 {
-  public delegate void ScriptEvent (ExternalEventBase source, string eventName, JsonData arguments);
-
-  public interface IEventDispatcher : IDisposable
+  public abstract class DesktopGapAddInBase : IDisposable
   {
-    /// <summary>
-    /// Occurs when a custom event has been dispatched. 
-    /// </summary>
-    event EventHandler<ScriptEventArgs> EventFired;
+    public abstract void Dispose ();
 
+    public abstract String Name { get; }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    /// <param name="argument"></param>
-    void Register (string eventName, string callbackName, string moduleName, Condition argument);
+    public virtual void OnBeforeLoad (DocumentHandle document)
+    {
+    }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    void Unregister (string eventName, string callbackName, string moduleName);
-
-    bool HasEvent (string name);
+    public virtual void OnBeforeUnload (DocumentHandle document)
+    {
+    }
   }
 }

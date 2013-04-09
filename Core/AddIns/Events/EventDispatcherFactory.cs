@@ -18,36 +18,27 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Events
 {
-  public delegate void ScriptEvent (ExternalEventBase source, string eventName, JsonData arguments);
-
-  public interface IEventDispatcher : IDisposable
+  public class EventDispatcherFactory : IEventDispatcherFactory
   {
-    /// <summary>
-    /// Occurs when a custom event has been dispatched. 
-    /// </summary>
-    event EventHandler<ScriptEventArgs> EventFired;
+    private readonly CompositionContainer _compositionContainer;
 
+    public EventDispatcherFactory (CompositionContainer compositionContainer)
+    {
+      ArgumentUtility.CheckNotNull ("compositionContainer", compositionContainer);
+      _compositionContainer = compositionContainer;
+    }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    /// <param name="argument"></param>
-    void Register (string eventName, string callbackName, string moduleName, Condition argument);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    void Unregister (string eventName, string callbackName, string moduleName);
-
-    bool HasEvent (string name);
+    public IEventDispatcher CreateEventDispatcher ()
+    {
+      var eventManager = new EventManager();
+      _compositionContainer.ComposeParts (eventManager);
+      return eventManager;
+    }
   }
 }

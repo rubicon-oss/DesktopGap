@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,44 +17,34 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 
 namespace DesktopGap.WebBrowser.EventArguments
 {
   public class WindowOpenEventArgs
   {
-    public bool IsModal { get; private set; }
-
-    public BrowserWindowStartMode StartMode { get; private set; }
-
-    public bool IsInBackground { get; private set; }
+    public BrowserWindowTarget TargetControl { get; private set; }
 
     public bool Cancel { get; set; }
 
-    public IExtendedWebBrowser TargetWindow { get; set; }
+    public IWebBrowserView TargetView { get; set; }
 
     public string URL { get; private set; }
-
-    public string Target { get; private set; }
 
     /// <summary>
     /// C'tor for the WindowOpen event arguments.
     /// </summary>
-    /// <param name="mode"> </param>
     /// <param name="cancel">Should the action be cancelled?</param>
     /// <param name="targetURL">The URL the window is going to open.</param>
-    /// <param name="target"> </param>
-    /// <param name="targetWindow">Where should the new window be openend? (null means new DesktopGap window)</param>
-    public WindowOpenEventArgs (BrowserWindowStartMode mode, bool cancel, string targetURL, string target, IExtendedWebBrowser targetWindow = null)
+    /// <param name="targetControl"> </param>
+    public WindowOpenEventArgs (
+        BrowserWindowTarget targetControl,
+        bool cancel,
+        string targetURL)
     {
-      IsModal = mode == BrowserWindowStartMode.ModalPopUp;
       Cancel = cancel;
       URL = targetURL;
-      IsInBackground = mode == BrowserWindowStartMode.BackgroundTab;
-      TargetWindow = targetWindow;
-      Target = target;
-      StartMode = mode;
+      TargetControl = targetControl;
     }
   }
 }

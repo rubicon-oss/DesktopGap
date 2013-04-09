@@ -18,16 +18,35 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Windows;
 using DesktopGap.Utilities;
+using DesktopGap.WebBrowser;
+using DesktopGap.WebBrowser.EventArguments;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   /// <summary>
   /// Interaction logic for PopUpWindow.xaml
   /// </summary>
-  public sealed partial class PopUpWindow
+  public sealed partial class PopUpWindow : IWebBrowserView
   {
     private readonly WebBrowserHost _browserHost;
+
+    public IExtendedWebBrowser WebBrowser
+    {
+      get { return _browserHost.WebBrowser; }
+    }
+
+    public void OnBeforeNavigate (object parent, NavigationEventArgs args)
+    {
+      ArgumentUtility.CheckNotNull ("args", args);
+      ArgumentUtility.CheckNotNull ("parent", parent);
+
+
+      if (args.StartMode == BrowserWindowStartMode.Modal)
+        ShowDialog();
+    }
+
 
     public PopUpWindow (WebBrowserHost browserHost)
     {
@@ -36,6 +55,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserHost = browserHost;
       InitializeComponent();
       Content = _browserHost;
+
+
+      //_browserHost.WebBrowser.
+
+      _browserHost.WebBrowser.WindowSetWidth += (s, w) => Width = w;
+      _browserHost.WebBrowser.WindowSetHeight += (s, h) => Height = h;
+      _browserHost.WebBrowser.WindowSetLeft += (s, l) => Left = l;
+      _browserHost.WebBrowser.WindowSetTop += (s, t) => Top = t;
     }
   }
 }

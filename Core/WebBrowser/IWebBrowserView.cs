@@ -1,4 +1,5 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿using DesktopGap.WebBrowser.EventArguments;
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,20 +19,12 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
-using DesktopGap.WebBrowser;
 
-namespace DesktopGap.AddIns
+namespace DesktopGap.WebBrowser
 {
-  public interface IAddInManager : IDisposable
+  public interface IWebBrowserView
   {
-    void AddEventDispatcher (DocumentHandle key, IEventDispatcher eventDispatcher);
-    IEventDispatcher GetEventDispatcher (DocumentHandle handle);
-    void RemoveEventDispatcher (DocumentHandle handle);
-
-    void AddServiceManager (DocumentHandle key, IServiceManager serviceManager);
-    IServiceManager GetServiceManager (DocumentHandle handle);
-    void RemoveServiceManager (DocumentHandle handle);
+    IExtendedWebBrowser WebBrowser { get; }
+    void OnBeforeNavigate (object sender, NavigationEventArgs args);
   }
 }

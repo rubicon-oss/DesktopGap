@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -32,27 +31,37 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   public class TridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser
   {
-    private readonly Func<ApiFacade> _apiFacadeFactory;
     public event EventHandler<IExtendedWebBrowser> PageLoaded;
     public event EventHandler<EventArgs> ContentReloaded;
     public event EventHandler<WindowOpenEventArgs> WindowOpen;
+    public event EventHandler<NavigationEventArgs> BeforeNavigate;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragOver;
+
+    public event EventHandler<int> WindowSetHeight;
+    public event EventHandler<int> WindowSetLeft;
+    public event EventHandler<int> WindowSetTop;
+    public event EventHandler<int> WindowSetWidth;
+
+    //TODO spelling
     public event EventHandler Focussed;
 
-
-    private ApiFacade _apiFacade;
+    private int _recursionDepth;
+    private int _maxRecursionDepth;
 
     public new event EventHandler DragLeave;
 
-    public TridentWebBrowser (Func<ApiFacade> apiFacadeFactory)
+    public TridentWebBrowser (ApiFacade apiFacade, int maxRecursionDepth = 100, int recursionDepth = 0)
     {
-      ArgumentUtility.CheckNotNull ("apiFacadeFactory", apiFacadeFactory);
-      _apiFacadeFactory = apiFacadeFactory;
+      ArgumentUtility.CheckNotNull ("apiFacade", apiFacade);
       _BrowserEvents = new DesktopGapWebBrowserEvents (this);
 
       Navigate ("about:blank"); // bootstrap
+      ObjectForScripting = apiFacade;
+      _maxRecursionDepth = maxRecursionDepth;
+      _recursionDepth = recursionDepth;
+
       BrowserMode = TridentWebBrowserMode.IE10;
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
 
@@ -68,13 +77,48 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       DragOver = null;
       DragEnter = null;
 
-      DisposeObjectForScripting();
+      ObjectForScripting = null;
+
       base.Dispose (disposing);
     }
 
     public string Title
     {
       get { return Document == null ? String.Empty : Document.Title; }
+    }
+
+    private new ApiFacade ObjectForScripting
+    {
+      get { return (ApiFacade) base.ObjectForScripting; }
+      set { base.ObjectForScripting = value; }
+    }
+
+    //
+    // WINDOW EVENTS
+    //
+
+    public void OnWindowSetHeight (int height)
+    {
+      if (WindowSetHeight != null)
+        WindowSetHeight (this, height);
+    }
+
+    public void OnWindowSetLeft (int left)
+    {
+      if (WindowSetLeft != null)
+        WindowSetLeft (this, left);
+    }
+
+    public void OnWindowSetTop (int top)
+    {
+      if (WindowSetLeft != null)
+        WindowSetLeft (this, top);
+    }
+
+    public void OnWindowSetWidth (int width)
+    {
+      if (WindowSetLeft != null)
+        WindowSetLeft (this, width);
     }
 
     //
@@ -86,12 +130,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         WindowOpen (this, eventArgs);
     }
 
-    public void OnBeforeNavigate (WindowOpenEventArgs navigationEventArgs)
+    public void OnBeforeNavigate (NavigationEventArgs navigationEventArgs)
     {
-      InitializeScripting();
+      if (BeforeNavigate != null)
+        BeforeNavigate (this, navigationEventArgs);
     }
 
-    public void OnFocussed (object sender, EventArgs eventArgs)
+    public void OnFocused (object sender, EventArgs eventArgs)
     {
       if (Focussed != null)
         Focussed (sender, eventArgs);
@@ -164,27 +209,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     // OTHER METHODS & EVENTS
     // 
 
-    private void InitializeScripting ()
-    {
-      if (ObjectForScripting != null)
-        return;
-
-      _apiFacade = _apiFacadeFactory();
-
-      ObjectForScripting = _apiFacade;
-    }
-
-    private void DisposeObjectForScripting ()
-    {
-      var apiFacade = (ApiFacade) ObjectForScripting;
-
-      if (apiFacade == null)
-        return;
-
-      ObjectForScripting = null;
-      apiFacade.Dispose();
-    }
-
     private HtmlElement ElementAt (int x, int y)
     {
       if (Document == null)
@@ -197,12 +221,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void AddDocuments (HtmlWindow window)
     {
-      if (window.Frames != null)
+      _recursionDepth++;
+      if (window.Frames != null && _recursionDepth < _maxRecursionDepth)
         foreach (HtmlWindow w in window.Frames)
           AddDocuments (w);
 
-      _apiFacade.AddDocument (window.Document);
+      ObjectForScripting.AddDocument (window.Document);
     }
+
 
     private void TridentWebBrowser_DocumentCompleted (object sender, WebBrowserDocumentCompletedEventArgs e)
     {
@@ -212,8 +238,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (PageLoaded != null)
         PageLoaded (this, (IExtendedWebBrowser) sender);
 
-      if (_apiFacade != null && Document != null && Document.Window != null)
+      if (ObjectForScripting != null && Document != null && Document.Window != null)
+      {
+        _recursionDepth = 0;
         AddDocuments (Document.Window);
+      }
     }
 
     //

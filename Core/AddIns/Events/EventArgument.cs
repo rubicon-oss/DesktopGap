@@ -18,17 +18,21 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns.Events
 {
-  public class EventArgument
+  public class Condition
   {
     public string EventID { get; private set; }
+
+    public DocumentHandle Document { get; private set; }
     public dynamic Criteria { get; private set; }
 
-    public EventArgument (dynamic arg)
+    public Condition (dynamic arg)
     {
-      EventID = arg.EventId;
+      EventID = arg.EventID;
+      Document = arg.DocumentHandle;
       Criteria = arg.Criteria;
     }
   }

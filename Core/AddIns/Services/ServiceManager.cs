@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
+using System.Linq;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Services
@@ -29,7 +30,7 @@ namespace DesktopGap.AddIns.Services
     private readonly IDictionary<string, ExternalServiceBase> _services =
         new Dictionary<string, ExternalServiceBase>();
 
-    private IEnumerable<ExternalServiceBase> _nonSharedServices; 
+    private ExternalServiceBase[] _nonSharedServices; 
 
     public ServiceManager ()
     {
@@ -52,7 +53,7 @@ namespace DesktopGap.AddIns.Services
       {
         ArgumentUtility.CheckNotNull ("value", value);
         RegisterServices (value);
-        _nonSharedServices = value;
+        _nonSharedServices = value.ToArray();
       }
     }
 

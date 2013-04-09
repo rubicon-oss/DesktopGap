@@ -19,35 +19,12 @@
 // 
 using System;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.WebBrowser
 {
-  public delegate void ScriptEvent (ExternalEventBase source, string eventName, JsonData arguments);
-
-  public interface IEventDispatcher : IDisposable
+  public enum BrowserWindowTarget
   {
-    /// <summary>
-    /// Occurs when a custom event has been dispatched. 
-    /// </summary>
-    event EventHandler<ScriptEventArgs> EventFired;
-
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    /// <param name="argument"></param>
-    void Register (string eventName, string callbackName, string moduleName, Condition argument);
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    void Unregister (string eventName, string callbackName, string moduleName);
-
-    bool HasEvent (string name);
+    PopUp,
+    Tab,
+    Window
   }
 }

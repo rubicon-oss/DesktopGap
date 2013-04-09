@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Windows;
 using DesktopGap.Utilities;
@@ -43,22 +42,43 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private void OnWindowOpen (object sender, WindowOpenEventArgs eventArgs)
     {
       var webBrowser = _browserFactory.CreateBrowser();
+      IWebBrowserView view;
+      switch (eventArgs.TargetControl)
+      {
+        case BrowserWindowTarget.PopUp:
+          var newPopUp = CreatePopUp (webBrowser);
 
-      var newTab = CreateBrowserTab (webBrowser);
-      eventArgs.TargetWindow = webBrowser;
+          view = newPopUp;
+          break;
 
-      _tabControl.Items.Add (newTab);
-
-      if (!eventArgs.IsInBackground)
-        newTab.Focus();
+        default:
+          var newTab = CreateBrowserTab (webBrowser);
+          _tabControl.Items.Add (newTab);
+          view = newTab;
+          break;
+      }
+      eventArgs.TargetView = view;
     }
+
 
     private BrowserTab CreateBrowserTab (IExtendedWebBrowser browser)
     {
-      var browserTab = new BrowserTab (_tabControl, new WebBrowserHost((TridentWebBrowser) browser));
+      var browserTab = new BrowserTab (new WebBrowserHost ((TridentWebBrowser) browser));
 
       browser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
+      browser.BeforeNavigate += ((IWebBrowserView) browserTab).OnBeforeNavigate;
+      browserTab.TabClosing += (s, e) => _tabControl.Items.Remove (s);
       return browserTab;
+    }
+
+    private PopUpWindow CreatePopUp (IExtendedWebBrowser browser)
+    {
+      var popUp = new PopUpWindow (new WebBrowserHost ((TridentWebBrowser) browser));
+
+      browser.WindowOpen += OnWindowOpen; // TODO what?!
+      browser.BeforeNavigate += ((IWebBrowserView) popUp).OnBeforeNavigate;
+
+      return popUp;
     }
 
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)

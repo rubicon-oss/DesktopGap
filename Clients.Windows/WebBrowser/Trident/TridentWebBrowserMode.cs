@@ -17,9 +17,10 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 
-namespace DesktopGap.Clients.Windows.WebBrowser
+namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
   /// <summary>
   /// The enumatrion of the various BrowserModes for the BrowserEmulation Setting of the WebBrowser Control/IE

@@ -20,77 +20,55 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using System.ComponentModel.Composition.Primitives;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
-using DesktopGap.Utilities;
+using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
-  public class AddInManager : IEventDispatcherFactory, IServiceManagerFactory, IAddInManager
+  public class AddInManager : IAddInManager
   {
-    private readonly ComposablePartCatalog _catalog;
-
     private readonly IDictionary<object, IEventDispatcher> _eventDispatchers =
         new ConcurrentDictionary<object, IEventDispatcher>();
 
     private readonly IDictionary<object, IServiceManager> _serviceManagers =
         new ConcurrentDictionary<object, IServiceManager>();
 
-    private readonly CompositionContainer _compositionContainer;
-
-    public AddInManager (ComposablePartCatalog catalog)
+    /// <summary>
+    /// Constuctor to specify the composition container directly, avoids recomposition on creation.
+    /// </summary>
+    public AddInManager ()
     {
-      ArgumentUtility.CheckNotNull ("catalog", catalog);
-
-      _catalog = catalog;
-      _compositionContainer = new CompositionContainer (_catalog);
     }
 
-    public IEventDispatcher CreateEventDispatcher ()
-    {
-      var eventManager = new EventManager();
-      _compositionContainer.ComposeParts (eventManager);
-      return eventManager;
-    }
-
-    public void AddEventDispatcher (object key, IEventDispatcher eventDispatcher)
+    public void AddEventDispatcher (DocumentHandle key, IEventDispatcher eventDispatcher)
     {
       _eventDispatchers.Add (key, eventDispatcher);
     }
 
-    public IEventDispatcher GetEventDispatcher (Guid guid)
+    public IEventDispatcher GetEventDispatcher (DocumentHandle handle)
     {
-      return _eventDispatchers[guid];
+      return _eventDispatchers[handle];
     }
 
-    public void RemoveEventDispatcher (Guid guid)
+    public void RemoveEventDispatcher (DocumentHandle handle)
     {
-      _eventDispatchers.Remove (guid);
+      _eventDispatchers.Remove (handle);
     }
 
-    public IServiceManager CreateServiceManager ()
-    {
-      var serviceManager = new ServiceManager();
-      _compositionContainer.ComposeParts (serviceManager);
-      return serviceManager;
-    }
-
-    public void AddServiceManager (object key, IServiceManager serviceManager)
+    public void AddServiceManager (DocumentHandle key, IServiceManager serviceManager)
     {
       _serviceManagers.Add (key, serviceManager);
     }
 
-    public IServiceManager GetServiceManager (Guid guid)
+    public IServiceManager GetServiceManager (DocumentHandle handle)
     {
-      return _serviceManagers[guid];
+      return _serviceManagers[handle];
     }
 
-    public void RemoveServiceManager (Guid guid)
+    public void RemoveServiceManager (DocumentHandle handle)
     {
-      _serviceManagers.Remove (guid);
+      _serviceManagers.Remove (handle);
     }
 
     public void Dispose ()
@@ -101,9 +79,7 @@ namespace DesktopGap.AddIns
       }
 
       foreach (var eventDispatcher in _eventDispatchers)
-      {
         eventDispatcher.Value.Dispose();
-      }
     }
   }
 }

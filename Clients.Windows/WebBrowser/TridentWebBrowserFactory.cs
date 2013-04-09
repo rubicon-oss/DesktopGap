@@ -30,6 +30,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 {
   public class TridentWebBrowserFactory : WebBrowserFactoryBase
   {
+    private ApiFacade _apiFacade;
     public TridentWebBrowserFactory (ComposablePartCatalog catalog)
         : base (catalog)
     {
@@ -38,7 +39,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     protected override IExtendedWebBrowser CreateBrowser (
         IServiceManagerFactory serviceManagerFactory, IEventDispatcherFactory eventDispatcherFactory, IAddInManager addInManager)
     {
-      return new TridentWebBrowser (() => new ApiFacade (serviceManagerFactory, eventDispatcherFactory, addInManager));
+      if(_apiFacade == null)
+        _apiFacade = new ApiFacade(serviceManagerFactory, eventDispatcherFactory, addInManager)
+      return new TridentWebBrowser (_apiFacade);
     }
   }
 }

@@ -19,35 +19,35 @@
 // 
 using System;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.WebBrowser.EventArguments
 {
-  public delegate void ScriptEvent (ExternalEventBase source, string eventName, JsonData arguments);
-
-  public interface IEventDispatcher : IDisposable
+  public class NavigationEventArgs
   {
-    /// <summary>
-    /// Occurs when a custom event has been dispatched. 
-    /// </summary>
-    event EventHandler<ScriptEventArgs> EventFired;
+    public BrowserWindowStartMode StartMode { get; private set; }
 
+    public bool Cancel { get; set; }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    /// <param name="argument"></param>
-    void Register (string eventName, string callbackName, string moduleName, Condition argument);
+    public string URL { get; private set; }
+
+    public string Target { get; private set; }
 
     /// <summary>
-    /// 
+    /// C'tor for the WindowOpen event arguments.
     /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    void Unregister (string eventName, string callbackName, string moduleName);
-
-    bool HasEvent (string name);
+    /// <param name="startMode">How to show the new component. </param>
+    /// <param name="cancel">Should the action be cancelled?</param>
+    /// <param name="targetURL">The URL the window is going to open.</param>
+    /// <param name="target">The target frame. </param>
+    public NavigationEventArgs (
+        BrowserWindowStartMode startMode,
+        bool cancel,
+        string targetURL,
+        string target)
+    {
+      StartMode = startMode;
+      Cancel = cancel;
+      URL = targetURL;
+      Target = target;
+    }
   }
 }
