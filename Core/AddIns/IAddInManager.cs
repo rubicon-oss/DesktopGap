@@ -26,12 +26,12 @@ namespace DesktopGap.AddIns
 {
   public interface IAddInManager : IDisposable
   {
-    void AddEventDispatcher (DocumentHandle key, IEventDispatcher eventDispatcher);
-    IEventDispatcher GetEventDispatcher (DocumentHandle handle);
-    void RemoveEventDispatcher (DocumentHandle handle);
+    void AddEventDispatcher (Handle key, IEventDispatcher eventDispatcher);
+    IEventDispatcher GetEventDispatcher (Handle handle);
+    void RemoveEventDispatcher (Handle handle);
 
-    void AddServiceManager (DocumentHandle key, IServiceManager serviceManager);
-    IServiceManager GetServiceManager (DocumentHandle handle);
-    void RemoveServiceManager (DocumentHandle handle);
+    void AddServiceManager (Handle key, IServiceManager serviceManager);
+    IServiceManager GetServiceManager (Handle handle);
+    void RemoveServiceManager (Handle handle);
   }
 }

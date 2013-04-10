@@ -18,15 +18,11 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DesktopGap.WebBrowser
+namespace DesktopGap.AddIns.Events.Factory
 {
-  public interface IWebBrowserFactory
+  public interface IEventDispatcherFactory
   {
-    IExtendedWebBrowser CreateBrowser ();
+    IEventDispatcher CreateEventDispatcher (HtmlDocumentHandle document);
   }
 }

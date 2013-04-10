@@ -18,10 +18,11 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Windows;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.EventArguments;
+using DesktopGap.WebBrowser.Arguments;
+using DesktopGap.WebBrowser.StartOptions;
+using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {

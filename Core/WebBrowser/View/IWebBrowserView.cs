@@ -1,4 +1,6 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿using DesktopGap.WebBrowser.Arguments;
+using System;
+    // This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,13 +19,12 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using System.Collections.Generic;
 
-namespace DesktopGap.WebBrowser
+namespace DesktopGap.WebBrowser.View
 {
-  public interface IWebBrowserWindow
+  public interface IWebBrowserView
   {
-    ISession CurrentSession { get; }
+    IExtendedWebBrowser WebBrowser { get; }
+    void OnBeforeNavigate (object sender, NavigationEventArgs args);
   }
 }

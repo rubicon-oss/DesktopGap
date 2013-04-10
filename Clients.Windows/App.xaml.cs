@@ -24,6 +24,7 @@ using System;
 using System.ComponentModel.Composition.Hosting;
 using System.Windows;
 using System.Windows.Threading;
+using DesktopGap.WebBrowser.Factory;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -38,7 +39,9 @@ namespace DesktopGap.Clients.Windows
     private void Application_Startup (object sender, StartupEventArgs e)
     {
       var catalog = new AggregateCatalog();
-      catalog.Catalogs.Add (new DirectoryCatalog (c_addInDirectory));
+      var dirCatalog = new DirectoryCatalog (c_addInDirectory);
+      catalog.Catalogs.Add (dirCatalog);
+      
       _browserFactory = new TridentWebBrowserFactory(catalog);
 
       try

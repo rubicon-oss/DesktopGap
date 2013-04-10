@@ -17,6 +17,7 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Windows.Forms;
 using DesktopGap.Clients.Windows.OleLibraryDependencies;
@@ -28,7 +29,7 @@ using DesktopGap.OleLibraryDependencies;
 using IDataObject = System.Runtime.InteropServices.ComTypes.IDataObject;
 using IDropTarget = DesktopGap.Clients.Windows.OleLibraryDependencies.IDropTarget;
 
-namespace DesktopGap.Clients.Windows
+namespace DesktopGap.Clients.Windows.WebBrowser
 {
   public class DesktopGapDocumentUIHandler : DocHostUIHandlerBase, IDropTarget
   {
@@ -67,9 +68,7 @@ namespace DesktopGap.Clients.Windows
     {
       System.Windows.Forms.IDataObject dataObject = null;
       if (pDataObj != null)
-      {
         dataObject = new DataObject (pDataObj);
-      }
 
       var dragEnterHandler = new ExtendedDragEventHandlerArgs (
           dataObject,
@@ -80,10 +79,8 @@ namespace DesktopGap.Clients.Windows
           ToWinForms ((NativeDragDropEffects) pdwEffect));
       _extendedTridentWebBrowser.OnDragEnter (dragEnterHandler);
 
-      if (dragEnterHandler.Handled)
-      {
+      if (dragEnterHandler.Droppable)
         pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
-      }
 
       return HResult.S_OK;
     }
@@ -100,10 +97,8 @@ namespace DesktopGap.Clients.Windows
 
       _extendedTridentWebBrowser.OnDragOver (dragEnterHandler);
 
-      if (dragEnterHandler.Handled)
-      {
+      if (dragEnterHandler.Droppable)
         pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
-      }
 
       return HResult.S_OK;
     }
@@ -133,9 +128,7 @@ namespace DesktopGap.Clients.Windows
       _extendedTridentWebBrowser.OnDragDrop (dragEnterHandler);
 
       if (dragEnterHandler.Handled)
-      {
         pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
-      }
 
       return HResult.S_OK;
     }

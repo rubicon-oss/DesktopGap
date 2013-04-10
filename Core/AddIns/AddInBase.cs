@@ -18,22 +18,19 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.Resources;
 using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
-  public abstract class DesktopGapAddInBase : IDisposable
+  public interface IAddIn : IDisposable
   {
-    public abstract void Dispose ();
+    IResourceManager ResourceManager { get; }
 
-    public abstract String Name { get; }
+    String Name { get; }
 
-    public virtual void OnBeforeLoad (DocumentHandle document)
-    {
-    }
+    void OnBeforeLoad (HtmlDocumentHandle document);
 
-    public virtual void OnBeforeUnload (DocumentHandle document)
-    {
-    }
+    void OnBeforeUnload (HtmlDocumentHandle document);
   }
 }

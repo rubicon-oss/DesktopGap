@@ -17,37 +17,35 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Collections.Generic;
-using DesktopGap.AddIns;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using DesktopGap.Utilities;
 
-namespace DesktopGap.WebBrowser
+namespace DesktopGap.AddIns.Services.Factory
 {
-  public class Session : ISession
+  public class ServiceManagerFactory : IServiceManagerFactory
   {
-    public IEnumerable<IExtendedWebBrowser> WebBrowsers { get; private set; }
-    public IEventDispatcher EventManager { get; private set; }
-    public IServiceManager ServiceManager { get; private set; }
+    private readonly CompositionContainer _compositionContainer;
 
-    public Session ()
+    public ServiceManagerFactory (CompositionContainer compositionContainer)
     {
-      
+      ArgumentUtility.CheckNotNull ("compositionContainer", compositionContainer);
+      _compositionContainer = compositionContainer;
+      PreLoadedNonSharedServices = new List<IServiceAddIn>();
+      PreLoadedSharedServices = new List<IServiceAddIn>();
     }
 
-    public Session (IEnumerable<IExtendedWebBrowser> webBrowsers, IEventDispatcher eventManager, IServiceManager serviceManager)
-    {
-      if (webBrowsers == null)
-        throw new ArgumentNullException ("webBrowsers");
-      if (eventManager == null)
-        throw new ArgumentNullException ("eventManager");
-      if (serviceManager == null)
-        throw new ArgumentNullException ("serviceManager");
+    public IList<IServiceAddIn> PreLoadedNonSharedServices { get; private set; }
+    public IList<IServiceAddIn> PreLoadedSharedServices { get; private set; }
 
-      WebBrowsers = webBrowsers;
-      EventManager = eventManager;
-      ServiceManager = serviceManager;
+    public IServiceManager CreateServiceManager (HtmlDocumentHandle document)
+    {
+      var serviceManager = new ServiceManager (document);
+      _compositionContainer.ComposeParts (serviceManager);
+      return serviceManager;
     }
   }
 }

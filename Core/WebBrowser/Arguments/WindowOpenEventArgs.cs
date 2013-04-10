@@ -17,16 +17,37 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DesktopGap.AddIns.Services
+using System;
+using DesktopGap.WebBrowser.StartOptions;
+using DesktopGap.WebBrowser.View;
+
+namespace DesktopGap.WebBrowser.Arguments
 {
-  public interface IServiceManagerFactory
+  public class WindowOpenEventArgs
   {
-    IServiceManager CreateServiceManager ();
+    public BrowserWindowTarget TargetControl { get; private set; }
+
+    public bool Cancel { get; set; }
+
+    public IWebBrowserView TargetView { get; set; }
+
+    public string URL { get; private set; }
+
+    /// <summary>
+    /// C'tor for the WindowOpen event arguments.
+    /// </summary>
+    /// <param name="cancel">Should the action be cancelled?</param>
+    /// <param name="targetURL">The URL the window is going to open.</param>
+    /// <param name="targetControl"> </param>
+    public WindowOpenEventArgs (
+        BrowserWindowTarget targetControl,
+        bool cancel,
+        string targetURL)
+    {
+      Cancel = cancel;
+      URL = targetURL;
+      TargetControl = targetControl;
+    }
   }
 }

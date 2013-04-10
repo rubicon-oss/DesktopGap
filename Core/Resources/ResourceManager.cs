@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Linq;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.Resources
@@ -28,12 +29,13 @@ namespace DesktopGap.Resources
   {
     private struct DirectoryBookmark
     {
-      public Guid Guid;
+      public HtmlDocumentHandle Handle;
       public DirectoryInfo Directory;
     }
 
     private const string c_dataFolderName = "DesktopGap";
-    private readonly ConcurrentDictionary<Guid, FileSystemInfo> _resources = new ConcurrentDictionary<Guid, FileSystemInfo>();
+
+    private readonly ConcurrentDictionary<HtmlDocumentHandle, FileSystemInfo> _resources = new ConcurrentDictionary<HtmlDocumentHandle, FileSystemInfo>();
 
     private readonly DirectoryBookmark _data;
     private readonly DirectoryBookmark _temp;
@@ -44,9 +46,9 @@ namespace DesktopGap.Resources
       if (!dataFolder.Exists)
         dataFolder.Create();
 
-      _data = new DirectoryBookmark() { Directory = dataFolder, Guid = Guid.NewGuid() };
+      _data = new DirectoryBookmark { Directory = dataFolder, Handle = new HtmlDocumentHandle (Guid.NewGuid()) };
 
-      _resources[_data.Guid] = _data.Directory;
+      _resources[_data.Handle] = _data.Directory;
 
       var tempFolder = new DirectoryInfo (Path.Combine (Path.GetTempPath(), c_dataFolderName));
       if (tempFolder.Exists)
@@ -55,40 +57,77 @@ namespace DesktopGap.Resources
         tempFolder.Create();
       }
 
-      _temp = new DirectoryBookmark() { Directory = tempFolder, Guid = Guid.NewGuid() };
-      
-      _resources[_temp.Guid] = _temp.Directory;
+      _temp = new DirectoryBookmark { Directory = tempFolder, Handle = new HtmlDocumentHandle (Guid.NewGuid()) };
 
+      _resources[_temp.Handle] = _temp.Directory;
     }
 
-    public string GetFullPath (Guid guid)
+    public FileSystemInfo GetResource (HtmlDocumentHandle handle)
     {
-      ArgumentUtility.CheckNotNull ("guid", guid);
-
-      var resource = GetResource (guid);
-      return resource.FullName;
-    }
-
-    public FileSystemInfo GetResource (Guid guid)
-    {
-      ArgumentUtility.CheckNotNull ("guid", guid);
+      ArgumentUtility.CheckNotNull ("handle", handle);
 
       FileSystemInfo fileSystemInfo;
-      if (!_resources.TryGetValue (guid, out fileSystemInfo))
-        throw new InvalidOperationException (string.Format ("Resource {0} not found", guid));
+      if (!_resources.TryGetValue (handle, out fileSystemInfo))
+        throw new InvalidOperationException (string.Format ("Resource {0} not found", handle));
 
       return fileSystemInfo;
     }
 
-    public Guid GetTempDirectory ()
+    public HtmlDocumentHandle GetTempDirectory ()
     {
-      return _temp.Guid;
+      return _temp.Handle;
     }
 
-    public Guid GetDataDirectory()
+    public HtmlDocumentHandle GetDataDirectory ()
     {
-      return _data.Guid;
+      return _data.Handle;
+    }
+
+    public HtmlDocumentHandle[] AddResources (string[] paths)
+    {
+      return paths.Select (AddResource).ToArray();
+    }
+
+    public HtmlDocumentHandle AddResource (string path)
+    {
+      var handle = new HtmlDocumentHandle (Guid.NewGuid());
+
+      var attr = File.GetAttributes (path);
+
+      var destination = Path.Combine (_temp.Directory.FullName, JoinExtension (handle, Path.GetExtension (path)));
+      File.Copy (path, destination);
+      
+      FileSystemInfo resource;
+      if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
+        resource = new DirectoryInfo (path);
+      else
+        resource = new FileInfo (path);
+
+      _resources[handle] = resource;
+      return handle;
+    }
+
+    private string JoinExtension (HtmlDocumentHandle handle, string extension)
+    {
+      if (string.IsNullOrEmpty (extension))
+        return String.Format ("{0}.{1}", handle, extension);
+      else
+        return handle.ToString();
+    }
+
+    public void RemoveResource (HtmlDocumentHandle handle)
+    {
+      FileSystemInfo value;
+      _resources.TryRemove (handle, out value);
+
+      value.Delete();
+    }
+
+    public void Dispose ()
+    {
+      foreach (var resource in _resources)
+        resource.Value.Delete();
+      _resources.Clear();
     }
   }
-
 }

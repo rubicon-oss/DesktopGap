@@ -20,8 +20,8 @@
 using System;
 using System.ComponentModel.Composition;
 using System.Diagnostics;
-using System.Windows.Forms;
 using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
@@ -43,7 +43,7 @@ namespace DesktopGap.AddIns
       eventHost.UnregisterEvent (this, ref ItemDropped, "ItemDropped");
     }
 
-    public override void OnBeforeLoad (DocumentHandle document)
+    public override void OnBeforeLoad (HtmlDocumentHandle document)
     {
       //SystemEventHub.DragDrop += (s, e) =>
       //                           {
@@ -67,7 +67,8 @@ namespace DesktopGap.AddIns
       try
       {
         return argument.Criteria.elementId == "realDropTarget";
-      }catch
+      }
+      catch
       {
         Debug.WriteLine ("something is wrong here");
         return false;
@@ -80,7 +81,7 @@ namespace DesktopGap.AddIns
     }
 
 
-    public override void OnBeforeUnload  (DocumentHandle document)
+    public override void OnBeforeUnload (HtmlDocumentHandle document)
     {
     }
 

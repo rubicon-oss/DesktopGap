@@ -25,7 +25,7 @@ using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.EventArguments;
+using DesktopGap.WebBrowser.Arguments;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
@@ -44,8 +44,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public event EventHandler<int> WindowSetTop;
     public event EventHandler<int> WindowSetWidth;
 
-    //TODO spelling
-    public event EventHandler Focussed;
+    private DragDropEffects c_defaulEffect = DragDropEffects.Move;
+
+    ////TODO spelling
+    //public event EventHandler Focussed;
 
     private int _recursionDepth;
     private int _maxRecursionDepth;
@@ -136,12 +138,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         BeforeNavigate (this, navigationEventArgs);
     }
 
-    public void OnFocused (object sender, EventArgs eventArgs)
-    {
-      if (Focussed != null)
-        Focussed (sender, eventArgs);
-    }
-
     //
     // INTERACTION EVENTS
     // 
@@ -149,19 +145,26 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnDragEnter (ExtendedDragEventHandlerArgs e)
     {
       e.Current = ElementAt (e.X, e.Y);
-      e.Effect = DragDropEffects.Copy;
+      e.Effect = DragDropEffects.None;
 
       if (DragEnter != null)
         DragEnter (this, e);
 
+      if (e.Droppable && e.Effect != DragDropEffects.None)
+        e.Effect = c_defaulEffect;
       e.Handled = true;
     }
 
     public void OnDragDrop (ExtendedDragEventHandlerArgs e)
     {
+      e.Effect = DragDropEffects.None;
       e.Current = ElementAt (e.X, e.Y);
+
       if (DragDrop != null)
         DragDrop (this, e);
+
+      if (e.Droppable && e.Effect != DragDropEffects.None)
+        e.Effect = c_defaulEffect;
 
       e.Handled = true;
     }
@@ -175,10 +178,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnDragOver (ExtendedDragEventHandlerArgs e)
     {
       e.Current = ElementAt (e.X, e.Y);
-      e.Effect = DragDropEffects.Copy;
+      e.Effect = DragDropEffects.None;
 
       if (DragOver != null)
         DragOver (this, e);
+
+      if (e.Droppable && e.Effect != DragDropEffects.None)
+        e.Effect = c_defaulEffect;
+
       e.Handled = true;
     }
 

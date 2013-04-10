@@ -41,32 +41,32 @@ namespace DesktopGap.AddIns
     {
     }
 
-    public void AddEventDispatcher (DocumentHandle key, IEventDispatcher eventDispatcher)
+    public void AddEventDispatcher (Handle key, IEventDispatcher eventDispatcher)
     {
       _eventDispatchers.Add (key, eventDispatcher);
     }
 
-    public IEventDispatcher GetEventDispatcher (DocumentHandle handle)
+    public IEventDispatcher GetEventDispatcher (Handle handle)
     {
       return _eventDispatchers[handle];
     }
 
-    public void RemoveEventDispatcher (DocumentHandle handle)
+    public void RemoveEventDispatcher (Handle handle)
     {
       _eventDispatchers.Remove (handle);
     }
 
-    public void AddServiceManager (DocumentHandle key, IServiceManager serviceManager)
+    public void AddServiceManager (Handle key, IServiceManager serviceManager)
     {
       _serviceManagers.Add (key, serviceManager);
     }
 
-    public IServiceManager GetServiceManager (DocumentHandle handle)
+    public IServiceManager GetServiceManager (Handle handle)
     {
       return _serviceManagers[handle];
     }
 
-    public void RemoveServiceManager (DocumentHandle handle)
+    public void RemoveServiceManager (Handle handle)
     {
       _serviceManagers.Remove (handle);
     }

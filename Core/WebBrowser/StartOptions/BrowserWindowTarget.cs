@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,32 +17,15 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using DesktopGap.OleLibraryDependencies;
-using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.EventArguments;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.WebBrowser.StartOptions
 {
-  /// <summary>
-  /// 
-  /// </summary>
-  public interface IGlobalEventRouter
+  public enum BrowserWindowTarget
   {
-    event EventHandler<WindowOpenEventArgs> WindowOpen;
-
-    event EventHandler<WindowOpenEventArgs> TabOpen;
-
-    event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
-
-    event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
-
-    event EventHandler<ExtendedDragEventHandlerArgs> DragOver;
-
-    event EventHandler DragLeave;
-
-    event EventHandler<EventArgs> ContentReloaded; // Reload event
-
-    event EventHandler<IExtendedWebBrowser> PageLoaded; // initial page downloaded event
+    PopUp,
+    Tab,
+    Window
   }
 }

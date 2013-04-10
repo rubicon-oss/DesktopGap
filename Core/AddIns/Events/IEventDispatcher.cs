@@ -18,10 +18,11 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.AddIns.Events.Arguments;
 
 namespace DesktopGap.AddIns.Events
 {
-  public delegate void ScriptEvent (ExternalEventBase source, string eventName, JsonData arguments);
+  public delegate void ScriptEvent (IEventAddIn source, string eventName, JsonData arguments);
 
   public interface IEventDispatcher : IDisposable
   {

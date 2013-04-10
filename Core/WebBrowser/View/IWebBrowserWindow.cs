@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,22 +18,12 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.WebBrowser;
+using DesktopGap.WebBrowser.Session;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.WebBrowser.View
 {
-  public class Condition
+  public interface IWebBrowserWindow
   {
-    public string EventID { get; private set; }
-
-    public DocumentHandle Document { get; private set; }
-    public dynamic Criteria { get; private set; }
-
-    public Condition (dynamic arg)
-    {
-      EventID = arg.EventID;
-      Document = arg.DocumentHandle;
-      Criteria = arg.Criteria;
-    }
+    ISession CurrentSession { get; }
   }
 }

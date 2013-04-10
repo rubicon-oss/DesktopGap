@@ -20,13 +20,13 @@
 
 using System;
 
-namespace DesktopGap.WebBrowser
+namespace DesktopGap
 {
-  public struct DocumentHandle
+  public struct HtmlDocumentHandle
   {
     private readonly Guid _guid;
 
-    public DocumentHandle (Guid guid)
+    public HtmlDocumentHandle (Guid guid)
     {
       _guid = guid;
     }

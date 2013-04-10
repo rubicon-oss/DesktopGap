@@ -22,6 +22,7 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using DesktopGap.AddIns.Services;
+using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
@@ -44,11 +45,11 @@ namespace DesktopGap.AddIns
       
     }
 
-    public override void OnBeforeLoad ()
+    public override void OnBeforeLoad (HtmlDocumentHandle document)
     {
     }
 
-    public override void OnBeforeUnload ()
+    public override void OnBeforeUnload (HtmlDocumentHandle document)
     {
     }
 

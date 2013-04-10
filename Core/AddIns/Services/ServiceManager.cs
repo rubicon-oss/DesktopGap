@@ -25,68 +25,79 @@ using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Services
 {
-  public class ServiceManager : IServiceManager //TODO add something for built-in services
+  public class ServiceManager : IServiceManager, IPartImportsSatisfiedNotification
   {
-    private readonly IDictionary<string, ExternalServiceBase> _services =
-        new Dictionary<string, ExternalServiceBase>();
+    private readonly IList<IServiceAddIn> _sharedAddedServices = new List<IServiceAddIn>();
+    private readonly HtmlDocumentHandle _document;
 
-    private ExternalServiceBase[] _nonSharedServices; 
+    private readonly IDictionary<string, IServiceAddIn> _services =
+        new Dictionary<string, IServiceAddIn>();
 
-    public ServiceManager ()
+    private IList<IServiceAddIn> _nonSharedServices;
+    private IList<IServiceAddIn> _sharedServices;
+
+    public ServiceManager (HtmlDocumentHandle document)
     {
+      ArgumentUtility.CheckNotNull ("document", document);
+      _document = document;
+    }
+
+    public ServiceManager (HtmlDocumentHandle document, IList<IServiceAddIn> sharedAddedService)
+        : this (document)
+    {
+      ArgumentUtility.CheckNotNull ("sharedAddedService", sharedAddedService);
+
+      _sharedAddedServices = sharedAddedService;
     }
 
     public void Dispose ()
     {
-
-      foreach(var service in _nonSharedServices)
-      {
-        service.OnBeforeUnload();
+      foreach (var service in _services)
+        service.Value.OnBeforeUnload (_document);
+      foreach (var service in _nonSharedServices)
         service.Dispose();
-      }
     }
 
     [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.NonShared)]
-    public IEnumerable<ExternalServiceBase> Services
+    public IEnumerable<IServiceAddIn> Services
     {
       set
       {
         ArgumentUtility.CheckNotNull ("value", value);
-        RegisterServices (value);
         _nonSharedServices = value.ToArray();
       }
     }
 
     [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.Shared)]
-    public IEnumerable<ExternalServiceBase> SharedServices
+    public IEnumerable<IServiceAddIn> SharedServices
     {
       set
       {
         ArgumentUtility.CheckNotNull ("value", value);
-        RegisterServices (value);
+        _sharedServices = value.ToArray();
       }
     }
 
 
-    public ExternalServiceBase GetService (string serviceName)
+    public IServiceAddIn GetService (string serviceName)
     {
       return GetService (serviceName, name => new InvalidOperationException (string.Format ("Service '{0}' not found.", name)));
     }
 
     public bool HasService (string name)
     {
-      ExternalServiceBase s;
+      IServiceAddIn s;
       return _services.TryGetValue (name, out s);
     }
 
-    private void RegisterService (ExternalServiceBase service)
+    private void RegisterService (IServiceAddIn service)
     {
       if (HasService (service.Name))
         throw new InvalidOperationException (string.Format ("Service '{0}' already registered.", service.Name));
       _services[service.Name] = service;
     }
 
-    public void UnregisterService (ExternalServiceBase service)
+    public void UnregisterService (IServiceAddIn service)
     {
       ArgumentUtility.CheckNotNull ("service", service);
 
@@ -94,17 +105,29 @@ namespace DesktopGap.AddIns.Services
       _services.Remove (service.Name);
     }
 
-
-    private void RegisterServices (IEnumerable<ExternalServiceBase> services)
+    public void OnImportsSatisfied ()
     {
-      foreach(var service in services)
+      foreach (var service in _sharedAddedServices)
+        _sharedServices.Add (service);
+
+      RegisterServices (_sharedServices);
+      RegisterServices (_nonSharedServices);
+    }
+
+    //
+    // OTHER
+    // 
+
+    private void RegisterServices (IEnumerable<IServiceAddIn> services)
+    {
+      foreach (var service in services)
         RegisterService (service);
     }
 
-    private ExternalServiceBase GetService<TException> (string serviceName, Func<string, TException> createServiceNotFoundException)
+    private IServiceAddIn GetService<TException> (string serviceName, Func<string, TException> createServiceNotFoundException)
         where TException : Exception
     {
-      ExternalServiceBase service;
+      IServiceAddIn service;
       if (!_services.TryGetValue (serviceName, out service))
         throw createServiceNotFoundException (serviceName);
       return service;

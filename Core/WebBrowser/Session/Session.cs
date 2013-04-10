@@ -19,16 +19,33 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DesktopGap.WebBrowser;
+using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.WebBrowser.Session
 {
-  public interface IGlobalEventSubscriber
+  public class Session : ISession
   {
-    void SubscribeTo (IExtendedWebBrowser webBrowser);
-    void SubscribeTo (IWebBrowserWindow webBrowserWindow);
+    public IEnumerable<IExtendedWebBrowser> WebBrowsers { get; private set; }
+    public IEventDispatcher EventManager { get; private set; }
+    public IServiceManager ServiceManager { get; private set; }
+
+    public Session ()
+    {
+    }
+
+    public Session (IEnumerable<IExtendedWebBrowser> webBrowsers, IEventDispatcher eventManager, IServiceManager serviceManager)
+    {
+      if (webBrowsers == null)
+        throw new ArgumentNullException ("webBrowsers");
+      if (eventManager == null)
+        throw new ArgumentNullException ("eventManager");
+      if (serviceManager == null)
+        throw new ArgumentNullException ("serviceManager");
+
+      WebBrowsers = webBrowsers;
+      EventManager = eventManager;
+      ServiceManager = serviceManager;
+    }
   }
 }

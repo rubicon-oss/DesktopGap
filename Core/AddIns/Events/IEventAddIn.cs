@@ -1,5 +1,4 @@
-﻿using DesktopGap.WebBrowser.EventArguments;
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -19,12 +18,16 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.AddIns.Events.Arguments;
+using DesktopGap.Resources;
 
-namespace DesktopGap.WebBrowser
+namespace DesktopGap.AddIns.Events
 {
-  public interface IWebBrowserView
+  public interface IEventAddIn : IAddIn
   {
-    IExtendedWebBrowser WebBrowser { get; }
-    void OnBeforeNavigate (object sender, NavigationEventArgs args);
+    bool CheckRaiseCondition (Condition argument);
+
+    void RegisterEvents (IEventHost eventHost);
+    void UnregisterEvents (IEventHost eventHost);
   }
 }

@@ -22,14 +22,20 @@ using System.IO;
 
 namespace DesktopGap.Resources
 {
-  public interface IResourceManager
+  public interface IResourceManager : IDisposable
   {
-    string GetFullPath (Guid guid);
 
-    FileSystemInfo GetResource (Guid guid);
+    FileSystemInfo GetResource (HtmlDocumentHandle handle);
     
-    Guid GetTempDirectory ();
+    HtmlDocumentHandle GetTempDirectory ();
     
-    Guid GetDataDirectory ();
+    HtmlDocumentHandle GetDataDirectory ();
+
+    HtmlDocumentHandle[] AddResources (string[] paths);
+
+    HtmlDocumentHandle AddResource (string path);
+
+    void RemoveResource (HtmlDocumentHandle handle);
+
   }
 }

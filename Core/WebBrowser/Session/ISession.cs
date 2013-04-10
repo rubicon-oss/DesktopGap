@@ -17,28 +17,18 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
-using DesktopGap.Utilities;
+using System.Collections.Generic;
+using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.AddIns.Services
+namespace DesktopGap.WebBrowser.Session
 {
-  public class ServiceManagerFactory : IServiceManagerFactory
+  public interface ISession
   {
-    private readonly CompositionContainer _compositionContainer;
-
-    public ServiceManagerFactory (CompositionContainer compositionContainer)
-    {
-      ArgumentUtility.CheckNotNull ("compositionContainer", compositionContainer);
-      _compositionContainer = compositionContainer;
-    }
-
-    public IServiceManager CreateServiceManager ()
-    {
-      var serviceManager = new ServiceManager();
-      _compositionContainer.ComposeParts (serviceManager);
-      return serviceManager;
-    }
+    IEnumerable<IExtendedWebBrowser> WebBrowsers { get; }
+    IEventDispatcher EventManager { get; }
+    IServiceManager ServiceManager { get; }
   }
 }

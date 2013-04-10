@@ -20,17 +20,19 @@
 using System;
 using System.ComponentModel.Composition.Primitives;
 using DesktopGap.AddIns;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
+using DesktopGap.AddIns.Events.Factory;
+using DesktopGap.AddIns.Services.Factory;
 using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.WebBrowser;
+using DesktopGap.WebBrowser.Factory;
 
 namespace DesktopGap.Clients.Windows.WebBrowser
 {
   public class TridentWebBrowserFactory : WebBrowserFactoryBase
   {
     private ApiFacade _apiFacade;
+
     public TridentWebBrowserFactory (ComposablePartCatalog catalog)
         : base (catalog)
     {
@@ -39,8 +41,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     protected override IExtendedWebBrowser CreateBrowser (
         IServiceManagerFactory serviceManagerFactory, IEventDispatcherFactory eventDispatcherFactory, IAddInManager addInManager)
     {
-      if(_apiFacade == null)
-        _apiFacade = new ApiFacade(serviceManagerFactory, eventDispatcherFactory, addInManager)
+      if (_apiFacade == null)
+        _apiFacade = new ApiFacade (serviceManagerFactory, eventDispatcherFactory, addInManager);
       return new TridentWebBrowser (_apiFacade);
     }
   }

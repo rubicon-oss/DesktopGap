@@ -19,16 +19,15 @@
 // 
 using System;
 using DesktopGap.OleLibraryDependencies;
-using DesktopGap.WebBrowser.EventArguments;
+using DesktopGap.WebBrowser.Arguments;
 
 namespace DesktopGap.WebBrowser
 {
   public interface IExtendedWebBrowser
   {
     string Title { get; }
-   
-    
-    event EventHandler Focussed;
+
+    event EventHandler GotFocus; 
     event EventHandler<IExtendedWebBrowser> PageLoaded; // initial page downloaded event
     event EventHandler<EventArgs> ContentReloaded; // Reload event
     event EventHandler<WindowOpenEventArgs> WindowOpen;

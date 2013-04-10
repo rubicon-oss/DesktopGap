@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,43 +17,12 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using System.ComponentModel.Composition;
-using System.Diagnostics;
-using System.Runtime.InteropServices;
-using DesktopGap.AddIns.Services;
-using DesktopGap.WebBrowser;
 
-namespace DesktopGap.AddIns
+namespace DesktopGap.AddIns.Services
 {
-  [ComVisible (true)]
-  [PartCreationPolicy(CreationPolicy.Shared)]
-  public class GuidService : ExternalServiceBase
+  public interface IServiceAddIn:IAddIn
   {
-    public GuidService ()
-    {
-      Debug.WriteLine ("GuidService created");
-    }
-
-    public override string Name
-    {
-      get { return "GuidService"; }
-    }
-
-    public override void Dispose ()
-    {}
-
-    public override void OnBeforeLoad (HtmlDocumentHandle document)
-    {
-    }
-
-    public override void OnBeforeUnload (HtmlDocumentHandle document)
-    {
-    }
-
-    public string CreateGuid ()
-    {
-      return Guid.NewGuid().ToString();
-    }
   }
 }

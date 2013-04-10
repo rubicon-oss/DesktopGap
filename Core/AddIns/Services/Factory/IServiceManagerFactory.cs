@@ -19,35 +19,10 @@
 // 
 using System;
 
-namespace DesktopGap.WebBrowser.EventArguments
+namespace DesktopGap.AddIns.Services.Factory
 {
-  public class NavigationEventArgs
+  public interface IServiceManagerFactory
   {
-    public BrowserWindowStartMode StartMode { get; private set; }
-
-    public bool Cancel { get; set; }
-
-    public string URL { get; private set; }
-
-    public string Target { get; private set; }
-
-    /// <summary>
-    /// C'tor for the WindowOpen event arguments.
-    /// </summary>
-    /// <param name="startMode">How to show the new component. </param>
-    /// <param name="cancel">Should the action be cancelled?</param>
-    /// <param name="targetURL">The URL the window is going to open.</param>
-    /// <param name="target">The target frame. </param>
-    public NavigationEventArgs (
-        BrowserWindowStartMode startMode,
-        bool cancel,
-        string targetURL,
-        string target)
-    {
-      StartMode = startMode;
-      Cancel = cancel;
-      URL = targetURL;
-      Target = target;
-    }
+    IServiceManager CreateServiceManager (HtmlDocumentHandle document);
   }
 }

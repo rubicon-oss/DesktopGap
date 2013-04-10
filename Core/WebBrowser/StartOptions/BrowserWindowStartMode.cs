@@ -17,9 +17,10 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 
-namespace DesktopGap.WebBrowser
+namespace DesktopGap.WebBrowser.StartOptions
 {
   public enum BrowserWindowStartMode
   {

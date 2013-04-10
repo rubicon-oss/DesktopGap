@@ -21,14 +21,27 @@ using System;
 using System.ComponentModel.Composition;
 using System.Runtime.InteropServices;
 using DesktopGap.Resources;
+using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns.Services
 {
   [InheritedExport (typeof (ExternalServiceBase))]
   [ComVisible (true)]
-  public abstract class ExternalServiceBase : DesktopGapAddInBase
+  public abstract class ExternalServiceBase : IServiceAddIn
   {
+    public abstract void Dispose ();
+
+    public abstract string Name { get; }
+
     [Import (typeof (IResourceManager), AllowDefault = true)]
-    protected IResourceManager ResourceManager { get; private set; }
+    public IResourceManager ResourceManager { get; private set; }
+
+    public virtual void OnBeforeLoad (HtmlDocumentHandle document)
+    {
+    }
+
+    public virtual void OnBeforeUnload (HtmlDocumentHandle document)
+    {
+    }
   }
 }

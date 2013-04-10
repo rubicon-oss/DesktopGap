@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,18 +17,17 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using System.Collections.Generic;
-using DesktopGap.AddIns;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.WebBrowser
+using System;
+using System.Runtime.InteropServices;
+using System.Security.Permissions;
+
+namespace DesktopGap.AddIns.Events.Arguments
 {
-  public interface ISession
+  [PermissionSet (SecurityAction.Demand, Name = "FullTrust")]
+  [ComVisible (true)]
+  public class JsonData
   {
-    IEnumerable<IExtendedWebBrowser> WebBrowsers { get; }
-    IEventDispatcher EventManager { get; }
-    IServiceManager ServiceManager { get; }
+    public string EventId;
   }
 }

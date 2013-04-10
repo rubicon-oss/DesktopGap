@@ -22,7 +22,9 @@ using System.Windows.Controls;
 using DesktopGap.Clients.Windows.Components;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.EventArguments;
+using DesktopGap.WebBrowser.Arguments;
+using DesktopGap.WebBrowser.StartOptions;
+using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
@@ -66,7 +68,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnTabFocussed (object sender, EventArgs e)
     {
-      _browserHost.WebBrowser.OnFocused (sender, e);
+      
     }
 
     private void OnPageLoaded (object sender, IExtendedWebBrowser webBrowser)

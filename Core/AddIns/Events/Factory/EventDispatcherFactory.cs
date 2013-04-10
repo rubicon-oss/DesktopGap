@@ -19,14 +19,31 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel.Composition;
+using System.ComponentModel.Composition.Hosting;
+using DesktopGap.Utilities;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.AddIns.Events.Factory
 {
-  public interface IEventDispatcherFactory
+  public class EventDispatcherFactory : IEventDispatcherFactory
   {
-    IEventDispatcher CreateEventDispatcher ();
+    private readonly CompositionContainer _compositionContainer;
+
+    public EventDispatcherFactory (CompositionContainer compositionContainer)
+    {
+      ArgumentUtility.CheckNotNull ("compositionContainer", compositionContainer);
+      _compositionContainer = compositionContainer;
+
+      PreLoadedSharedEvents = new List<IEventAddIn>();
+    }
+
+    public IList<IEventAddIn> PreLoadedSharedEvents { get; private set; }
+
+    public IEventDispatcher CreateEventDispatcher (HtmlDocumentHandle document)
+    {
+      var eventManager = new EventManager (document);
+      _compositionContainer.ComposeParts (eventManager);
+      return eventManager;
+    }
   }
 }

@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,14 +17,24 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
 
-namespace DesktopGap.WebBrowser
+using System;
+using DesktopGap.WebBrowser;
+
+namespace DesktopGap.AddIns.Events.Arguments
 {
-  public enum BrowserWindowTarget
+  public class Condition
   {
-    PopUp,
-    Tab,
-    Window
+    public string EventID { get; private set; }
+
+    public HtmlDocumentHandle Document { get; private set; }
+    public dynamic Criteria { get; private set; }
+
+    public Condition (dynamic arg)
+    {
+      EventID = arg.EventID;
+      Document = new HtmlDocumentHandle(Guid.Parse(arg.DocumentHandle));
+      Criteria = arg.Criteria;
+    }
   }
 }

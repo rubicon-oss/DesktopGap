@@ -21,11 +21,12 @@ using System;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
 using DesktopGap.AddIns;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
+using DesktopGap.AddIns.Events.Factory;
+using DesktopGap.AddIns.Events.System;
+using DesktopGap.AddIns.Services.Factory;
 using DesktopGap.Utilities;
 
-namespace DesktopGap.WebBrowser
+namespace DesktopGap.WebBrowser.Factory
 {
   public abstract class WebBrowserFactoryBase : IWebBrowserFactory
   {
@@ -55,10 +56,16 @@ namespace DesktopGap.WebBrowser
     public IExtendedWebBrowser CreateBrowser ()
     {
       var serviceManagerFactory = new ServiceManagerFactory (_compositionContainer);
-      var eventDispatcherFactory = new EventDispatcherFactory( _compositionContainer);
-      var addInManager = new AddInManager ();
+      var eventDispatcherFactory = new EventDispatcherFactory (_compositionContainer);
+      var addInManager = new AddInManager();
 
-      return CreateBrowser (serviceManagerFactory, eventDispatcherFactory, addInManager);
+
+      var browser = CreateBrowser (serviceManagerFactory, eventDispatcherFactory, addInManager);
+      var dragAndDrop = new DragAndDropAddIn (browser);
+
+      eventDispatcherFactory.PreLoadedNonSharedEvents.Add (dragAndDrop);
+
+      return browser;
     }
   }
 }

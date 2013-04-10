@@ -23,7 +23,8 @@ using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.EventArguments;
+using DesktopGap.WebBrowser.Arguments;
+using DesktopGap.WebBrowser.StartOptions;
 
 namespace DesktopGap.Clients.Windows.WebBrowser
 {

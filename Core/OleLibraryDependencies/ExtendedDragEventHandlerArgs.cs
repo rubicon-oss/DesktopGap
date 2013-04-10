@@ -17,10 +17,8 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Windows.Forms;
-using DesktopGap.Utilities;
 
 namespace DesktopGap.OleLibraryDependencies
 {
@@ -37,6 +35,8 @@ namespace DesktopGap.OleLibraryDependencies
     public bool Handled { get; set; }
 
     public object Current { get; set; }
+
+    public bool Droppable { get; set; }
 
     public ExtendedDragEventHandlerArgs (IDataObject data, int keyState, int x, int y, DragDropEffects allowedEffect, DragDropEffects effect)
         : base (data, keyState, x, y, allowedEffect, effect)
