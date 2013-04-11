@@ -20,18 +20,17 @@
 using System;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
-using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
   public interface IAddInManager : IDisposable
   {
-    void AddEventDispatcher (Handle key, IEventDispatcher eventDispatcher);
-    IEventDispatcher GetEventDispatcher (Handle handle);
-    void RemoveEventDispatcher (Handle handle);
+    void AddEventDispatcher (HtmlDocumentHandle key, IEventDispatcher eventDispatcher);
+    IEventDispatcher GetEventDispatcher (HtmlDocumentHandle handle);
+    void RemoveEventDispatcher (HtmlDocumentHandle handle);
 
-    void AddServiceManager (Handle key, IServiceManager serviceManager);
-    IServiceManager GetServiceManager (Handle handle);
-    void RemoveServiceManager (Handle handle);
+    void AddServiceManager (HtmlDocumentHandle key, IServiceManager serviceManager);
+    IServiceManager GetServiceManager (HtmlDocumentHandle handle);
+    void RemoveServiceManager (HtmlDocumentHandle handle);
   }
 }

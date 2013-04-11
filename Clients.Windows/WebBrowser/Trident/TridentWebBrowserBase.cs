@@ -23,6 +23,7 @@ using System.Windows.Forms;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Utilities;
+using DesktopGap.WebBrowser.StartOptions;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
@@ -52,6 +53,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 
     protected bool _enableWebBrowserShortcuts = false;
 
+    protected BrowserWindowStartMode _startMode;
+
 
     /// <summary>
     /// Enables/disables shortcuts for editing (ctrl-A, ctrl-X, ctrl-C, ...)
@@ -79,7 +82,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     protected TridentWebBrowserBase ()
     {
       IsWebBrowserContextMenuEnabled = _enableWebBrowserContextMenu;
-
       _features = new TridentFeatures();
     }
 
@@ -102,13 +104,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void AttachInterfaces (object nativeActiveXObject)
     {
-      var wrapper = WebBrowserWrapper.CreateInstance (
-          (IWebBrowser2) nativeActiveXObject, nativeActiveXObject.GetType());
-      _axIWebBrowser2 = wrapper as IWebBrowser2;
-      //_axIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
-      //object x = 0;
-      //  object  y = 0;
-      //_axIWebBrowser2.ExecWB (OLECMDID.OLECMDID_OPTICAL_ZOOM,OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT, ref y, ref x);
+      //var wrapper = WebBrowserWrapper.CreateInstance (
+      //    (IWebBrowser2) nativeActiveXObject, nativeActiveXObject.GetType());
+//      _axIWebBrowser2 = wrapper as IWebBrowser2;
+      _axIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
+
       base.AttachInterfaces (_axIWebBrowser2);
     }
 
@@ -169,7 +169,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       _axIWebBrowser2.RegisterAsDropTarget = false;
 
       var customDoc = (ICustomDoc) _axIWebBrowser2.Document;
-      //var frames = Document.Window.Frames[0].
       customDoc.SetUIHandler (desktopGapDocumentUiHandler);
     }
   }

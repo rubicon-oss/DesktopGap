@@ -22,7 +22,6 @@ using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.Utilities;
-using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
 

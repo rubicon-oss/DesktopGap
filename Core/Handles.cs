@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 
 namespace DesktopGap
@@ -34,6 +33,47 @@ namespace DesktopGap
     public override string ToString ()
     {
       return _guid.ToString();
+    }
+
+    public override bool Equals (object obj)
+    {
+      if (obj is Guid)
+        return _guid.Equals ((Guid) obj);
+      else
+        return _guid.Equals (((HtmlDocumentHandle) obj)._guid);
+    }
+
+    public override int GetHashCode ()
+    {
+      return _guid.GetHashCode();
+    }
+  }
+
+  public struct ResourceHandle
+  {
+    private readonly Guid _guid;
+
+    public ResourceHandle (Guid guid)
+    {
+      _guid = guid;
+    }
+
+    public override string ToString ()
+    {
+      return _guid.ToString();
+    }
+
+  public override bool Equals (object obj)
+    {
+      if (obj is Guid)
+        return _guid.Equals ((Guid) obj);
+      else
+        return _guid.Equals (((ResourceHandle) obj)._guid);
+    }
+
+    public override int GetHashCode ()
+    {
+      return _guid.GetHashCode();
     }
   }
 }

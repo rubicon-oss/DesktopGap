@@ -19,6 +19,7 @@
 // 
 using System;
 using System.Windows.Forms;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.OleLibraryDependencies
 {
@@ -27,6 +28,8 @@ namespace DesktopGap.OleLibraryDependencies
   /// </summary>
   public class ExtendedDragEventHandlerArgs : DragEventArgs
   {
+    public HtmlDocumentHandle Document { get; set; }
+
     /// <summary>
     /// Wether the Drag Drop Event was handled or not
     /// If true the underlying control is prohibited from overiding the defined DragDropEffects
@@ -38,9 +41,11 @@ namespace DesktopGap.OleLibraryDependencies
 
     public bool Droppable { get; set; }
 
-    public ExtendedDragEventHandlerArgs (IDataObject data, int keyState, int x, int y, DragDropEffects allowedEffect, DragDropEffects effect)
+
+    public ExtendedDragEventHandlerArgs (IDataObject data, int keyState, int x, int y, DragDropEffects allowedEffect, DragDropEffects effect, HtmlDocumentHandle document = default (HtmlDocumentHandle))
         : base (data, keyState, x, y, allowedEffect, effect)
     {
+      Document = document;
     }
   }
 }

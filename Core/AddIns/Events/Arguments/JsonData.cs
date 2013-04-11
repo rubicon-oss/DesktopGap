@@ -28,6 +28,6 @@ namespace DesktopGap.AddIns.Events.Arguments
   [ComVisible (true)]
   public class JsonData
   {
-    public string EventId;
+    public string EventID;
   }
 }

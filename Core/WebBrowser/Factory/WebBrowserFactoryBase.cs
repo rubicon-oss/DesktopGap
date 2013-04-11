@@ -24,19 +24,32 @@ using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events.Factory;
 using DesktopGap.AddIns.Events.System;
 using DesktopGap.AddIns.Services.Factory;
+using DesktopGap.Resources;
 using DesktopGap.Utilities;
+using DesktopGap.AddIns.Events;
 
 namespace DesktopGap.WebBrowser.Factory
 {
   public abstract class WebBrowserFactoryBase : IWebBrowserFactory
   {
+    private readonly IResourceManager _resourceManager;
     private readonly CompositionContainer _compositionContainer;
+    private readonly IEventAddIn[] _preLoadedAddIns;
+    private readonly DragAndDropAddIn _dragAndDropAddIn;
 
-    protected WebBrowserFactoryBase (ComposablePartCatalog catalog)
+    protected WebBrowserFactoryBase (ComposablePartCatalog catalog, IResourceManager resourceManager)
     {
       ArgumentUtility.CheckNotNull ("catalog", catalog);
+      ArgumentUtility.CheckNotNull ("resourceManager", resourceManager);
 
+      _resourceManager = resourceManager;
       _compositionContainer = new CompositionContainer (catalog);
+
+      _dragAndDropAddIn = new DragAndDropAddIn (_resourceManager);
+      _preLoadedAddIns = new[]
+                         {
+                             (IEventAddIn) _dragAndDropAddIn
+                         };
     }
 
     /// <summary>
@@ -61,9 +74,11 @@ namespace DesktopGap.WebBrowser.Factory
 
 
       var browser = CreateBrowser (serviceManagerFactory, eventDispatcherFactory, addInManager);
-      var dragAndDrop = new DragAndDropAddIn (browser);
 
-      eventDispatcherFactory.PreLoadedNonSharedEvents.Add (dragAndDrop);
+      _dragAndDropAddIn.AddDragDropSource (browser);
+
+      foreach (var addIn in _preLoadedAddIns)
+        eventDispatcherFactory.AddPreloadedEvent (addIn);
 
       return browser;
     }

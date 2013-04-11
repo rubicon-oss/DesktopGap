@@ -28,22 +28,38 @@ namespace DesktopGap.AddIns.Events.Factory
   public class EventDispatcherFactory : IEventDispatcherFactory
   {
     private readonly CompositionContainer _compositionContainer;
+    private readonly IList<IEventAddIn> _preLoadedSharedEvents;
+    private bool _factoryCalled;
 
     public EventDispatcherFactory (CompositionContainer compositionContainer)
     {
       ArgumentUtility.CheckNotNull ("compositionContainer", compositionContainer);
       _compositionContainer = compositionContainer;
 
-      PreLoadedSharedEvents = new List<IEventAddIn>();
+      _preLoadedSharedEvents = new List<IEventAddIn>();
     }
 
-    public IList<IEventAddIn> PreLoadedSharedEvents { get; private set; }
+
+    public void AddPreloadedEvent (IEventAddIn addIn)
+    {
+      if(_factoryCalled)
+        throw new InvalidOperationException ("An instance has already been created, you cannot add things anymore");
+
+      _preLoadedSharedEvents.Add (addIn);
+    }
 
     public IEventDispatcher CreateEventDispatcher (HtmlDocumentHandle document)
     {
-      var eventManager = new EventManager (document);
-      _compositionContainer.ComposeParts (eventManager);
-      return eventManager;
+      try
+      {
+        var eventManager = new EventManager (document, _preLoadedSharedEvents);
+        _compositionContainer.ComposeParts (eventManager);
+        return eventManager;
+      }
+      finally
+      {
+        _factoryCalled = true;
+      }
     }
   }
 }

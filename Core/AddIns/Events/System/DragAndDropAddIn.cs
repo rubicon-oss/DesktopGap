@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using System.Windows.Forms;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.OleLibraryDependencies;
@@ -31,7 +32,8 @@ namespace DesktopGap.AddIns.Events.System
   {
     private class DragDropEventData : JsonData
     {
-      public HtmlDocumentHandle[] ResourceHandle { get; set; }
+      public ResourceHandle[] ResourceHandle { get; set; }
+      public string Test { get; set; }
     }
 
     private class RingBuffer<TElement>
@@ -76,19 +78,15 @@ namespace DesktopGap.AddIns.Events.System
     public event ScriptEvent DragLeave;
     public event ScriptEvent DragOver;
 
-    private readonly RingBuffer<HtmlElement> _elementBuffer = new RingBuffer<HtmlElement> (c_eventBufferSize);
+    private readonly RingBuffer<KeyValuePair<HtmlDocumentHandle, HtmlElement>> _elementBuffer =
+        new RingBuffer<KeyValuePair<HtmlDocumentHandle, HtmlElement>> (c_eventBufferSize);
 
 
-    public DragAndDropAddIn (IExtendedWebBrowser webBrowser, IResourceManager resourceManager)
+    public DragAndDropAddIn (IResourceManager resourceManager)
     {
       ArgumentUtility.CheckNotNull ("resourceManager", resourceManager);
-      ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
 
       ResourceManager = resourceManager;
-      webBrowser.DragDrop += OnDragDrop;
-      webBrowser.DragEnter += OnDragEnter;
-      webBrowser.DragLeave += OnDragLeave;
-      webBrowser.DragOver += OnDragOver;
     }
 
     public void Dispose ()
@@ -115,7 +113,9 @@ namespace DesktopGap.AddIns.Events.System
 
     public bool CheckRaiseCondition (Condition argument)
     {
-      return argument.Criteria.elementID == _elementBuffer.Head();
+      var lastElement = _elementBuffer.Head();
+
+      return argument.Criteria.elementID == lastElement.Value.Id && argument.Document.Equals (lastElement.Key);
     }
 
     public void RegisterEvents (IEventHost eventHost)
@@ -131,44 +131,73 @@ namespace DesktopGap.AddIns.Events.System
       eventHost.UnregisterEvent (this, ref DragDrop, c_dragDropEventName);
     }
 
+    public void AddDragDropSource (IExtendedWebBrowser webBrowser)
+    {
+      webBrowser.DragDrop += OnDragDrop;
+      webBrowser.DragEnter += OnDragEnter;
+      webBrowser.DragLeave += OnDragLeave;
+      webBrowser.DragOver += OnDragOver;
+    }
+
+    public void RemoveDragDropSource (IExtendedWebBrowser webBrowser)
+    {
+      webBrowser.DragDrop -= OnDragDrop;
+      webBrowser.DragEnter -= OnDragEnter;
+      webBrowser.DragLeave -= OnDragLeave;
+      webBrowser.DragOver -= OnDragOver;
+    }
+
     private void OnDragOver (object sender, ExtendedDragEventHandlerArgs e)
     {
       var current = (HtmlElement) e.Current;
+      _elementBuffer.Push (new KeyValuePair<HtmlDocumentHandle, HtmlElement> (e.Document, (HtmlElement) e.Current));
 
-      e.Droppable = Boolean.Parse (current.GetAttribute (c_doppableAttributeName));
-
+      e.Droppable = IsDroppable (current);
+      //if (e.Droppable)
+      //  Debug.WriteLine ("yep");
       if (DragOver != null)
-        DragOver (this, c_dragOverEventName, new DragDropEventData { });
+        DragOver (this, c_dragOverEventName, new DragDropEventData());
     }
 
     private void OnDragLeave (object sender, EventArgs e)
     {
       if (DragLeave != null)
-        DragLeave (this, c_dragLeaveEventName, new DragDropEventData { ResourceHandle = new HtmlDocumentHandle[0] });
+        DragLeave (this, c_dragLeaveEventName, new DragDropEventData { ResourceHandle = new ResourceHandle[0] });
     }
 
     private void OnDragEnter (object sender, ExtendedDragEventHandlerArgs e)
     {
-      _elementBuffer.Push ((HtmlElement) e.Current);
+      //_elementBuffer.Push (new KeyValuePair<HtmlDocumentHandle, HtmlElement> (e.Document, (HtmlElement) e.Current));
+
       if (DragEnter != null)
-        DragEnter (this, c_dragEnterEventName, new DragDropEventData { ResourceHandle = new HtmlDocumentHandle[] { } });
+        DragEnter (this, c_dragEnterEventName, new DragDropEventData { ResourceHandle = new ResourceHandle[] { } });
     }
 
     private void OnDragDrop (object sender, ExtendedDragEventHandlerArgs e)
     {
       var current = (HtmlElement) e.Current;
 
-      e.Droppable = Boolean.Parse (current.GetAttribute (c_doppableAttributeName));
-      _elementBuffer.Push (current);
+      e.Droppable = IsDroppable (current);
+
+      _elementBuffer.Push (new KeyValuePair<HtmlDocumentHandle, HtmlElement> (e.Document, current));
 
 
       if (DragDrop != null && e.Droppable)
       {
-        var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-        var resources = ResourceManager.AddResources (filePaths);
+        //var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
+        //var resources = ResourceManager.AddResources (filePaths);
+        var resources = new[] { new ResourceHandle (Guid.NewGuid()) };
+        var args = new DragDropEventData { ResourceHandle = resources };
+        DragDrop (this, c_dragDropEventName, args);
 
-        DragDrop (this, c_dragDropEventName, new DragDropEventData { ResourceHandle = resources });
       }
+    }
+
+    private bool IsDroppable (HtmlElement element)
+    {
+      bool result;
+      Boolean.TryParse (element.GetAttribute (c_doppableAttributeName), out result);
+      return result;
     }
   }
 }

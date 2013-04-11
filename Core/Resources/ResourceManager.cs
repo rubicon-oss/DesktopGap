@@ -29,13 +29,13 @@ namespace DesktopGap.Resources
   {
     private struct DirectoryBookmark
     {
-      public HtmlDocumentHandle Handle;
+      public ResourceHandle Handle;
       public DirectoryInfo Directory;
     }
 
     private const string c_dataFolderName = "DesktopGap";
 
-    private readonly ConcurrentDictionary<HtmlDocumentHandle, FileSystemInfo> _resources = new ConcurrentDictionary<HtmlDocumentHandle, FileSystemInfo>();
+    private readonly ConcurrentDictionary<ResourceHandle, FileSystemInfo> _resources = new ConcurrentDictionary<ResourceHandle, FileSystemInfo>();
 
     private readonly DirectoryBookmark _data;
     private readonly DirectoryBookmark _temp;
@@ -46,7 +46,7 @@ namespace DesktopGap.Resources
       if (!dataFolder.Exists)
         dataFolder.Create();
 
-      _data = new DirectoryBookmark { Directory = dataFolder, Handle = new HtmlDocumentHandle (Guid.NewGuid()) };
+      _data = new DirectoryBookmark { Directory = dataFolder, Handle = new ResourceHandle (Guid.NewGuid()) };
 
       _resources[_data.Handle] = _data.Directory;
 
@@ -57,12 +57,12 @@ namespace DesktopGap.Resources
         tempFolder.Create();
       }
 
-      _temp = new DirectoryBookmark { Directory = tempFolder, Handle = new HtmlDocumentHandle (Guid.NewGuid()) };
+      _temp = new DirectoryBookmark { Directory = tempFolder, Handle = new ResourceHandle (Guid.NewGuid()) };
 
       _resources[_temp.Handle] = _temp.Directory;
     }
 
-    public FileSystemInfo GetResource (HtmlDocumentHandle handle)
+    public FileSystemInfo GetResource (ResourceHandle handle)
     {
       ArgumentUtility.CheckNotNull ("handle", handle);
 
@@ -73,24 +73,24 @@ namespace DesktopGap.Resources
       return fileSystemInfo;
     }
 
-    public HtmlDocumentHandle GetTempDirectory ()
+    public ResourceHandle GetTempDirectory ()
     {
       return _temp.Handle;
     }
 
-    public HtmlDocumentHandle GetDataDirectory ()
+    public ResourceHandle GetDataDirectory ()
     {
       return _data.Handle;
     }
 
-    public HtmlDocumentHandle[] AddResources (string[] paths)
+    public ResourceHandle[] AddResources (string[] paths)
     {
       return paths.Select (AddResource).ToArray();
     }
 
-    public HtmlDocumentHandle AddResource (string path)
+    public ResourceHandle AddResource (string path)
     {
-      var handle = new HtmlDocumentHandle (Guid.NewGuid());
+      var handle = new ResourceHandle (Guid.NewGuid());
 
       var attr = File.GetAttributes (path);
 
@@ -107,7 +107,7 @@ namespace DesktopGap.Resources
       return handle;
     }
 
-    private string JoinExtension (HtmlDocumentHandle handle, string extension)
+    private string JoinExtension (ResourceHandle handle, string extension)
     {
       if (string.IsNullOrEmpty (extension))
         return String.Format ("{0}.{1}", handle, extension);
@@ -115,7 +115,7 @@ namespace DesktopGap.Resources
         return handle.ToString();
     }
 
-    public void RemoveResource (HtmlDocumentHandle handle)
+    public void RemoveResource (ResourceHandle handle)
     {
       FileSystemInfo value;
       _resources.TryRemove (handle, out value);

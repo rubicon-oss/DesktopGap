@@ -50,17 +50,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       {
         case BrowserWindowTarget.PopUp:
           var newPopUp = CreatePopUp (webBrowser);
-
+          newPopUp.Hide();
           view = newPopUp;
           break;
 
         default:
           var newTab = CreateBrowserTab (webBrowser);
           _tabControl.Items.Add (newTab);
+
           view = newTab;
           break;
       }
       eventArgs.TargetView = view;
+      
     }
 
 
@@ -69,7 +71,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       var browserTab = new BrowserTab (new WebBrowserHost ((TridentWebBrowser) browser));
 
       browser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
-      browser.BeforeNavigate += ((IWebBrowserView) browserTab).OnBeforeNavigate;
+      browser.AfterNavigate += ((IWebBrowserView) browserTab).OnBeforeNavigate;
       browserTab.TabClosing += (s, e) => _tabControl.Items.Remove (s);
       return browserTab;
     }
@@ -79,7 +81,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       var popUp = new PopUpWindow (new WebBrowserHost ((TridentWebBrowser) browser));
 
       browser.WindowOpen += OnWindowOpen; // TODO what?!
-      browser.BeforeNavigate += ((IWebBrowserView) popUp).OnBeforeNavigate;
+      browser.AfterNavigate += ((IWebBrowserView) popUp).OnBeforeNavigate;
 
       return popUp;
     }

@@ -33,22 +33,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   {
     private readonly WebBrowserHost _browserHost;
 
-    public IExtendedWebBrowser WebBrowser
-    {
-      get { return _browserHost.WebBrowser; }
-    }
-
-    public void OnBeforeNavigate (object parent, NavigationEventArgs args)
-    {
-      ArgumentUtility.CheckNotNull ("args", args);
-      ArgumentUtility.CheckNotNull ("parent", parent);
-
-
-      if (args.StartMode == BrowserWindowStartMode.Modal)
-        ShowDialog();
-    }
-
-
     public PopUpWindow (WebBrowserHost browserHost)
     {
       ArgumentUtility.CheckNotNull ("browserHost", browserHost);
@@ -65,5 +49,34 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserHost.WebBrowser.WindowSetLeft += (s, l) => Left = l;
       _browserHost.WebBrowser.WindowSetTop += (s, t) => Top = t;
     }
+
+
+    public IExtendedWebBrowser WebBrowser
+    {
+      get { return _browserHost.WebBrowser; }
+    }
+
+
+
+    public void OnBeforeNavigate (object parent, NavigationEventArgs args)
+    {
+      ArgumentUtility.CheckNotNull ("args", args);
+      ArgumentUtility.CheckNotNull ("parent", parent);
+
+
+      switch (args.StartMode)
+      {
+        case BrowserWindowStartMode.Modal:
+          ShowDialog();
+          break;
+        
+        default:
+          Show();
+          break;
+      }
+    }
+
+
+    
   }
 }

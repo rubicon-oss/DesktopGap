@@ -48,7 +48,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       ArgumentUtility.CheckNotNull ("webBrowserHost", webBrowserHost);
 
       _browserHost = webBrowserHost;
-      _browserHost.WebBrowser.PageLoaded += OnPageLoaded;
+      _browserHost.WebBrowser.PageLoadFinished += OnPageLoaded;
       GotFocus += OnTabFocussed;
 
       _browserHost = webBrowserHost;
@@ -91,7 +91,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private void CleanUp ()
     {
       // remove event handler to avoid memory leaks
-      _browserHost.WebBrowser.PageLoaded -= OnPageLoaded;
+      _browserHost.WebBrowser.PageLoadFinished -= OnPageLoaded;
       _browserHost.WebBrowser = null;
     }
   }

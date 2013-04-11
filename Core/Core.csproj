@@ -51,7 +51,7 @@
     <Compile Include="AddIns\AddInBase.cs" />
     <Compile Include="AddIns\Services\IServiceAddIn.cs" />
     <Compile Include="AddIns\Services\Factory\ServiceManagerFactory.cs" />
-    <Compile Include="HtmlDocumentHandle.cs" />
+    <Compile Include="Handles.cs" />
     <Compile Include="AddIns\Events\Arguments\Condition.cs" />
     <Compile Include="AddIns\Events\EventManager.cs" />
     <Compile Include="AddIns\AddInManager.cs" />

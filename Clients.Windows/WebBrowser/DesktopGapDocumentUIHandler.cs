@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Windows.Forms;
 using DesktopGap.Clients.Windows.OleLibraryDependencies;
@@ -70,24 +69,24 @@ namespace DesktopGap.Clients.Windows.WebBrowser
       if (pDataObj != null)
         dataObject = new DataObject (pDataObj);
 
-      var dragEnterHandler = new ExtendedDragEventHandlerArgs (
+      var args = new ExtendedDragEventHandlerArgs (
           dataObject,
           (int) grfKeyState,
           pt.X,
           pt.Y,
           DragDropEffects.All,
           ToWinForms ((NativeDragDropEffects) pdwEffect));
-      _extendedTridentWebBrowser.OnDragEnter (dragEnterHandler);
+      _extendedTridentWebBrowser.OnDragEnter (args);
 
-      if (dragEnterHandler.Droppable)
-        pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
+      if (args.Handled)
+        pdwEffect = (uint) ToNative (args.Effect);
 
       return HResult.S_OK;
     }
 
     public int DragOver (uint grfKeyState, tagPOINT pt, ref uint pdwEffect)
     {
-      var dragEnterHandler = new ExtendedDragEventHandlerArgs (
+      var args = new ExtendedDragEventHandlerArgs (
           null,
           (int) grfKeyState,
           pt.X,
@@ -95,10 +94,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser
           DragDropEffects.All,
           ToWinForms ((NativeDragDropEffects) pdwEffect));
 
-      _extendedTridentWebBrowser.OnDragOver (dragEnterHandler);
+      _extendedTridentWebBrowser.OnDragOver (args);
+      if (args.Handled)
 
-      if (dragEnterHandler.Droppable)
-        pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
+        pdwEffect = (uint) ToNative (args.Effect);
+
 
       return HResult.S_OK;
     }
@@ -117,7 +117,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
         dataObject = new DataObject (pDataObj);
       }
 
-      var dragEnterHandler = new ExtendedDragEventHandlerArgs (
+      var args = new ExtendedDragEventHandlerArgs (
           dataObject,
           (int) grfKeyState,
           pt.X,
@@ -125,10 +125,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser
           DragDropEffects.All,
           ToWinForms ((NativeDragDropEffects) pdwEffect));
 
-      _extendedTridentWebBrowser.OnDragDrop (dragEnterHandler);
+      _extendedTridentWebBrowser.OnDragDrop (args);
 
-      if (dragEnterHandler.Handled)
-        pdwEffect = (uint) ToNative (dragEnterHandler.Effect);
+      if (args.Handled)
+        pdwEffect = (uint) ToNative (args.Effect);
 
       return HResult.S_OK;
     }

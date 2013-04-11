@@ -1,5 +1,6 @@
 ﻿using DesktopGap.Clients.Windows.WebBrowser;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
+using DesktopGap.Resources;
 using DesktopGap.WebBrowser;
 // This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
@@ -42,7 +43,7 @@ namespace DesktopGap.Clients.Windows
       var dirCatalog = new DirectoryCatalog (c_addInDirectory);
       catalog.Catalogs.Add (dirCatalog);
       
-      _browserFactory = new TridentWebBrowserFactory(catalog);
+      _browserFactory = new TridentWebBrowserFactory(catalog, new ResourceManager());
 
       try
       {

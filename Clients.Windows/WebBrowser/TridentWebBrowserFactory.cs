@@ -24,6 +24,7 @@ using DesktopGap.AddIns.Events.Factory;
 using DesktopGap.AddIns.Services.Factory;
 using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
+using DesktopGap.Resources;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Factory;
 
@@ -33,8 +34,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser
   {
     private ApiFacade _apiFacade;
 
-    public TridentWebBrowserFactory (ComposablePartCatalog catalog)
-        : base (catalog)
+    public TridentWebBrowserFactory (ComposablePartCatalog catalog, IResourceManager resourceManager)
+        : base (catalog, resourceManager)
     {
     }
 

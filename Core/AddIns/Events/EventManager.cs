@@ -60,7 +60,6 @@ namespace DesktopGap.AddIns.Events
     public void Dispose ()
     {
       // TODO potential memory leak?
-      _nonSharedAddedEvents = null;
       _sharedAddedEvents = null;
 
       foreach (var nonSharedEvent in _nonSharedEvents)
@@ -84,7 +83,7 @@ namespace DesktopGap.AddIns.Events
       {
         ArgumentUtility.CheckNotNull ("value", value);
 
-        _nonSharedEvents = value.ToArray();
+        _nonSharedEvents = value.ToList<IEventAddIn>();
       }
     }
 
@@ -95,7 +94,7 @@ namespace DesktopGap.AddIns.Events
       {
         ArgumentUtility.CheckNotNull ("value", value);
 
-        _sharedEvents = value.ToArray();
+        _sharedEvents = value.ToList<IEventAddIn>();
       }
     }
 
@@ -205,7 +204,7 @@ namespace DesktopGap.AddIns.Events
 
       foreach (var callback in callbackNames.Where (c => source.CheckRaiseCondition (c.Value)))
       {
-        args.EventId = callback.Value.EventID;
+        args.EventID = callback.Value.EventID;
         var eventArgs = new ScriptEventArgs { ScriptArgs = args, Function = callback.Key };
         EventFired (this, eventArgs);
       }

@@ -25,17 +25,17 @@ namespace DesktopGap.Resources
   public interface IResourceManager : IDisposable
   {
 
-    FileSystemInfo GetResource (HtmlDocumentHandle handle);
+    FileSystemInfo GetResource (ResourceHandle handle);
     
-    HtmlDocumentHandle GetTempDirectory ();
+    ResourceHandle GetTempDirectory ();
     
-    HtmlDocumentHandle GetDataDirectory ();
+    ResourceHandle GetDataDirectory ();
 
-    HtmlDocumentHandle[] AddResources (string[] paths);
+    ResourceHandle[] AddResources (string[] paths);
 
-    HtmlDocumentHandle AddResource (string path);
+    ResourceHandle AddResource (string path);
 
-    void RemoveResource (HtmlDocumentHandle handle);
+    void RemoveResource (ResourceHandle handle);
 
   }
 }

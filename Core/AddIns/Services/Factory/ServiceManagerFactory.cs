@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -29,23 +28,37 @@ namespace DesktopGap.AddIns.Services.Factory
   public class ServiceManagerFactory : IServiceManagerFactory
   {
     private readonly CompositionContainer _compositionContainer;
+    private bool _factoryCalled;
+    private readonly IList<IServiceAddIn> _preLoadedSharedServices;
 
     public ServiceManagerFactory (CompositionContainer compositionContainer)
     {
       ArgumentUtility.CheckNotNull ("compositionContainer", compositionContainer);
       _compositionContainer = compositionContainer;
-      PreLoadedNonSharedServices = new List<IServiceAddIn>();
-      PreLoadedSharedServices = new List<IServiceAddIn>();
+      _preLoadedSharedServices = new List<IServiceAddIn>();
     }
 
-    public IList<IServiceAddIn> PreLoadedNonSharedServices { get; private set; }
-    public IList<IServiceAddIn> PreLoadedSharedServices { get; private set; }
+
+    public void AddPreloadedService (IServiceAddIn addIn)
+    {
+      if (_factoryCalled)
+        throw new InvalidOperationException ("An instance has already been created, you cannot add things anymore");
+
+      _preLoadedSharedServices.Add (addIn);
+    }
 
     public IServiceManager CreateServiceManager (HtmlDocumentHandle document)
     {
-      var serviceManager = new ServiceManager (document);
-      _compositionContainer.ComposeParts (serviceManager);
-      return serviceManager;
+      try
+      {
+        var serviceManager = new ServiceManager (document, _preLoadedSharedServices);
+        _compositionContainer.ComposeParts (serviceManager);
+        return serviceManager;
+      }
+      finally
+      {
+        _factoryCalled = true;
+      }
     }
   }
 }

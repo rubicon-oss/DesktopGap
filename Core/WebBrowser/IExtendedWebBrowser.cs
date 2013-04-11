@@ -26,10 +26,11 @@ namespace DesktopGap.WebBrowser
   public interface IExtendedWebBrowser
   {
     string Title { get; }
+    string Name { get; }
 
     event EventHandler GotFocus; 
-    event EventHandler<IExtendedWebBrowser> PageLoaded; // initial page downloaded event
-    event EventHandler<EventArgs> ContentReloaded; // Reload event
+    event EventHandler<IExtendedWebBrowser> PageLoadFinished; // initial page downloaded event
+    event EventHandler<NavigationEventArgs> AfterNavigate; 
     event EventHandler<WindowOpenEventArgs> WindowOpen;
     event EventHandler<NavigationEventArgs> BeforeNavigate; 
 
