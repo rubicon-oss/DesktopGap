@@ -70,6 +70,7 @@
     <Compile Include="Utilities\ReSharperAnnotations\AssertionMethodAttribute.cs" />
     <Compile Include="Utilities\ReSharperAnnotations\InvokerParameterNameAttribute.cs" />
     <Compile Include="Utilities\ReSharperAnnotations\NoEnumerationAttribute.cs" />
+    <Compile Include="WebBrowser\HtmlElementData.cs" />
     <Compile Include="WebBrowser\StartOptions\BrowserWindowStartMode.cs" />
     <Compile Include="WebBrowser\StartOptions\BrowserWindowTarget.cs" />
     <Compile Include="AddIns\Events\System\DragAndDropAddIn.cs" />

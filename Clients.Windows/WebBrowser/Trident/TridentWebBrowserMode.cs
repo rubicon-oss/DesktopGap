@@ -32,6 +32,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
   public enum TridentWebBrowserMode
   {
     // ReSharper disable InconsistentNaming
+    Edge = 99999,
     ForcedIE10 = 10001, // Forced = ignore !DOCTYPE
     IE10 = 10000,
     ForcedIE9 = 9999,

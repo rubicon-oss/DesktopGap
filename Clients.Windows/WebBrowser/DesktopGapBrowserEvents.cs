@@ -74,11 +74,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     }
 
 
-    public override void DownloadComplete ()
-    {
-    }
-
-
     public override void WindowSetHeight (int height)
     {
       _browserControl.OnWindowSetHeight (height);

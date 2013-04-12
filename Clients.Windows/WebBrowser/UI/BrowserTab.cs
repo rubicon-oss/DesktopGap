@@ -36,10 +36,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public event EventHandler TabClosing;
     private readonly WebBrowserHost _browserHost;
 
-    public IExtendedWebBrowser WebBrowser
-    {
-      get { return _browserHost.WebBrowser; }
-    }
 
     private readonly bool _isCloseable;
 
@@ -57,6 +53,17 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       Content = _browserHost;
     }
 
+    public void Dispose ()
+    {
+      CleanUp();
+    }
+
+
+    public IExtendedWebBrowser WebBrowser
+    {
+      get { return _browserHost.WebBrowser; }
+    }
+
     public void OnBeforeNavigate (object parent, NavigationEventArgs args)
     {
       ArgumentUtility.CheckNotNull ("args", args);
@@ -68,7 +75,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnTabFocussed (object sender, EventArgs e)
     {
-      
     }
 
     private void OnPageLoaded (object sender, IExtendedWebBrowser webBrowser)
@@ -90,9 +96,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void CleanUp ()
     {
-      // remove event handler to avoid memory leaks
-      _browserHost.WebBrowser.PageLoadFinished -= OnPageLoaded;
-      _browserHost.WebBrowser = null;
+      _browserHost.Dispose();
     }
   }
 }

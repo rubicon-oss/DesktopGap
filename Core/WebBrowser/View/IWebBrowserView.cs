@@ -22,7 +22,7 @@ using System;
 
 namespace DesktopGap.WebBrowser.View
 {
-  public interface IWebBrowserView
+  public interface IWebBrowserView : IDisposable
   {
     IExtendedWebBrowser WebBrowser { get; }
     void OnBeforeNavigate (object sender, NavigationEventArgs args);

@@ -59,7 +59,6 @@ namespace DesktopGap.AddIns.Events
 
     public void Dispose ()
     {
-      // TODO potential memory leak?
       _sharedAddedEvents = null;
 
       foreach (var nonSharedEvent in _nonSharedEvents)

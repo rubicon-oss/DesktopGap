@@ -23,6 +23,7 @@ using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.Factory;
+using DesktopGap.WebBrowser.Session;
 using DesktopGap.WebBrowser.StartOptions;
 using DesktopGap.WebBrowser.View;
 
@@ -31,7 +32,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   /// <summary>
   /// Interaction logic for Browser.xaml
   /// </summary>
-  public partial class BrowserWindow
+  public partial class BrowserWindow : IWebBrowserWindow
   {
     private readonly IWebBrowserFactory _browserFactory;
 
@@ -41,6 +42,34 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserFactory = browserFactory;
       InitializeComponent();
     }
+
+    public void Dispose ()
+    {
+      foreach (var tab in _tabControl.Items)
+      {
+        var browserTab = (BrowserTab) tab;
+        browserTab.Dispose();
+      }
+    }
+
+    public ISession CurrentSession { get; private set; }
+
+    public void NewPopUp (string url)
+    {
+      var browser = _browserFactory.CreateBrowser();
+
+      CreatePopUp (browser);
+      browser.Navigate (url);
+    }
+
+    public void NewTab (string url)
+    {
+      var browser = _browserFactory.CreateBrowser();
+
+      _tabControl.Items.Add (CreateBrowserTab (browser));
+      browser.Navigate (url);
+    }
+
 
     private void OnWindowOpen (object sender, WindowOpenEventArgs eventArgs)
     {
@@ -62,7 +91,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
           break;
       }
       eventArgs.TargetView = view;
-      
     }
 
 
@@ -88,12 +116,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
     {
-      var browser = _browserFactory.CreateBrowser();
-      var newTab = CreateBrowserTab (browser);
-      browser.Navigate (_urlTextBox.Text);
-
-      _tabControl.Items.Add (newTab);
-      newTab.Focus();
+      NewTab (_urlTextBox.Text);
     }
   }
 }

@@ -19,7 +19,7 @@
 // 
 using System;
 using System.Windows.Forms;
-using DesktopGap.Utilities;
+using DesktopGap.WebBrowser;
 
 namespace DesktopGap.OleLibraryDependencies
 {
@@ -37,12 +37,19 @@ namespace DesktopGap.OleLibraryDependencies
     /// </summary>
     public bool Handled { get; set; }
 
-    public object Current { get; set; }
+    public HtmlElementData Current { get; set; }
 
     public bool Droppable { get; set; }
 
 
-    public ExtendedDragEventHandlerArgs (IDataObject data, int keyState, int x, int y, DragDropEffects allowedEffect, DragDropEffects effect, HtmlDocumentHandle document = default (HtmlDocumentHandle))
+    public ExtendedDragEventHandlerArgs (
+        IDataObject data,
+        int keyState,
+        int x,
+        int y,
+        DragDropEffects allowedEffect,
+        DragDropEffects effect,
+        HtmlDocumentHandle document = default (HtmlDocumentHandle))
         : base (data, keyState, x, y, allowedEffect, effect)
     {
       Document = document;

@@ -51,12 +51,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     }
 
 
+    public void Dispose ()
+    {
+      _browserHost.Dispose();
+    }
+
     public IExtendedWebBrowser WebBrowser
     {
       get { return _browserHost.WebBrowser; }
     }
-
-
 
     public void OnBeforeNavigate (object parent, NavigationEventArgs args)
     {
@@ -69,14 +72,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         case BrowserWindowStartMode.Modal:
           ShowDialog();
           break;
-        
+
         default:
           Show();
           break;
       }
     }
-
-
-    
   }
 }

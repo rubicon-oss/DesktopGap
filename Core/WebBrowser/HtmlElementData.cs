@@ -17,28 +17,25 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using System.Windows.Controls;
-using System.Windows.Forms.Integration;
+
+using System.Collections.Generic;
 using DesktopGap.Utilities;
 
-namespace DesktopGap.Clients.Windows.WebBrowser.UI
+namespace DesktopGap.WebBrowser
 {
-  public class WebBrowserHost : ContentControl, IDisposable
+  public class HtmlElementData
   {
-    public TridentWebBrowser WebBrowser { get; private set; }
+    public string ID { get; private set; }
+    public IDictionary<string, string> Attributes { get; private set; }
 
-    public WebBrowserHost (TridentWebBrowser tridentWebBrowser)
+
+    public HtmlElementData (string id, IDictionary<string, string> attributes)
     {
-      ArgumentUtility.CheckNotNull ("tridentWebBrowser", tridentWebBrowser);
-      WebBrowser = tridentWebBrowser;
-
-      Content = new WindowsFormsHost { Child = tridentWebBrowser };
-    }
-
-    public void Dispose ()
-    {
-      WebBrowser.Dispose();
+      ArgumentUtility.CheckNotNull ("attributes", attributes);
+      ArgumentUtility.CheckNotNull ("id", id);
+      
+      ID = id;
+      Attributes = attributes;
     }
   }
 }

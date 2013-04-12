@@ -19,7 +19,9 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Windows.Forms;
 using DesktopGap.Clients.Windows.WebBrowser.Scripting;
@@ -36,6 +38,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private const DragDropEffects c_defaulEffect = DragDropEffects.Move;
     private const string c_blankSite = "about:blank";
 
+    private static readonly string[] s_attributes = new[] { "dg_droptarget", "dg_dropcondition" };
+
 
     public event EventHandler<IExtendedWebBrowser> PageLoadFinished;
     public event EventHandler<NavigationEventArgs> AfterNavigate;
@@ -45,6 +49,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragOver;
+    public new event EventHandler DragLeave;
 
     public event EventHandler<int> WindowSetHeight;
     public event EventHandler<int> WindowSetLeft;
@@ -56,7 +61,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private ISet<HtmlDocumentHandle> _activeHandles;
 
-    public new event EventHandler DragLeave;
 
     public TridentWebBrowser (ApiFacade apiFacade, int maxRecursionDepth = 100, int recursionDepth = 0)
     {
@@ -68,7 +72,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _maxRecursionDepth = maxRecursionDepth;
       _recursionDepth = recursionDepth;
 
-      BrowserMode = TridentWebBrowserMode.IE10;
+      BrowserMode = TridentWebBrowserMode.Edge;
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
 
       DocumentCompleted += TridentWebBrowser_DocumentCompleted;
@@ -76,14 +80,27 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     protected override void Dispose (bool disposing)
     {
+      BeforeNavigate = null;
+      AfterNavigate = null;
       PageLoadFinished = null;
+
       WindowOpen = null;
+
       DragDrop = null;
       DragLeave = null;
       DragOver = null;
       DragEnter = null;
 
       ObjectForScripting = null;
+
+      WindowSetHeight = null;
+      WindowSetLeft = null;
+      WindowSetTop = null;
+      WindowSetWidth = null;
+
+      if (_activeHandles != null)
+        _activeHandles.Clear();
+      _activeHandles = null;
 
       base.Dispose (disposing);
     }
@@ -107,7 +124,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnWindowSetHeight (int height)
     {
       ArgumentUtility.CheckNotNull ("height", height);
-      
+
       if (WindowSetHeight != null)
         WindowSetHeight (this, height);
     }
@@ -115,16 +132,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnWindowSetLeft (int left)
     {
       ArgumentUtility.CheckNotNull ("left", left);
-      
+
       if (WindowSetLeft != null)
         WindowSetLeft (this, left);
     }
 
     public void OnWindowSetTop (int top)
     {
-
       ArgumentUtility.CheckNotNull ("top", top);
-      
+
       if (WindowSetTop != null)
         WindowSetTop (this, top);
     }
@@ -132,7 +148,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnWindowSetWidth (int width)
     {
       ArgumentUtility.CheckNotNull ("width", width);
-      
+
       if (WindowSetWidth != null)
         WindowSetWidth (this, width);
     }
@@ -143,7 +159,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnNewWindow (WindowOpenEventArgs eventArgs)
     {
       ArgumentUtility.CheckNotNull ("eventArgs", eventArgs);
-      
+
       if (WindowOpen != null)
         WindowOpen (this, eventArgs);
     }
@@ -151,7 +167,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnBeforeNavigate (NavigationEventArgs navigationEventArgs)
     {
       ArgumentUtility.CheckNotNull ("navigationEventArgs", navigationEventArgs);
-            
+
       if (navigationEventArgs.URL == c_blankSite)
         return;
 
@@ -168,7 +184,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnDragEnter (ExtendedDragEventHandlerArgs e)
     {
       var element = ElementAt (e.X, e.Y);
-      e.Current = element;
+
+      e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
       e.Document = ObjectForScripting.GetDocumentHandle (element.Document);
       e.Effect = DragDropEffects.None;
 
@@ -187,7 +204,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       e.Effect = DragDropEffects.None;
       var element = ElementAt (e.X, e.Y);
-      e.Current = element;
+      e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
       e.Document = ObjectForScripting.GetDocumentHandle (element.Document);
       if (DragDrop != null)
         DragDrop (this, e);
@@ -209,7 +226,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnDragOver (ExtendedDragEventHandlerArgs e)
     {
       var element = ElementAt (e.X, e.Y);
-      e.Current = element;
+      e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
       e.Document = ObjectForScripting.GetDocumentHandle (element.Document);
       e.Effect = DragDropEffects.None;
 
@@ -227,7 +244,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       var keyCode = keyEventArgs.KeyCode | ModifierKeys;
 
-      if (!Enum.IsDefined (typeof (Shortcut), (Shortcut) keyCode))
+      if (ModifierKeys == 0 || !Enum.IsDefined (typeof (Shortcut), (Shortcut) keyCode))
         return;
 
       switch (keyCode)
@@ -273,8 +290,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
               handles = handles.Concat (AddDocuments (w)).ToList();
           handles.Add (ObjectForScripting.AddDocument (window.Document));
         }
-      }catch(UnauthorizedAccessException unauthorizedAccessException)
-      { // pass. Maybe look at http://codecentrix.blogspot.co.at/2008/02/when-ihtmlwindow2document-throws.html later
+      }
+      catch (UnauthorizedAccessException unauthorizedAccessException)
+      {
+        // pass. Maybe look at http://codecentrix.blogspot.co.at/2008/02/when-ihtmlwindow2document-throws.html later
       }
       return handles.ToArray();
     }
@@ -282,13 +301,18 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void TridentWebBrowser_DocumentCompleted (object sender, WebBrowserDocumentCompletedEventArgs e)
     {
+      var s = new StreamReader (DocumentStream);
+      var x = s.ReadToEnd();
+      if (x.Contains ("meta"))
+        Debug.WriteLine ("### Meta tag found!");
+
       if (e.Url.AbsolutePath != Url.AbsolutePath)
         return;
 
       if (PageLoadFinished != null)
         PageLoadFinished (this, this);
 
-      if(AfterNavigate != null)
+      if (AfterNavigate != null)
         AfterNavigate (this, new NavigationEventArgs (_startMode, false, Url.AbsolutePath, ""));
 
       if (ObjectForScripting == null || Document == null || Document.Window == null)
@@ -308,9 +332,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
-    //
-    //
-    //
+    private IDictionary<string, string> GetRelevantAttributes (HtmlElement element)
+    {
+      var dict = new Dictionary<string, string> (s_attributes.Length);
+      foreach (var attributeName in s_attributes)
+        dict.Add (attributeName, element.GetAttribute (attributeName));
+
+      return dict;
+    }
   }
 
   #region keep for later 

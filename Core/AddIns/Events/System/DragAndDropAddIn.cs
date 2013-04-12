@@ -19,7 +19,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.Resources;
@@ -33,7 +32,7 @@ namespace DesktopGap.AddIns.Events.System
     private class DragDropEventData : JsonData
     {
       public ResourceHandle[] ResourceHandle { get; set; }
-      public string Test { get; set; }
+      public string[] Names { get; set; }
     }
 
     private class RingBuffer<TElement>
@@ -57,9 +56,21 @@ namespace DesktopGap.AddIns.Events.System
         return _buffer[_current];
       }
 
+      public TElement Pop ()
+      {
+        var e = Head();
+        Prev();
+        return e;
+      }
+
       private void Next ()
       {
         _current = (_current + 1) % _buffer.Length;
+      }
+
+      private void Prev ()
+      {
+        _current = _current > 0 ? _current - 1 : _buffer.Length - 1;
       }
     }
 
@@ -78,8 +89,8 @@ namespace DesktopGap.AddIns.Events.System
     public event ScriptEvent DragLeave;
     public event ScriptEvent DragOver;
 
-    private readonly RingBuffer<KeyValuePair<HtmlDocumentHandle, HtmlElement>> _elementBuffer =
-        new RingBuffer<KeyValuePair<HtmlDocumentHandle, HtmlElement>> (c_eventBufferSize);
+    private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _elementUnderCursor;
+    private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _enterElement;
 
 
     public DragAndDropAddIn (IResourceManager resourceManager)
@@ -113,9 +124,7 @@ namespace DesktopGap.AddIns.Events.System
 
     public bool CheckRaiseCondition (Condition argument)
     {
-      var lastElement = _elementBuffer.Head();
-
-      return argument.Criteria.elementID == lastElement.Value.Id && argument.Document.Equals (lastElement.Key);
+      return argument.Criteria.elementID == _elementUnderCursor.Value.ID && argument.Document.Equals (_elementUnderCursor.Key);
     }
 
     public void RegisterEvents (IEventHost eventHost)
@@ -147,40 +156,41 @@ namespace DesktopGap.AddIns.Events.System
       webBrowser.DragOver -= OnDragOver;
     }
 
+    // when hovering things
     private void OnDragOver (object sender, ExtendedDragEventHandlerArgs e)
     {
-      var current = (HtmlElement) e.Current;
-      _elementBuffer.Push (new KeyValuePair<HtmlDocumentHandle, HtmlElement> (e.Document, (HtmlElement) e.Current));
+      var current = e.Current;
+      if (_elementUnderCursor.Key != e.Document)
+      {
+        _elementUnderCursor = new KeyValuePair<HtmlDocumentHandle, HtmlElementData> (e.Document, e.Current);;
+      }
 
       e.Droppable = IsDroppable (current);
-      //if (e.Droppable)
-      //  Debug.WriteLine ("yep");
+
       if (DragOver != null)
         DragOver (this, c_dragOverEventName, new DragDropEventData());
     }
 
+    // when leaving the window
     private void OnDragLeave (object sender, EventArgs e)
     {
       if (DragLeave != null)
         DragLeave (this, c_dragLeaveEventName, new DragDropEventData { ResourceHandle = new ResourceHandle[0] });
     }
 
+    // when entering the window
     private void OnDragEnter (object sender, ExtendedDragEventHandlerArgs e)
     {
-      //_elementBuffer.Push (new KeyValuePair<HtmlDocumentHandle, HtmlElement> (e.Document, (HtmlElement) e.Current));
-
+      _enterElement = new KeyValuePair<HtmlDocumentHandle, HtmlElementData> (e.Document, e.Current);
+      _elementUnderCursor = _enterElement;
       if (DragEnter != null)
         DragEnter (this, c_dragEnterEventName, new DragDropEventData { ResourceHandle = new ResourceHandle[] { } });
     }
 
     private void OnDragDrop (object sender, ExtendedDragEventHandlerArgs e)
     {
-      var current = (HtmlElement) e.Current;
-
+      var current = e.Current;
       e.Droppable = IsDroppable (current);
-
-      _elementBuffer.Push (new KeyValuePair<HtmlDocumentHandle, HtmlElement> (e.Document, current));
-
 
       if (DragDrop != null && e.Droppable)
       {
@@ -189,14 +199,17 @@ namespace DesktopGap.AddIns.Events.System
         var resources = new[] { new ResourceHandle (Guid.NewGuid()) };
         var args = new DragDropEventData { ResourceHandle = resources };
         DragDrop (this, c_dragDropEventName, args);
-
       }
     }
 
-    private bool IsDroppable (HtmlElement element)
+    private bool IsDroppable (HtmlElementData element)
     {
-      bool result;
-      Boolean.TryParse (element.GetAttribute (c_doppableAttributeName), out result);
+      var result = false;
+      string value;
+
+      if (element.Attributes.TryGetValue (c_doppableAttributeName, out value))
+        Boolean.TryParse (value, out result);
+
       return result;
     }
   }

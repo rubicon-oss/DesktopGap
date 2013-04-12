@@ -35,15 +35,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     // Source: http://www.codeproject.com/Articles/13598/Extended-NET-2-0-WebBrowser-Control
 
 
-    protected class XWebBrowserSite : System.Windows.Forms.WebBrowser.WebBrowserSite
-    {
-      public XWebBrowserSite (System.Windows.Forms.WebBrowser host)
-          : base(host)
-      {
-
-      }
-    }
-
     /// <summary>
     /// Avoid default registration as IDropTarget by the WebBrowser.
     /// </summary>

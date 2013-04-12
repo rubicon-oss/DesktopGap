@@ -96,14 +96,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
       _extendedTridentWebBrowser.OnDragOver (args);
       if (args.Handled)
-
         pdwEffect = (uint) ToNative (args.Effect);
-
 
       return HResult.S_OK;
     }
 
-    int IDropTarget.DragLeave ()
+    public int DragLeave ()
     {
       _extendedTridentWebBrowser.OnDragLeave (new EventArgs());
       return HResult.S_OK;
@@ -137,6 +135,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public override int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
     {
       var keyEventArgs = new KeyEventArgs ((Keys) msg.wParam);
+
       _extendedTridentWebBrowser.OnBrowserKeyDown (_extendedTridentWebBrowser, keyEventArgs);
 
       return keyEventArgs.Handled ? HResult.S_OK : HResult.S_FALSE;

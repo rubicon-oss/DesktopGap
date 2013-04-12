@@ -1,8 +1,4 @@
-﻿using DesktopGap.Clients.Windows.WebBrowser;
-using DesktopGap.Clients.Windows.WebBrowser.UI;
-using DesktopGap.Resources;
-using DesktopGap.WebBrowser;
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -21,11 +17,16 @@ using DesktopGap.WebBrowser;
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.ComponentModel.Composition.Hosting;
 using System.Windows;
 using System.Windows.Threading;
+using DesktopGap.Clients.Windows.WebBrowser;
+using DesktopGap.Clients.Windows.WebBrowser.UI;
+using DesktopGap.Resources;
 using DesktopGap.WebBrowser.Factory;
+using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -42,12 +43,14 @@ namespace DesktopGap.Clients.Windows
       var catalog = new AggregateCatalog();
       var dirCatalog = new DirectoryCatalog (c_addInDirectory);
       catalog.Catalogs.Add (dirCatalog);
-      
-      _browserFactory = new TridentWebBrowserFactory(catalog, new ResourceManager());
+
+      _browserFactory = new TridentWebBrowserFactory (catalog, new ResourceManager());
 
       try
       {
-        var mainWindow = new BrowserWindow(_browserFactory);
+        var mainWindow = new BrowserWindow (_browserFactory);
+        foreach (var arg in e.Args)
+          ((IWebBrowserWindow) mainWindow).NewTab (arg);
         mainWindow.Show();
       }
       catch (Exception ex)

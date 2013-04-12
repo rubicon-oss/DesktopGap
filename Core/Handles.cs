@@ -47,6 +47,16 @@ namespace DesktopGap
     {
       return _guid.GetHashCode();
     }
+
+    public static bool operator != (HtmlDocumentHandle a, HtmlDocumentHandle b)
+    {
+      return !a.Equals (b);
+    }
+
+    public static bool operator == (HtmlDocumentHandle a, HtmlDocumentHandle b)
+    {
+      return a.Equals (b);
+    }
   }
 
   public struct ResourceHandle
@@ -63,7 +73,7 @@ namespace DesktopGap
       return _guid.ToString();
     }
 
-  public override bool Equals (object obj)
+    public override bool Equals (object obj)
     {
       if (obj is Guid)
         return _guid.Equals ((Guid) obj);
@@ -74,6 +84,16 @@ namespace DesktopGap
     public override int GetHashCode ()
     {
       return _guid.GetHashCode();
+    }
+
+    public static bool operator != (ResourceHandle a, ResourceHandle b)
+    {
+      return !a.Equals (b);
+    }
+
+    public static bool operator == (ResourceHandle a, ResourceHandle b)
+    {
+      return a.Equals (b);
     }
   }
 }

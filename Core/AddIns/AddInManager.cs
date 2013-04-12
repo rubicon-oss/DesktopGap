@@ -22,11 +22,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
-using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
-  public class AddInManager : IAddInManager
+  public sealed class AddInManager : IAddInManager
   {
     private readonly IDictionary<object, IEventDispatcher> _eventDispatchers =
         new ConcurrentDictionary<object, IEventDispatcher>();
@@ -39,6 +38,15 @@ namespace DesktopGap.AddIns
     /// </summary>
     public AddInManager ()
     {
+    }
+
+     public void Dispose ()
+    {
+       foreach (var serviceManager in _serviceManagers)
+         serviceManager.Value.Dispose();
+
+       foreach (var eventDispatcher in _eventDispatchers)
+        eventDispatcher.Value.Dispose();
     }
 
     public void AddEventDispatcher (HtmlDocumentHandle key, IEventDispatcher eventDispatcher)
@@ -71,15 +79,6 @@ namespace DesktopGap.AddIns
       _serviceManagers.Remove (handle);
     }
 
-    public void Dispose ()
-    {
-      foreach (var serviceManager in _serviceManagers)
-      {
-        serviceManager.Value.Dispose();
-      }
-
-      foreach (var eventDispatcher in _eventDispatchers)
-        eventDispatcher.Value.Dispose();
-    }
+   
   }
 }
