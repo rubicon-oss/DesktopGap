@@ -55,7 +55,10 @@ namespace DesktopGap.AddIns.Services
       foreach (var service in _services)
         service.Value.OnBeforeUnload (_document);
       foreach (var service in _nonSharedServices)
+      {
+        service.OnBeforeUnload(_document);
         service.Dispose();
+      }
     }
 
     [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.NonShared)]
@@ -95,14 +98,6 @@ namespace DesktopGap.AddIns.Services
       if (HasService (service.Name))
         throw new InvalidOperationException (string.Format ("Service '{0}' already registered.", service.Name));
       _services[service.Name] = service;
-    }
-
-    public void UnregisterService (IServiceAddIn service)
-    {
-      ArgumentUtility.CheckNotNull ("service", service);
-
-      GetService (service.Name, name => new InvalidOperationException (string.Format ("Service '{0}' not registered.", name)));
-      _services.Remove (service.Name);
     }
 
     public void OnImportsSatisfied ()
