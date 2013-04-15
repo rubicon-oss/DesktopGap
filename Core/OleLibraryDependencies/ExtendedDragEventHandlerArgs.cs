@@ -20,6 +20,7 @@
 using System;
 using System.Windows.Forms;
 using DesktopGap.WebBrowser;
+using IDataObject = System.Windows.Forms.IDataObject;
 
 namespace DesktopGap.OleLibraryDependencies
 {

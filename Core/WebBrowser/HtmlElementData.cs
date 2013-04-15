@@ -17,8 +17,9 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.WebBrowser
@@ -32,10 +33,33 @@ namespace DesktopGap.WebBrowser
     public HtmlElementData (string id, IDictionary<string, string> attributes)
     {
       ArgumentUtility.CheckNotNull ("attributes", attributes);
-      ArgumentUtility.CheckNotNull ("id", id);
-      
+
       ID = id;
       Attributes = attributes;
+    }
+
+    protected bool Equals (HtmlElementData other)
+    {
+      return string.Equals (ID, other.ID) && Equals (Attributes, other.Attributes);
+    }
+
+    public override int GetHashCode ()
+    {
+      unchecked
+      {
+        return ((ID != null ? ID.GetHashCode() : 0) * 397) ^ (Attributes != null ? Attributes.GetHashCode() : 0);
+      }
+    }
+
+    public override bool Equals (object obj)
+    {
+      if (ReferenceEquals (null, obj))
+        return false;
+      if (ReferenceEquals (this, obj))
+        return true;
+      if (obj.GetType() != this.GetType())
+        return false;
+      return Equals ((HtmlElementData) obj);
     }
   }
 }

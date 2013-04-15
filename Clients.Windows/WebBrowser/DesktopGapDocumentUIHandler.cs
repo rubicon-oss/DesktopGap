@@ -33,6 +33,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
   public class DesktopGapDocumentUIHandler : DocHostUIHandlerBase, IDropTarget
   {
     private readonly TridentWebBrowser _extendedTridentWebBrowser;
+    private System.Windows.Forms.IDataObject _currendDataObject;
 
     public DesktopGapDocumentUIHandler (TridentWebBrowser browser)
         : base (browser)
@@ -65,12 +66,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
     public int DragEnter (IDataObject pDataObj, uint grfKeyState, tagPOINT pt, ref uint pdwEffect)
     {
-      System.Windows.Forms.IDataObject dataObject = null;
+      _currendDataObject = null;
       if (pDataObj != null)
-        dataObject = new DataObject (pDataObj);
-
+        _currendDataObject = new DataObject (pDataObj);
+      
       var args = new ExtendedDragEventHandlerArgs (
-          dataObject,
+          _currendDataObject,
           (int) grfKeyState,
           pt.X,
           pt.Y,
@@ -87,7 +88,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public int DragOver (uint grfKeyState, tagPOINT pt, ref uint pdwEffect)
     {
       var args = new ExtendedDragEventHandlerArgs (
-          null,
+          _currendDataObject,
           (int) grfKeyState,
           pt.X,
           pt.Y,
@@ -103,20 +104,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
     public int DragLeave ()
     {
+      _currendDataObject = null;
       _extendedTridentWebBrowser.OnDragLeave (new EventArgs());
       return HResult.S_OK;
     }
 
     public int Drop (IDataObject pDataObj, uint grfKeyState, tagPOINT pt, ref uint pdwEffect)
     {
-      System.Windows.Forms.IDataObject dataObject = null;
+      _currendDataObject = null;
       if (pDataObj != null)
-      {
-        dataObject = new DataObject (pDataObj);
-      }
+        _currendDataObject = new DataObject (pDataObj);
 
       var args = new ExtendedDragEventHandlerArgs (
-          dataObject,
+          _currendDataObject,
           (int) grfKeyState,
           pt.X,
           pt.Y,

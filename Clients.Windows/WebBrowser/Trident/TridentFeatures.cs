@@ -25,39 +25,21 @@ using Microsoft.Win32;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
-  public class TridentFeatures : IDisposable //TODO rewrite 
+  public class TridentFeatures 
   {
     private const string c_gpuRenderingKey = "FEATURE_GPU_RENDERING";
     private const string c_browserModeKey = "FEATURE_BROWSER_EMULATION";
+    private const string c_featureControlLocation = @"SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl";
+    private const string c_registrySeperator = "\\";
 
-    private readonly RegistryKey _featureControl;
     private readonly string _applicationName;
+
 
     public TridentFeatures ()
     {
-      // WoW64Node is not required
-      _featureControl = Registry.CurrentUser.OpenSubKey ("SOFTWARE", true);
-
-      if (_featureControl == null)
-        throw new InvalidOperationException ("Could not open registry for modification");
-
-      _featureControl = _featureControl.OpenSubKey (@"Microsoft\Internet Explorer\MAIN\FeatureControl", true)
-                        ??
-                        _featureControl.CreateSubKey (@"Microsoft\Internet Explorer\MAIN\FeatureControl", RegistryKeyPermissionCheck.ReadWriteSubTree);
-
-      if (_featureControl == null)
-        throw new InvalidOperationException ("Could not open registry for modification");
-
-      // Important: The exact(!) filename of the running executable is written into the registry, 
-      // as opposed to process name (DesktopGap.vshost.exe vs DesktopGap.exe <- works)
       _applicationName = Path.GetFileName (Assembly.GetExecutingAssembly().GetName().CodeBase);
     }
 
-    public void Dispose ()
-    {
-      if (_featureControl != null)
-        _featureControl.Dispose();
-    }
 
     /// <summary>
     /// 
@@ -68,6 +50,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       set { SetKey (c_gpuRenderingKey, value ? "1" : "0"); }
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public TridentWebBrowserMode BrowserEmulationMode
     {
       get { return (TridentWebBrowserMode) Enum.ToObject (typeof (TridentWebBrowserMode), int.Parse (GetKey (c_browserModeKey))); }
@@ -80,8 +65,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 
     private void SetKey (string keyName, string value)
     {
-      using (
-          var key = _featureControl.OpenSubKey (keyName, true) ?? _featureControl.CreateSubKey (keyName, RegistryKeyPermissionCheck.ReadWriteSubTree))
+      using (var key = Registry.CurrentUser.CreateSubKey (
+          string.Join (c_registrySeperator, c_featureControlLocation, keyName),
+          RegistryKeyPermissionCheck.ReadWriteSubTree))
       {
         if (key == null)
           throw new InvalidOperationException ("Could not open subkey for modification");
@@ -92,8 +78,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 
     private string GetKey (string keyName)
     {
-      var key = _featureControl.OpenSubKey (keyName);
-      return key != null ? key.GetValue (_applicationName, null).ToString() : null;
+      using (var key = Registry.CurrentUser.CreateSubKey (
+          string.Join (c_registrySeperator, c_featureControlLocation, keyName),
+          RegistryKeyPermissionCheck.ReadWriteSubTree))
+      {
+        if (key == null)
+          throw new InvalidOperationException ("Could not open subkey for modification");
+        var result = key.GetValue (_applicationName, null);
+        return result != null ? result.ToString() : null;
+      }
     }
   }
 }

@@ -25,12 +25,44 @@ namespace DesktopGap.AddIns
 {
   public interface IAddInManager : IDisposable
   {
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="eventDispatcher"></param>
     void AddEventDispatcher (HtmlDocumentHandle key, IEventDispatcher eventDispatcher);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
+    /// <returns></returns>
     IEventDispatcher GetEventDispatcher (HtmlDocumentHandle handle);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="serviceManager"></param>
     void RemoveEventDispatcher (HtmlDocumentHandle handle);
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="key"></param>
+    /// <param name="serviceManager"></param>
     void AddServiceManager (HtmlDocumentHandle key, IServiceManager serviceManager);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
     IServiceManager GetServiceManager (HtmlDocumentHandle handle);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="handle"></param>
     void RemoveServiceManager (HtmlDocumentHandle handle);
   }
 }

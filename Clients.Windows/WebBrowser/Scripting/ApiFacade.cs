@@ -19,6 +19,7 @@
 // 
 using System;
 using System.Runtime.InteropServices;
+using System.Security.Permissions;
 using System.Windows.Forms;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events.Arguments;
@@ -28,6 +29,17 @@ using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
 {
+
+  //// primitive object for testing parameter passing to js
+  //[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
+  //  [ComVisible(true)]
+  //  public class A
+  //{
+  //  public int i = 0;
+  //  public string[] Names = { "hello", "world", "!" };
+  //  public string name = "COMOBJECT!";
+  //}
+
   [ComVisible (true)]
   public class ApiFacade : IDisposable
   {
