@@ -25,6 +25,7 @@ using DesktopGap.AddIns.Services.Factory;
 using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.Resources;
+using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Factory;
 
@@ -42,6 +43,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     protected override IExtendedWebBrowser CreateBrowser (
         IServiceManagerFactory serviceManagerFactory, IEventDispatcherFactory eventDispatcherFactory, IAddInManager addInManager)
     {
+      ArgumentUtility.CheckNotNull ("addInManager", addInManager);
+      ArgumentUtility.CheckNotNull ("serviceManagerFactory", serviceManagerFactory);
+      ArgumentUtility.CheckNotNull ("eventDispatcherFactory", eventDispatcherFactory);
+      
+
       if (_apiFacade == null)
         _apiFacade = new ApiFacade (serviceManagerFactory, eventDispatcherFactory, addInManager);
       return new TridentWebBrowser (_apiFacade);

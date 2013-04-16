@@ -17,31 +17,11 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using Microsoft.CSharp.RuntimeBinder;
 
-namespace DesktopGap.AddIns.Events.Arguments
+namespace DesktopGap.UnitTests.Fakes
 {
-  public class Condition
+  public interface IFakeService : IServiceProvider
   {
-    public string EventID { get; private set; }
-
-    public HtmlDocumentHandle Document { get; private set; }
-    public dynamic Criteria { get; private set; }
-
-    public Condition (dynamic condition)
-    {
-      try
-      {
-        EventID = condition.EventID;
-        Document = new HtmlDocumentHandle (Guid.Parse (condition.DocumentHandle));
-        Criteria = condition.Criteria;
-      }
-      catch (RuntimeBinderException binderException)
-      {
-        throw new ArgumentException ("The provided object does not have the required properties 'EventID', 'DocumentHandle', and 'Criteria'.");
-      }
-    }
   }
 }

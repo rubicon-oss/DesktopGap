@@ -19,29 +19,24 @@
 // 
 
 using System;
-using Microsoft.CSharp.RuntimeBinder;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.AddIns.Events.Arguments
+namespace DesktopGap.UnitTests.Fakes
 {
-  public class Condition
+  public class FakeServiceManager : IServiceManager
   {
-    public string EventID { get; private set; }
-
-    public HtmlDocumentHandle Document { get; private set; }
-    public dynamic Criteria { get; private set; }
-
-    public Condition (dynamic condition)
+    public void Dispose ()
     {
-      try
-      {
-        EventID = condition.EventID;
-        Document = new HtmlDocumentHandle (Guid.Parse (condition.DocumentHandle));
-        Criteria = condition.Criteria;
-      }
-      catch (RuntimeBinderException binderException)
-      {
-        throw new ArgumentException ("The provided object does not have the required properties 'EventID', 'DocumentHandle', and 'Criteria'.");
-      }
+    }
+
+    public IServiceAddIn GetService (string serviceName)
+    {
+      return null;
+    }
+
+    public bool HasService (string name)
+    {
+      return false;
     }
   }
 }

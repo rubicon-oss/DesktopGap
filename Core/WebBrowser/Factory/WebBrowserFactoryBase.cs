@@ -50,6 +50,8 @@ namespace DesktopGap.WebBrowser.Factory
                          {
                              (IEventAddIn) _dragAndDropAddIn
                          };
+
+        
     }
 
     /// <summary>
@@ -68,10 +70,10 @@ namespace DesktopGap.WebBrowser.Factory
     /// <returns>A new webbrowser instance.</returns>
     public IExtendedWebBrowser CreateBrowser ()
     {
+      // TODO rewrite
       var serviceManagerFactory = new ServiceManagerFactory (_compositionContainer);
       var eventDispatcherFactory = new EventDispatcherFactory (_compositionContainer);
       var addInManager = new AddInManager();
-
 
       var browser = CreateBrowser (serviceManagerFactory, eventDispatcherFactory, addInManager);
 

@@ -19,29 +19,30 @@
 // 
 
 using System;
-using Microsoft.CSharp.RuntimeBinder;
+using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Events.Arguments;
 
-namespace DesktopGap.AddIns.Events.Arguments
+namespace DesktopGap.UnitTests.Fakes
 {
-  public class Condition
+  public class FakeEventDispatcher : IEventDispatcher
   {
-    public string EventID { get; private set; }
+    public event EventHandler<ScriptEventArgs> EventFired;
 
-    public HtmlDocumentHandle Document { get; private set; }
-    public dynamic Criteria { get; private set; }
-
-    public Condition (dynamic condition)
+    public void Dispose ()
     {
-      try
-      {
-        EventID = condition.EventID;
-        Document = new HtmlDocumentHandle (Guid.Parse (condition.DocumentHandle));
-        Criteria = condition.Criteria;
-      }
-      catch (RuntimeBinderException binderException)
-      {
-        throw new ArgumentException ("The provided object does not have the required properties 'EventID', 'DocumentHandle', and 'Criteria'.");
-      }
+    }
+
+    public void Register (string eventName, string callbackName, string moduleName, Condition argument)
+    {
+    }
+
+    public void Unregister (string eventName, string callbackName, string moduleName)
+    {
+    }
+
+    public bool HasEvent (string name)
+    {
+      return true;
     }
   }
 }

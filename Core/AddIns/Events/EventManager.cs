@@ -43,7 +43,6 @@ namespace DesktopGap.AddIns.Events
 
     public EventManager (HtmlDocumentHandle document)
     {
-      ArgumentUtility.CheckNotNull ("document", document);
       _document = document;
 
       _sharedAddedEvents = new List<IEventAddIn>();
@@ -99,9 +98,9 @@ namespace DesktopGap.AddIns.Events
 
     public void Register (string eventName, string callbackName, string moduleName, Condition argument)
     {
-      ArgumentUtility.CheckNotNull ("moduleName", moduleName);
-      ArgumentUtility.CheckNotNull ("eventName", eventName);
-      ArgumentUtility.CheckNotNull ("callbackName", callbackName);
+      ArgumentUtility.CheckNotNullOrEmpty ("moduleName", moduleName);
+      ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
+      ArgumentUtility.CheckNotNullOrEmpty ("callbackName", callbackName);
 
       var subscriptions = GetSubscriptions (eventName, moduleName);
 
@@ -110,21 +109,19 @@ namespace DesktopGap.AddIns.Events
 
     public void Unregister (string eventName, string callbackName, string moduleName)
     {
-      ArgumentUtility.CheckNotNull ("moduleName", moduleName);
-      ArgumentUtility.CheckNotNull ("eventName", eventName);
-      ArgumentUtility.CheckNotNull ("callbackName", callbackName);
+      ArgumentUtility.CheckNotNullOrEmpty ("moduleName", moduleName);
+      ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
+      ArgumentUtility.CheckNotNullOrEmpty ("callbackName", callbackName);
 
 
       var subscriptions = GetSubscriptions (eventName, moduleName);
       foreach (var registration in subscriptions.Where (s => s.Key == callbackName))
-      {
         subscriptions.Remove (registration);
-      }
     }
 
     public bool HasEvent (string name)
     {
-      ArgumentUtility.CheckNotNull ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
 
       IList<KeyValuePair<string, Condition>> e;
 
@@ -133,25 +130,30 @@ namespace DesktopGap.AddIns.Events
 
     public void RegisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
+      ArgumentUtility.CheckNotNull ("externalEvent", externalEvent);
+      ArgumentUtility.CheckNotNull ("scriptEvent", scriptEvent);
+      ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
+
       scriptEvent += FireEvent;
 
-      var name = externalEvent.Name + c_moduleEventSeperator + eventName;
+      var name = string.Join (c_moduleEventSeperator, externalEvent.Name, eventName);
 
       InitializeClients (name);
     }
 
     public void UnregisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
-      if (scriptEvent == null)
-        throw new ArgumentNullException ("scriptEvent");
-      var name = externalEvent.Name + c_moduleEventSeperator + eventName;
+      ArgumentUtility.CheckNotNull ("externalEvent", externalEvent);
+      ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
+      ArgumentUtility.CheckNotNull ("scriptEvent", scriptEvent);
+
+      var name = string.Join (c_moduleEventSeperator, externalEvent.Name, eventName);
 
       var eventClients = GetClients (name);
 
       if (eventClients == null)
-        throw new InvalidOperationException (String.Format ("Event {0} not found", scriptEvent.Method.Name));
-
-
+        throw new InvalidOperationException (string.Format ("Event {0} not found.", scriptEvent.Method.Name));
+      
       _clients.Remove (name);
 
       scriptEvent -= FireEvent;
@@ -169,11 +171,11 @@ namespace DesktopGap.AddIns.Events
 
     private IList<KeyValuePair<string, Condition>> GetSubscriptions (string eventName, string moduleName)
     {
-      var eventIdentifier = moduleName + c_moduleEventSeperator + eventName;
+      var eventIdentifier = string.Join (c_moduleEventSeperator, moduleName, eventName);
 
       IList<KeyValuePair<string, Condition>> registrations;
       if (!_clients.TryGetValue (eventIdentifier, out registrations))
-        throw new InvalidOperationException (String.Format ("Event {0} in module {1} not found", eventName, moduleName));
+        throw new InvalidOperationException (string.Format ("Event {0} in module {1} not found.", eventName, moduleName));
 
       return registrations;
     }
@@ -181,7 +183,7 @@ namespace DesktopGap.AddIns.Events
     private void InitializeClients (string name)
     {
       if (GetClients (name) != null)
-        throw new InvalidOperationException (String.Format ("Event {0} already registered", name));
+        throw new InvalidOperationException (string.Format ("Event {0} already registered.", name));
 
       _clients[name] = new List<KeyValuePair<string, Condition>>();
     }
@@ -196,10 +198,11 @@ namespace DesktopGap.AddIns.Events
 
     private void FireEvent (IEventAddIn source, string eventName, JsonData args)
     {
-      var name = source.Name + c_moduleEventSeperator + eventName;
+      var name = string.Join (c_moduleEventSeperator, source.Name, eventName);
+
       IList<KeyValuePair<string, Condition>> callbackNames;
       if (!_clients.TryGetValue (name, out callbackNames))
-        throw new InvalidOperationException (String.Format ("Event {0} never registered", name));
+        throw new InvalidOperationException (string.Format ("Event {0} in module {1} never registered.", eventName, source.Name));
 
       foreach (var callback in callbackNames.Where (c => source.CheckRaiseCondition (c.Value)))
       {

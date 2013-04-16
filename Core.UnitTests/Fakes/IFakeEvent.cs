@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -19,29 +19,11 @@
 // 
 
 using System;
-using Microsoft.CSharp.RuntimeBinder;
+using DesktopGap.AddIns.Events;
 
-namespace DesktopGap.AddIns.Events.Arguments
+namespace DesktopGap.UnitTests.Fakes
 {
-  public class Condition
+  public interface IFakeEvent : IEventAddIn
   {
-    public string EventID { get; private set; }
-
-    public HtmlDocumentHandle Document { get; private set; }
-    public dynamic Criteria { get; private set; }
-
-    public Condition (dynamic condition)
-    {
-      try
-      {
-        EventID = condition.EventID;
-        Document = new HtmlDocumentHandle (Guid.Parse (condition.DocumentHandle));
-        Criteria = condition.Criteria;
-      }
-      catch (RuntimeBinderException binderException)
-      {
-        throw new ArgumentException ("The provided object does not have the required properties 'EventID', 'DocumentHandle', and 'Criteria'.");
-      }
-    }
   }
 }

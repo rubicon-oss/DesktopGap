@@ -19,7 +19,6 @@
 // 
 using System;
 using System.Runtime.InteropServices;
-using System.Security.Permissions;
 using System.Windows.Forms;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events.Arguments;
@@ -29,7 +28,6 @@ using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
 {
-
   //// primitive object for testing parameter passing to js
   //[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
   //  [ComVisible(true)]
@@ -75,7 +73,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
     {
       ArgumentUtility.CheckNotNullOrEmpty ("serviceName", serviceName);
       ArgumentUtility.CheckNotNullOrEmpty ("guid", guid);
-
 
       return _addInManager.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).GetService (serviceName);
     }
@@ -147,9 +144,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       var guidObj = htmlDocument.InvokeScript (c_getDocumentIdentification);
       if (guidObj != null)
         return new HtmlDocumentHandle (Guid.Parse (guidObj.ToString()));
-      
+
       var docID = new HtmlDocumentHandle (Guid.NewGuid());
-      
+
       htmlDocument.InvokeScript (c_addDocumentIdentification, new object[] { docID.ToString() });
 
       var serviceManager = _serviceManagerFactory.CreateServiceManager (docID);
@@ -181,7 +178,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       _addInManager.RemoveEventDispatcher (docID);
     }
 
-        /// <summary>
+    /// <summary>
     /// 
     /// </summary>
     /// <param name="handle"></param>

@@ -22,19 +22,18 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns
 {
   public sealed class AddInManager : IAddInManager
   {
-    private const string c_documentAlreadyRegisteredFormatString = "DocumentHandle {0} is already registered";
-    private const string c_documentNotRegisteredFormatString = "DocumentHandle {0} is not registered";
+    private const string c_documentAlreadyRegisteredFormatString = "DocumentHandle {0} is already registered.";
+    private const string c_documentNotRegisteredFormatString = "DocumentHandle {0} is not registered.";
 
-    private readonly IDictionary<object, IEventDispatcher> _eventDispatchers =
-        new ConcurrentDictionary<object, IEventDispatcher>();
+    private readonly IDictionary<object, IEventDispatcher> _eventDispatchers = new ConcurrentDictionary<object, IEventDispatcher>();
 
-    private readonly IDictionary<object, IServiceManager> _serviceManagers =
-        new ConcurrentDictionary<object, IServiceManager>();
+    private readonly IDictionary<object, IServiceManager> _serviceManagers = new ConcurrentDictionary<object, IServiceManager>();
 
     /// <summary>
     /// Constuctor to specify the composition container directly, avoids recomposition on creation.
@@ -52,41 +51,42 @@ namespace DesktopGap.AddIns
         eventDispatcher.Value.Dispose();
     }
 
-    public void AddEventDispatcher (HtmlDocumentHandle key, IEventDispatcher eventDispatcher)
+    public void AddEventDispatcher (HtmlDocumentHandle handle, IEventDispatcher eventDispatcher)
     {
-      IEventDispatcher dispatcher;
-      if (_eventDispatchers.TryGetValue (key, out dispatcher))
-        throw new InvalidOperationException (string.Format (c_documentAlreadyRegisteredFormatString, key));
+      ArgumentUtility.CheckNotNull ("eventDispatcher", eventDispatcher);
 
-      _eventDispatchers.Add (key, eventDispatcher);
+      if (_eventDispatchers.ContainsKey (handle))
+        throw new InvalidOperationException (string.Format (c_documentAlreadyRegisteredFormatString, handle));
+
+      _eventDispatchers.Add (handle, eventDispatcher);
     }
 
     public IEventDispatcher GetEventDispatcher (HtmlDocumentHandle handle)
     {
-      IEventDispatcher dispatcher;
+      IEventDispatcher eventDispatcher;
 
-      if (!_eventDispatchers.TryGetValue (handle, out dispatcher))
+      if (!_eventDispatchers.TryGetValue (handle, out eventDispatcher))
         throw new InvalidOperationException (string.Format (c_documentNotRegisteredFormatString, handle));
 
-      return dispatcher;
+      return eventDispatcher;
     }
 
     public void RemoveEventDispatcher (HtmlDocumentHandle handle)
     {
-      IEventDispatcher dispatcher;
-
-      if (!_eventDispatchers.TryGetValue (handle, out dispatcher))
+      if (!_eventDispatchers.ContainsKey (handle))
         throw new InvalidOperationException (string.Format (c_documentNotRegisteredFormatString, handle));
+
       _eventDispatchers.Remove (handle);
     }
 
-    public void AddServiceManager (HtmlDocumentHandle key, IServiceManager serviceManager)
+    public void AddServiceManager (HtmlDocumentHandle handle, IServiceManager serviceManager)
     {
-      IServiceManager serviceMgr;
+      ArgumentUtility.CheckNotNull ("serviceManager", serviceManager);
 
-      if (_serviceManagers.TryGetValue (key, out serviceMgr))
-        throw new InvalidOperationException (string.Format (c_documentAlreadyRegisteredFormatString, key));
-      _serviceManagers.Add (key, serviceManager);
+      if (_serviceManagers.ContainsKey (handle))
+        throw new InvalidOperationException (string.Format (c_documentAlreadyRegisteredFormatString, handle));
+
+      _serviceManagers.Add (handle, serviceManager);
     }
 
     public IServiceManager GetServiceManager (HtmlDocumentHandle handle)
@@ -95,15 +95,15 @@ namespace DesktopGap.AddIns
 
       if (!_serviceManagers.TryGetValue (handle, out serviceManager))
         throw new InvalidOperationException (string.Format (c_documentNotRegisteredFormatString, handle));
+
       return serviceManager;
     }
 
     public void RemoveServiceManager (HtmlDocumentHandle handle)
     {
-      IServiceManager serviceManager;
-
-      if (!_serviceManagers.TryGetValue (handle, out serviceManager))
+      if (!_serviceManagers.ContainsKey (handle))
         throw new InvalidOperationException (string.Format (c_documentNotRegisteredFormatString, handle));
+
       _serviceManagers.Remove (handle);
     }
   }
