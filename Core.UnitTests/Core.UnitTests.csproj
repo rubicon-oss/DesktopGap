@@ -33,6 +33,9 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Rhino.Mocks">
+      <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
@@ -48,8 +51,9 @@
     </Compile>
     <Compile Include="AddInManagerTest.cs" />
     <Compile Include="EventManagerTest.cs" />
-    <Compile Include="Fakes\IFakeEvent.cs" />
-    <Compile Include="Fakes\IFakeService.cs" />
+    <Compile Include="Fakes\FakeEventAddIn.cs" />
+    <Compile Include="Fakes\Interfaces\IFakeEvent.cs" />
+    <Compile Include="Fakes\Interfaces\IFakeService.cs" />
     <Compile Include="Fakes\TestEventDispatcher.cs" />
     <Compile Include="Fakes\FakeServiceManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

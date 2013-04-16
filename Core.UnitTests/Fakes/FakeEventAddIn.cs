@@ -17,32 +17,59 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
+using DesktopGap.Resources;
 
 namespace DesktopGap.UnitTests.Fakes
 {
-  public class FakeEventDispatcher : IEventDispatcher
+  public class FakeEventAddIn : IEventAddIn
   {
-    public event EventHandler<ScriptEventArgs> EventFired;
+    public const string FakeEventName = "some event";
+    private const string c_fakeModuleName = "some module";
+
+    public bool IsLoaded { get; private set; }
+    public bool EventsRegistered { get; private set; }
+
+    private ScriptEvent _fakeScriptEvent;
 
     public void Dispose ()
     {
     }
 
-    public void Register (string eventName, string callbackName, string moduleName, Condition argument)
+    public IResourceManager ResourceManager { get; private set; }
+
+    public string Name
     {
+      get { return c_fakeModuleName; }
     }
 
-    public void Unregister (string eventName, string callbackName, string moduleName)
+    public void OnBeforeLoad (HtmlDocumentHandle document)
     {
+      IsLoaded = true;
     }
 
-    public bool HasEvent (string moduleName, string eventName)
+    public void OnBeforeUnload (HtmlDocumentHandle document)
+    {
+      IsLoaded = false;
+    }
+
+    public bool CheckRaiseCondition (Condition argument)
     {
       return true;
+    }
+
+    public void RegisterEvents (IEventHost eventHost)
+    {
+      eventHost.RegisterEvent (this, ref _fakeScriptEvent, FakeEventName);
+      EventsRegistered = true;
+    }
+
+    public void UnregisterEvents (IEventHost eventHost)
+    {
+      eventHost.UnregisterEvent (this, ref _fakeScriptEvent, FakeEventName);
+      EventsRegistered = true;
     }
   }
 }

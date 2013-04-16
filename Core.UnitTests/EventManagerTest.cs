@@ -24,6 +24,7 @@ using System.ComponentModel.Composition.Hosting;
 using System.Dynamic;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
+using DesktopGap.UnitTests.Fakes;
 using NUnit.Framework;
 
 namespace DesktopGap.UnitTests
@@ -31,8 +32,10 @@ namespace DesktopGap.UnitTests
   [TestFixture]
   public class EventManagerTest
   {
-    private HtmlDocumentHandle? _consistentDocumentHandle = null;
-    private const string c_fakeEventID = "some event";
+    private const string c_eventNotFoundFormatString = "Event {0} in module {1} was not found.";
+
+    private HtmlDocumentHandle? _consistentDocumentHandle;
+
 
     [Test]
     public void Register_EventDoesNotExist_ShouldThrowInvalidOperation ()
@@ -42,15 +45,14 @@ namespace DesktopGap.UnitTests
       var eventName = "some event";
       var moduleName = "some module";
 
-
       Assert.That (
           () => eventManager.Register (eventName, "some callback", moduleName, new Condition (CreateCondition())),
           Throws.InvalidOperationException.
-              With.Message.EqualTo (string.Format ("Event {0} in module {1} not found.", eventName, moduleName)));
+              With.Message.EqualTo (string.Format (c_eventNotFoundFormatString, eventName, moduleName)));
     }
 
     [Test]
-    public void Register_InvalidConditionObject_ShouldThrowInvalidOperation ()
+    public void Register_InvalidConditionObject_ShouldThrowArgumentException ()
     {
       var eventManager = CreateEventManager (new List<IEventAddIn>());
 
@@ -64,20 +66,91 @@ namespace DesktopGap.UnitTests
     }
 
     [Test]
-    public void Register_CallbackDoesNotExist_ShouldThrowInvalidOperation ()
-    {
-    }
-
-    [Test]
     public void Unregister_EventDoesNotExist_ShouldThrowInvalidOperation ()
     {
+      var eventManager = CreateEventManager (new List<IEventAddIn>());
+
+      var eventName = "some event";
+      var moduleName = "some module";
+
+      Assert.That (
+          () => eventManager.Unregister (eventName, "some callback", moduleName),
+          Throws.InvalidOperationException.
+              With.Message.EqualTo (string.Format (c_eventNotFoundFormatString, eventName, moduleName)));
+    }
+
+
+    [Test]
+    public void RegisterEvent_EventRegistration_ShouldSucceed ()
+    {
+      ScriptEvent scriptEvent = null;
+      var eventManager = CreateEventManager (new List<IEventAddIn>());
+
+      var eventAddIn = new FakeEventAddIn();
+
+      Assert.That (
+          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          Throws.Nothing);
+      Assert.That (scriptEvent, Is.Not.Null);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+    }
+
+
+    [Test]
+    public void UnegisterEvent_EventDeregistration_ShouldSucceed ()
+    {
+      ScriptEvent scriptEvent = null;
+      var eventManager = CreateEventManager (new List<IEventAddIn>());
+
+      var eventAddIn = new FakeEventAddIn();
+
+      Assert.That (
+          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          Throws.Nothing);
+
+      Assert.That (
+          () => eventManager.UnregisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          Throws.Nothing);
+      Assert.That (scriptEvent, Is.Null);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.False);
     }
 
     [Test]
-    public void Unregister_CallbackDoesNotExist_ShouldThrowNothing ()
+    public void HasEvent_EventDoesNotExist_ShouldReturnFalse ()
     {
+      var eventManager = CreateEventManager (new List<IEventAddIn>());
+
+      var eventName = "some event";
+      var moduleName = "some module";
+
+      Assert.That (eventManager.HasEvent (moduleName, eventName), Is.False);
     }
 
+    [Test]
+    public void HasEvent_EventDoesExist_ShouldReturnTrue ()
+    {
+      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventAddIn = new FakeEventAddIn();
+      eventAddIn.RegisterEvents (eventManager);
+
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+    }
+
+
+    [Test]
+    public void Constructor_AddSharedExternalEvents_ShouldSucceed ()
+    {
+      var eventAddIn = new FakeEventAddIn();
+      var eventManager = CreateEventManager (new[] { eventAddIn });
+
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+      Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.True);
+    }
+
+    //
+    // UTILITY FUNCTIONS
+    //
+    
     private HtmlDocumentHandle GetDocumentHandle ()
     {
       if (_consistentDocumentHandle == null)
@@ -92,10 +165,10 @@ namespace DesktopGap.UnitTests
     {
       dynamic fakeCondition = new ExpandoObject();
 
-
-      fakeCondition.EventID = c_fakeEventID;
+      fakeCondition.EventID = "GUID identifying the even in JS";
       fakeCondition.DocumentHandle = GetDocumentHandle().ToString();
       fakeCondition.Criteria = new object();
+
       return fakeCondition;
     }
 

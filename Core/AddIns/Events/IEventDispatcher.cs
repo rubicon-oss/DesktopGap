@@ -31,24 +31,10 @@ namespace DesktopGap.AddIns.Events
     /// </summary>
     event EventHandler<ScriptEventArgs> EventFired;
 
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
-    /// <param name="argument"></param>
     void Register (string eventName, string callbackName, string moduleName, Condition argument);
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="eventName"></param>
-    /// <param name="callbackName"></param>
-    /// <param name="moduleName"></param>
     void Unregister (string eventName, string callbackName, string moduleName);
 
-    bool HasEvent (string name);
+    bool HasEvent (string moduleName, string eventName);
   }
 }

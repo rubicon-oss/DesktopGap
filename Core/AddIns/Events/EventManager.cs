@@ -119,9 +119,12 @@ namespace DesktopGap.AddIns.Events
         subscriptions.Remove (registration);
     }
 
-    public bool HasEvent (string name)
+    public bool HasEvent (string moduleName, string eventName)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty ("moduleName", moduleName);
+      ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
+
+      var name = string.Join (c_moduleEventSeperator, moduleName, eventName);
 
       IList<KeyValuePair<string, Condition>> e;
 
@@ -131,7 +134,6 @@ namespace DesktopGap.AddIns.Events
     public void RegisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
       ArgumentUtility.CheckNotNull ("externalEvent", externalEvent);
-      ArgumentUtility.CheckNotNull ("scriptEvent", scriptEvent);
       ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
 
       scriptEvent += FireEvent;
@@ -144,7 +146,6 @@ namespace DesktopGap.AddIns.Events
     public void UnregisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
       ArgumentUtility.CheckNotNull ("externalEvent", externalEvent);
-      ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
       ArgumentUtility.CheckNotNull ("scriptEvent", scriptEvent);
 
       var name = string.Join (c_moduleEventSeperator, externalEvent.Name, eventName);
@@ -153,7 +154,7 @@ namespace DesktopGap.AddIns.Events
 
       if (eventClients == null)
         throw new InvalidOperationException (string.Format ("Event {0} not found.", scriptEvent.Method.Name));
-      
+
       _clients.Remove (name);
 
       scriptEvent -= FireEvent;
@@ -175,7 +176,7 @@ namespace DesktopGap.AddIns.Events
 
       IList<KeyValuePair<string, Condition>> registrations;
       if (!_clients.TryGetValue (eventIdentifier, out registrations))
-        throw new InvalidOperationException (string.Format ("Event {0} in module {1} not found.", eventName, moduleName));
+        throw new InvalidOperationException (string.Format ("Event {0} in module {1} was not found.", eventName, moduleName));
 
       return registrations;
     }

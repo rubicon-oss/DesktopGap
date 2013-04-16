@@ -119,12 +119,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       _addInManager.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).Unregister (eventName, callbackName, moduleName);
     }
 
-    public bool HasEvent (string documentID, string name)
+    public bool HasEvent (string documentID, string moduleName, string eventName)
     {
-      ArgumentUtility.CheckNotNullOrEmpty ("name", name);
+      ArgumentUtility.CheckNotNullOrEmpty ("moduleName", moduleName);
+      ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
       ArgumentUtility.CheckNotNullOrEmpty ("documentID", documentID);
 
-      return _addInManager.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).HasEvent (name);
+      return _addInManager.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).HasEvent (moduleName, eventName);
     }
 
     internal HtmlDocumentHandle GetDocumentHandle (HtmlDocument document)
