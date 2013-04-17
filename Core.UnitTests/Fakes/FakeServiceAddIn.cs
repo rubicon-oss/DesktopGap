@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,13 +17,40 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Services;
+using DesktopGap.Resources;
 
-namespace DesktopGap.UnitTests.Fakes.Interfaces
+namespace DesktopGap.UnitTests.Fakes
 {
-  public interface IFakeEvent : IEventAddIn
+  public class FakeServiceAddIn : IServiceAddIn
   {
+    private const string c_fakeModuleName = "some service";
+
+
+    public void Dispose ()
+    {
+      IsLoaded = false;
+    }
+
+    public bool IsLoaded { get; private set; }
+
+    public IResourceManager ResourceManager { get; private set; }
+
+
+    public string Name
+    {
+      get { return c_fakeModuleName; }
+    }
+
+    public void OnBeforeLoad (HtmlDocumentHandle document)
+    {
+      IsLoaded = true;
+    }
+
+    public void OnBeforeUnload (HtmlDocumentHandle document)
+    {
+      IsLoaded = false;
+    }
   }
 }

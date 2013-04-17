@@ -19,6 +19,8 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Windows.Forms;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.OleLibraryDependencies;
@@ -28,14 +30,8 @@ using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns.Events.System
 {
-  internal class DragAndDropAddIn : IEventAddIn
+  public class DragAndDropAddIn : IEventAddIn
   {
-    private class DragDropEventData : JsonData
-    {
-      public string[] ResourceHandles { get; set; }
-      public string[] Names { get; set; }
-    }
-
     private const string c_name = "DragAndDrop";
     private const string c_dragEnterEventName = "DragEnter";
     private const string c_dragDropEventName = "DragDrop";
@@ -54,6 +50,9 @@ namespace DesktopGap.AddIns.Events.System
     private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _elementUnderCursor;
     private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _enterElement;
 
+    private List<ResourceHandle> _currentResources = new List<ResourceHandle>();
+    private List<string> _currentFilePaths = new List<string>();
+
 
     public DragAndDropAddIn (IResourceManager resourceManager)
     {
@@ -67,6 +66,7 @@ namespace DesktopGap.AddIns.Events.System
       DragEnter = null;
       DragDrop = null;
       DragLeave = null;
+      DragOver = null;
     }
 
     public IResourceManager ResourceManager { get; private set; }
@@ -91,6 +91,8 @@ namespace DesktopGap.AddIns.Events.System
 
     public void RegisterEvents (IEventHost eventHost)
     {
+      ArgumentUtility.CheckNotNull ("eventHost", eventHost);
+
       eventHost.RegisterEvent (this, ref DragDrop, c_dragDropEventName);
       eventHost.RegisterEvent (this, ref DragEnter, c_dragEnterEventName);
       eventHost.RegisterEvent (this, ref DragLeave, c_dragLeaveEventName);
@@ -99,7 +101,12 @@ namespace DesktopGap.AddIns.Events.System
 
     public void UnregisterEvents (IEventHost eventHost)
     {
+      ArgumentUtility.CheckNotNull ("eventHost", eventHost);
+
       eventHost.UnregisterEvent (this, ref DragDrop, c_dragDropEventName);
+      eventHost.UnregisterEvent (this, ref DragEnter, c_dragEnterEventName);
+      eventHost.UnregisterEvent (this, ref DragLeave, c_dragLeaveEventName);
+      eventHost.UnregisterEvent (this, ref DragOver, c_dragOverEventName);
     }
 
     public void AddDragDropSource (IExtendedWebBrowser webBrowser)
@@ -126,11 +133,9 @@ namespace DesktopGap.AddIns.Events.System
         _elementUnderCursor = new KeyValuePair<HtmlDocumentHandle, HtmlElementData> (e.Document, e.Current);
 
       e.Droppable = IsDroppable (current);
-      var fileNames = new string[0];
+
       var args = new DragDropEventData();
-      if (e.Data != null)
-        fileNames = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-      args.Names = fileNames;
+      args.Names = _currentFilePaths.ToArray();
 
       if (DragOver != null)
         DragOver (this, c_dragOverEventName, args);
@@ -143,7 +148,16 @@ namespace DesktopGap.AddIns.Events.System
     private void OnDragLeave (object sender, EventArgs e)
     {
       if (DragLeave != null)
-        DragLeave (this, c_dragLeaveEventName, new DragDropEventData { ResourceHandles = new string[0] });
+        DragLeave (
+            this,
+            c_dragLeaveEventName,
+            new DragDropEventData
+            {
+                ResourceHandles = _currentResources.Select (r => r.ToString()).ToArray(),
+                Names = _currentFilePaths.ToArray()
+            });
+      _currentFilePaths.Clear();
+      _currentResources.Clear();
     }
 
     // when entering the window
@@ -151,13 +165,20 @@ namespace DesktopGap.AddIns.Events.System
     {
       _enterElement = new KeyValuePair<HtmlDocumentHandle, HtmlElementData> (e.Document, e.Current);
       _elementUnderCursor = _enterElement;
-      var fileNames = new string[0];
 
       var args = new DragDropEventData();
       if (e.Data != null)
-        fileNames = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-      args.Names = fileNames;
+      {
+        _currentFilePaths = ((string[]) e.Data.GetData (DataFormats.FileDrop)).ToList();
 
+        _currentResources = ResourceManager.AddResources (
+            _currentFilePaths.Select (
+                p => (File.GetAttributes (p) & FileAttributes.Directory) == FileAttributes.Directory
+                         ? new DirectoryInfo (p) as FileSystemInfo
+                         : new FileInfo (p) as FileSystemInfo
+                ).ToArray()).ToList();
+      }
+      args.Names = _currentFilePaths.ToArray();
       if (DragEnter != null)
         DragEnter (this, c_dragEnterEventName, args);
     }
@@ -169,10 +190,11 @@ namespace DesktopGap.AddIns.Events.System
 
       if (DragDrop != null && e.Droppable)
       {
-        //var filePaths = (string[]) (e.Data.GetData (DataFormats.FileDrop));
-        //var resources = ResourceManager.AddResources (filePaths);
-        var resources = new[] { new ResourceHandle (Guid.NewGuid()).ToString() };
-        var args = new DragDropEventData { ResourceHandles = resources };
+        var args = new DragDropEventData
+                   {
+                       ResourceHandles = _currentResources.Select (r => r.ToString()).ToArray(),
+                       Names = _currentFilePaths.ToArray()
+                   };
         DragDrop (this, c_dragDropEventName, args);
       }
     }
@@ -182,7 +204,7 @@ namespace DesktopGap.AddIns.Events.System
       var result = false;
       string value;
 
-      if (element.Attributes.TryGetValue (c_droppableAttributeName, out value))
+      if (element != null && element.Attributes.TryGetValue (c_droppableAttributeName, out value))
         Boolean.TryParse (value, out result);
 
       return result && GetMouseEffect (element) != 0;
@@ -192,7 +214,7 @@ namespace DesktopGap.AddIns.Events.System
     {
       string value;
       var result = 0;
-      if (element.Attributes.TryGetValue (c_dropconditionAttributeName, out value))
+      if (element != null && element.Attributes.TryGetValue (c_dropconditionAttributeName, out value))
         Int32.TryParse (value, out result);
       return result % c_dragdropEffectCount;
     }

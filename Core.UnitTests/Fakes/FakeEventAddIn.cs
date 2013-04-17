@@ -26,17 +26,25 @@ namespace DesktopGap.UnitTests.Fakes
 {
   public class FakeEventAddIn : IEventAddIn
   {
-    public const string FakeEventName = "some event";
+    public static string FakeEventName { get; private set; }
+
     private const string c_fakeModuleName = "some module";
 
-    public bool IsLoaded { get; private set; }
-    public bool EventsRegistered { get; private set; }
+    private ScriptEvent _scriptEvent;
 
-    private ScriptEvent _fakeScriptEvent;
+    public FakeEventAddIn ()
+    {
+      FakeEventName = "some event";
+    }
 
     public void Dispose ()
     {
     }
+    
+    public bool IsLoaded { get; private set; }
+
+    public bool EventsRegistered { get; private set; }
+
 
     public IResourceManager ResourceManager { get; private set; }
 
@@ -62,14 +70,20 @@ namespace DesktopGap.UnitTests.Fakes
 
     public void RegisterEvents (IEventHost eventHost)
     {
-      eventHost.RegisterEvent (this, ref _fakeScriptEvent, FakeEventName);
+      eventHost.RegisterEvent (this, ref _scriptEvent, FakeEventName);
       EventsRegistered = true;
     }
 
     public void UnregisterEvents (IEventHost eventHost)
     {
-      eventHost.UnregisterEvent (this, ref _fakeScriptEvent, FakeEventName);
-      EventsRegistered = true;
+      eventHost.UnregisterEvent (this, ref _scriptEvent, FakeEventName);
+      EventsRegistered = false;
+    }
+
+    public void RaiseEvent ()
+    {
+      var data = new FakeEventData { ContainsData = true, EventID = FakeEventName };
+      _scriptEvent (this, FakeEventName, data);
     }
   }
 }

@@ -18,14 +18,13 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.AddIns.Events.Arguments;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.AddIns.Events.System
 {
-  public interface IEventHost
+  public class DragDropEventData : JsonData
   {
-
-    void RegisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string name);
-
-    void UnregisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string name);
+    public string[] ResourceHandles { get; set; }
+    public string[] Names { get; set; }
   }
 }

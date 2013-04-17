@@ -22,10 +22,12 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.Dynamic;
+using System.Linq;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.UnitTests.Fakes;
 using NUnit.Framework;
+using Rhino.Mocks;
 
 namespace DesktopGap.UnitTests
 {
@@ -95,6 +97,25 @@ namespace DesktopGap.UnitTests
       Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
     }
 
+    [Test]
+    public void RegisterEvent_EventDuplicateRegistration_ShouldThrowInvalidOperation ()
+    {
+      ScriptEvent scriptEvent = null;
+      var eventManager = CreateEventManager (new List<IEventAddIn>());
+
+      var eventAddIn = new FakeEventAddIn();
+
+      Assert.That (
+          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          Throws.Nothing);
+      Assert.That (
+          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          Throws.InvalidOperationException.With.Message.Contains ("already registered."));
+
+      Assert.That (scriptEvent, Is.Not.Null);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+    }
+
 
     [Test]
     public void UnegisterEvent_EventDeregistration_ShouldSucceed ()
@@ -113,6 +134,7 @@ namespace DesktopGap.UnitTests
           Throws.Nothing);
       Assert.That (scriptEvent, Is.Null);
       Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.False);
+      Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.False);
     }
 
     [Test]
@@ -147,10 +169,55 @@ namespace DesktopGap.UnitTests
       Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.True);
     }
 
+    [Test]
+    public void Constructor_AddEventDuplicate_ShouldThrowInvalidOperation ()
+    {
+      var eventAddIn = new FakeEventAddIn();
+
+      var compositionException = Assert.Throws<CompositionException> (
+          () => CreateEventManager (new[] { eventAddIn, eventAddIn }));
+      Assert.That (
+          compositionException.RootCauses.First().InnerException, Is.InstanceOf<InvalidOperationException>());
+    }
+
+    [Test]
+    public void Event_FireSharedEvent_ShouldSucceed ()
+    {
+      var eventAddIn = new FakeEventAddIn();
+      var eventManager = CreateEventManager (new[] { eventAddIn });
+
+      var wasCalled = false;
+      eventManager.EventFired += (sender, args) =>
+                                 {
+                                   Assert.That (args.ScriptArgs, Is.TypeOf<FakeEventData>());
+                                   Assert.That (args.ScriptArgs.EventID, Is.EqualTo (FakeEventAddIn.FakeEventName));
+                                   Assert.That (((FakeEventData) args.ScriptArgs).ContainsData, Is.True);
+                                   wasCalled = true;
+                                 };
+
+      Assert.That (() => eventAddIn.RaiseEvent(), Throws.Nothing);
+      Assert.That (wasCalled, Is.True);
+    }
+
+    [Test]
+    public void Dispose_SharedEventIsNotDisposed_ShouldSucceed ()
+    {
+      var eventAddIn = new FakeEventAddIn();
+      var eventManager = CreateEventManager (new[] { eventAddIn });
+
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+      Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.True);
+
+      eventManager.Dispose();
+      Assert.That (eventAddIn, Is.Not.Null);
+      Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.False);
+    }
+
+
     //
     // UTILITY FUNCTIONS
     //
-    
+
     private HtmlDocumentHandle GetDocumentHandle ()
     {
       if (_consistentDocumentHandle == null)
@@ -165,7 +232,7 @@ namespace DesktopGap.UnitTests
     {
       dynamic fakeCondition = new ExpandoObject();
 
-      fakeCondition.EventID = "GUID identifying the even in JS";
+      fakeCondition.EventID = "GUID identifying the event in JS";
       fakeCondition.DocumentHandle = GetDocumentHandle().ToString();
       fakeCondition.Criteria = new object();
 

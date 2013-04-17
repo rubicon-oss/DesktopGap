@@ -54,9 +54,10 @@ namespace DesktopGap.AddIns.Services
     {
       foreach (var service in _services)
         service.Value.OnBeforeUnload (_document);
+
       foreach (var service in _nonSharedServices)
       {
-        service.OnBeforeUnload(_document);
+        service.OnBeforeUnload (_document);
         service.Dispose();
       }
     }
@@ -102,9 +103,7 @@ namespace DesktopGap.AddIns.Services
 
     public void OnImportsSatisfied ()
     {
-      foreach (var service in _sharedAddedServices)
-        _sharedServices.Add (service);
-
+      RegisterServices (_sharedAddedServices);
       RegisterServices (_sharedServices);
       RegisterServices (_nonSharedServices);
     }

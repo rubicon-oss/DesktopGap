@@ -17,12 +17,13 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
+using DesktopGap.AddIns.Events.Arguments;
 
-namespace DesktopGap.UnitTests.Fakes.Interfaces
+namespace DesktopGap.UnitTests.Fakes
 {
-  public interface IFakeService : IServiceProvider
+  public class FakeEventData : JsonData
   {
+    public bool ContainsData { get; set; }
   }
 }

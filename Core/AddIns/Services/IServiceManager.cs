@@ -23,19 +23,8 @@ namespace DesktopGap.AddIns.Services
 {
   public interface IServiceManager : IDisposable
   {
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="serviceName"></param>
-    /// <returns></returns>
     IServiceAddIn GetService (string serviceName);
 
-
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="name"></param>
-    /// <returns></returns>
     bool HasService (string name);
   }
 }
