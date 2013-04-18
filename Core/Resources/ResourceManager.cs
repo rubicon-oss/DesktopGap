@@ -42,6 +42,12 @@ namespace DesktopGap.Resources
       return fileSystemInfo;
     }
 
+    public int ResourceCount
+    {
+      get { return _resources.Count; }
+    }
+
+
     public ResourceHandle[] AddResources (FileSystemInfo[] paths)
     {
       ArgumentUtility.CheckNotNull ("paths", paths);
@@ -65,7 +71,7 @@ namespace DesktopGap.Resources
     public ResourceHandle AddResource (FileSystemInfo path)
     {
       ArgumentUtility.CheckNotNull ("path", path);
-      if (_resources.Values.Any (r => r.Equals (path)))
+      if (_resources.Values.Any (r => r.FullName.Equals (path.FullName)))
         throw new InvalidOperationException (string.Format ("Resource at '{0}' already registered.", path.FullName));
 
       var handle = new ResourceHandle (Guid.NewGuid());
@@ -78,7 +84,7 @@ namespace DesktopGap.Resources
     public void RemoveResource (ResourceHandle handle)
     {
       ArgumentUtility.CheckNotNull ("handle", handle);
-      
+
       FileSystemInfo value;
       _resources.TryRemove (handle, out value);
     }

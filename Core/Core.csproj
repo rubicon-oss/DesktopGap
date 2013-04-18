@@ -49,7 +49,7 @@
     <Compile Include="AddIns\Events\Factory\EventDispatcherFactory.cs" />
     <Compile Include="AddIns\Events\Arguments\JsonData.cs" />
     <Compile Include="AddIns\AddInBase.cs" />
-    <Compile Include="AddIns\Events\System\DragDropEventData.cs" />
+    <Compile Include="AddIns\Events\Arguments\DragDropEventData.cs" />
     <Compile Include="AddIns\Services\IServiceAddIn.cs" />
     <Compile Include="AddIns\Services\Factory\ServiceManagerFactory.cs" />
     <Compile Include="Handles.cs" />

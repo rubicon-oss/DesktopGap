@@ -17,10 +17,10 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using DesktopGap.AddIns.Events.Arguments;
 
-namespace DesktopGap.AddIns.Events.System
+using System;
+
+namespace DesktopGap.AddIns.Events.Arguments
 {
   public class DragDropEventData : JsonData
   {

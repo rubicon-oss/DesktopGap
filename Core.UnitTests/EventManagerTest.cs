@@ -27,14 +27,14 @@ using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.UnitTests.Fakes;
 using NUnit.Framework;
-using Rhino.Mocks;
 
 namespace DesktopGap.UnitTests
 {
   [TestFixture]
   public class EventManagerTest
   {
-    private const string c_eventNotFoundFormatString = "Event {0} in module {1} was not found.";
+    private const string c_eventNotFoundFormatString = "Event '{0}' in module '{1}' was not found.";
+    private const string c_fakeEventID = "GUID identifying the event in JS";
 
     private HtmlDocumentHandle? _consistentDocumentHandle;
 
@@ -91,10 +91,10 @@ namespace DesktopGap.UnitTests
       var eventAddIn = new FakeEventAddIn();
 
       Assert.That (
-          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, eventAddIn.FakeEventName),
           Throws.Nothing);
       Assert.That (scriptEvent, Is.Not.Null);
-      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, eventAddIn.FakeEventName), Is.True);
     }
 
     [Test]
@@ -106,14 +106,14 @@ namespace DesktopGap.UnitTests
       var eventAddIn = new FakeEventAddIn();
 
       Assert.That (
-          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, eventAddIn.FakeEventName),
           Throws.Nothing);
       Assert.That (
-          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, eventAddIn.FakeEventName),
           Throws.InvalidOperationException.With.Message.Contains ("already registered."));
 
       Assert.That (scriptEvent, Is.Not.Null);
-      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, eventAddIn.FakeEventName), Is.True);
     }
 
 
@@ -126,14 +126,14 @@ namespace DesktopGap.UnitTests
       var eventAddIn = new FakeEventAddIn();
 
       Assert.That (
-          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          () => eventManager.RegisterEvent (eventAddIn, ref scriptEvent, eventAddIn.FakeEventName),
           Throws.Nothing);
 
       Assert.That (
-          () => eventManager.UnregisterEvent (eventAddIn, ref scriptEvent, FakeEventAddIn.FakeEventName),
+          () => eventManager.UnregisterEvent (eventAddIn, ref scriptEvent, eventAddIn.FakeEventName),
           Throws.Nothing);
       Assert.That (scriptEvent, Is.Null);
-      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.False);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, eventAddIn.FakeEventName), Is.False);
       Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.False);
     }
 
@@ -155,7 +155,7 @@ namespace DesktopGap.UnitTests
       var eventAddIn = new FakeEventAddIn();
       eventAddIn.RegisterEvents (eventManager);
 
-      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, eventAddIn.FakeEventName), Is.True);
     }
 
 
@@ -165,7 +165,7 @@ namespace DesktopGap.UnitTests
       var eventAddIn = new FakeEventAddIn();
       var eventManager = CreateEventManager (new[] { eventAddIn });
 
-      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, eventAddIn.FakeEventName), Is.True);
       Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.True);
     }
 
@@ -190,11 +190,11 @@ namespace DesktopGap.UnitTests
       eventManager.EventFired += (sender, args) =>
                                  {
                                    Assert.That (args.ScriptArgs, Is.TypeOf<FakeEventData>());
-                                   Assert.That (args.ScriptArgs.EventID, Is.EqualTo (FakeEventAddIn.FakeEventName));
+                                   Assert.That (args.ScriptArgs.EventID, Is.EqualTo (c_fakeEventID));
                                    Assert.That (((FakeEventData) args.ScriptArgs).ContainsData, Is.True);
                                    wasCalled = true;
                                  };
-
+      eventManager.Register (eventAddIn.FakeEventName, "some callback", eventAddIn.Name, new Condition (CreateCondition()));
       Assert.That (() => eventAddIn.RaiseEvent(), Throws.Nothing);
       Assert.That (wasCalled, Is.True);
     }
@@ -205,12 +205,28 @@ namespace DesktopGap.UnitTests
       var eventAddIn = new FakeEventAddIn();
       var eventManager = CreateEventManager (new[] { eventAddIn });
 
-      Assert.That (eventManager.HasEvent (eventAddIn.Name, FakeEventAddIn.FakeEventName), Is.True);
+      Assert.That (eventManager.HasEvent (eventAddIn.Name, eventAddIn.FakeEventName), Is.True);
       Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.True);
 
       eventManager.Dispose();
       Assert.That (eventAddIn, Is.Not.Null);
       Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.False);
+    }
+
+    [Test]
+    public void Event_FireUnregisteredEventInRegisteredModule_ShouldThrow ()
+    {
+      var eventAddIn = new FakeEventAddIn();
+      var eventManager = CreateEventManager (new[] { eventAddIn });
+
+      eventManager.EventFired += (sender, args) => { }; // will never be called
+
+      eventManager.Register (eventAddIn.FakeEventName, "some callback", eventAddIn.Name, new Condition (CreateCondition()));
+      eventAddIn.FakeEventName = "some other event";
+      Assert.That (
+          () => eventAddIn.RaiseEvent(),
+          Throws.InvalidOperationException
+              .With.Message.EqualTo (string.Format ("Event '{0}' in module '{1}' never registered.", eventAddIn.FakeEventName, eventAddIn.Name)));
     }
 
 
@@ -232,7 +248,7 @@ namespace DesktopGap.UnitTests
     {
       dynamic fakeCondition = new ExpandoObject();
 
-      fakeCondition.EventID = "GUID identifying the event in JS";
+      fakeCondition.EventID = c_fakeEventID;
       fakeCondition.DocumentHandle = GetDocumentHandle().ToString();
       fakeCondition.Criteria = new object();
 

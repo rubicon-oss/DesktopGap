@@ -26,7 +26,7 @@ namespace DesktopGap.UnitTests.Fakes
 {
   public class FakeEventAddIn : IEventAddIn
   {
-    public static string FakeEventName { get; private set; }
+    public string FakeEventName { get; set; }
 
     private const string c_fakeModuleName = "some module";
 

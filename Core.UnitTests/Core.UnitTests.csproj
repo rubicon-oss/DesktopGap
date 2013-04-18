@@ -56,9 +56,10 @@
     <Compile Include="Fakes\FakeEventAddIn.cs" />
     <Compile Include="Fakes\FakeEventData.cs" />
     <Compile Include="Fakes\FakeServiceAddIn.cs" />
-    <Compile Include="Fakes\TestEventDispatcher.cs" />
+    <Compile Include="Fakes\FakeEventDispatcher.cs" />
     <Compile Include="Fakes\FakeServiceManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceManagerTest.cs" />
     <Compile Include="ServiceManagerTest.cs" />
   </ItemGroup>
   <ItemGroup>

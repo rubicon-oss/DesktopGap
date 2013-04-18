@@ -153,7 +153,7 @@ namespace DesktopGap.AddIns.Events
       var eventClients = GetClients (name);
 
       if (eventClients == null)
-        throw new InvalidOperationException (string.Format ("Event {0} not found.", scriptEvent.Method.Name));
+        throw new InvalidOperationException (string.Format ("Event '{0}' not found.", scriptEvent.Method.Name));
 
       _clients.Remove (name);
 
@@ -176,7 +176,7 @@ namespace DesktopGap.AddIns.Events
 
       IList<KeyValuePair<string, Condition>> registrations;
       if (!_clients.TryGetValue (eventIdentifier, out registrations))
-        throw new InvalidOperationException (string.Format ("Event {0} in module {1} was not found.", eventName, moduleName));
+        throw new InvalidOperationException (string.Format ("Event '{0}' in module '{1}' was not found.", eventName, moduleName));
 
       return registrations;
     }
@@ -184,7 +184,7 @@ namespace DesktopGap.AddIns.Events
     private void InitializeClients (string name)
     {
       if (GetClients (name) != null)
-        throw new InvalidOperationException (string.Format ("Event {0} already registered.", name));
+        throw new InvalidOperationException (string.Format ("Event '{0}' already registered.", name));
 
       _clients[name] = new List<KeyValuePair<string, Condition>>();
     }
@@ -203,7 +203,7 @@ namespace DesktopGap.AddIns.Events
 
       IList<KeyValuePair<string, Condition>> callbackNames;
       if (!_clients.TryGetValue (name, out callbackNames))
-        throw new InvalidOperationException (string.Format ("Event {0} in module {1} never registered.", eventName, source.Name));
+        throw new InvalidOperationException (string.Format ("Event '{0}' in module '{1}' never registered.", eventName, source.Name));
 
       foreach (var callback in callbackNames.Where (c => source.CheckRaiseCondition (c.Value)))
       {

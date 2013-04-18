@@ -28,11 +28,10 @@ namespace DesktopGap.AddIns
 {
   public sealed class AddInManager : IAddInManager
   {
-    private const string c_documentAlreadyRegisteredFormatString = "DocumentHandle {0} is already registered.";
-    private const string c_documentNotRegisteredFormatString = "DocumentHandle {0} is not registered.";
+    private const string c_documentAlreadyRegisteredFormatString = "DocumentHandle '{0}' is already registered.";
+    private const string c_documentNotRegisteredFormatString = "DocumentHandle '{0}' is not registered.";
 
     private readonly IDictionary<object, IEventDispatcher> _eventDispatchers = new ConcurrentDictionary<object, IEventDispatcher>();
-
     private readonly IDictionary<object, IServiceManager> _serviceManagers = new ConcurrentDictionary<object, IServiceManager>();
 
     /// <summary>
@@ -49,6 +48,16 @@ namespace DesktopGap.AddIns
 
       foreach (var eventDispatcher in _eventDispatchers)
         eventDispatcher.Value.Dispose();
+    }
+
+    public int ServiceManagerCount
+    {
+      get { return _serviceManagers.Count; }
+    }
+
+    public int EventDispatcherCount
+    {
+      get { return _eventDispatchers.Count; }
     }
 
     public void AddEventDispatcher (HtmlDocumentHandle handle, IEventDispatcher eventDispatcher)
