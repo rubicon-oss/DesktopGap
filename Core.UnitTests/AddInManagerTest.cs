@@ -111,6 +111,30 @@ namespace DesktopGap.UnitTests
     }
 
     [Test]
+    public void HasEventDispatcher_GetByDocumentHandle_ShouldSucceed ()
+    {
+      var handle = CreateDocumentHandle();
+      var addInManager = new AddInManager();
+      var eventDispatcher = new FakeEventDispatcher();
+
+      addInManager.AddEventDispatcher (handle, eventDispatcher);
+
+      Assert.That (() => addInManager.HasEventDispatcher (handle), Is.True);
+    }
+
+    [Test]
+    public void HasEventDispatcher_GetByInvalidDocumentHandle_ShouldThrowInvalidOperation ()
+    {
+      var handle = CreateDocumentHandle();
+      var addInManager = new AddInManager();
+
+      Assert.That (
+          () => addInManager.HasEventDispatcher (handle),
+          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (c_documentNotRegisteredFormatString, handle)));
+    }
+
+
+    [Test]
     public void AddServiceManager_DocumentHandleAlreadyExists_ShouldThrowInvalidOperation ()
     {
       var handle = CreateDocumentHandle();
@@ -189,6 +213,31 @@ namespace DesktopGap.UnitTests
 
       Assert.That (() => addInManager.GetServiceManager (handle), Is.SameAs (serviceManager));
     }
+
+
+    [Test]
+    public void HasServiceManager_GetByDocumentHandle_ShouldSucceed ()
+    {
+      var handle = CreateDocumentHandle();
+      var addInManager = new AddInManager();
+      var serviceManager = new FakeServiceManager();
+
+      addInManager.AddServiceManager (handle, serviceManager);
+
+      Assert.That (() => addInManager.HasServiceManager (handle), Is.True);
+    }
+
+    [Test]
+    public void HasServiceManager_GetByInvalidDocumentHandle_ShouldThrowInvalidOperation ()
+    {
+      var handle = CreateDocumentHandle();
+      var addInManager = new AddInManager();
+
+      Assert.That (
+          () => addInManager.HasServiceManager (handle),
+          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (c_documentNotRegisteredFormatString, handle)));
+    }
+
 
     private HtmlDocumentHandle CreateDocumentHandle ()
     {

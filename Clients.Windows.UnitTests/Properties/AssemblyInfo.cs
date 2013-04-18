@@ -18,28 +18,12 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
+using System.Reflection;
 
-namespace DesktopGap.AddIns
-{
-  public interface IAddInManager : IDisposable
-  {
-    void AddEventDispatcher (HtmlDocumentHandle handle, IEventDispatcher eventDispatcher);
+// General Information about an assembly is controlled through the following 
+// set of attributes. Change these attribute values to modify the information
+// associated with an assembly.
 
-    IEventDispatcher GetEventDispatcher (HtmlDocumentHandle handle);
-
-    void RemoveEventDispatcher (HtmlDocumentHandle handle);
-
-    bool HasEventDispatcher (HtmlDocumentHandle handle);
-
-
-    void AddServiceManager (HtmlDocumentHandle handle, IServiceManager serviceManager);
-
-    IServiceManager GetServiceManager (HtmlDocumentHandle handle);
-
-    void RemoveServiceManager (HtmlDocumentHandle handle);
-
-    bool HasServiceManager (HtmlDocumentHandle handle);
-  }
-}
+[assembly: AssemblyTitle ("Clients.Windows.UnitTests")]
+[assembly: AssemblyDescription ("")]
+[assembly: AssemblyCulture ("")]

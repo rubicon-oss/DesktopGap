@@ -35,7 +35,7 @@ namespace DesktopGap.UnitTests
   {
     private const string c_eventNotFoundFormatString = "Event '{0}' in module '{1}' was not found.";
     private const string c_fakeEventID = "GUID identifying the event in JS";
-
+    
     private HtmlDocumentHandle? _consistentDocumentHandle;
 
 

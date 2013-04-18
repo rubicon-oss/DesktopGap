@@ -88,6 +88,11 @@ namespace DesktopGap.AddIns
       _eventDispatchers.Remove (handle);
     }
 
+    public bool HasEventDispatcher (HtmlDocumentHandle handle)
+    {
+      return _eventDispatchers.ContainsKey (handle);
+    }
+
     public void AddServiceManager (HtmlDocumentHandle handle, IServiceManager serviceManager)
     {
       ArgumentUtility.CheckNotNull ("serviceManager", serviceManager);
@@ -114,6 +119,11 @@ namespace DesktopGap.AddIns
         throw new InvalidOperationException (string.Format (c_documentNotRegisteredFormatString, handle));
 
       _serviceManagers.Remove (handle);
+    }
+
+    public bool HasServiceManager (HtmlDocumentHandle handle)
+    {
+      return _serviceManagers.ContainsKey (handle);
     }
   }
 }

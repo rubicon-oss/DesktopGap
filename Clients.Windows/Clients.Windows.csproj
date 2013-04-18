@@ -71,7 +71,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="WebBrowser\ComTypes\Web\WindowOpenParameters.cs" />
-    <Compile Include="WebBrowser\Trident\WebBrowserWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="WebBrowser\UI\BrowserWindow.xaml.cs">
