@@ -19,73 +19,36 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
-using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Services
 {
-  public class ServiceManager : IServiceManager, IPartImportsSatisfiedNotification
+  public class ServiceManager : AddInManagerBase<IServiceAddIn>, IServiceManager
   {
-    private readonly IList<IServiceAddIn> _sharedAddedServices = new List<IServiceAddIn>();
-    private readonly HtmlDocumentHandle _document;
-
     private readonly IDictionary<string, IServiceAddIn> _services =
         new Dictionary<string, IServiceAddIn>();
 
-    private IList<IServiceAddIn> _nonSharedServices;
-    private IList<IServiceAddIn> _sharedServices;
 
-    public ServiceManager (HtmlDocumentHandle document)
+    public ServiceManager (
+        IList<IServiceAddIn> sharedAddIns, IList<IServiceAddIn> nonSharedAddIns, HtmlDocumentHandle documentHandle, HtmlDocumentHandle document)
+        : base (sharedAddIns, nonSharedAddIns, documentHandle)
     {
-      ArgumentUtility.CheckNotNull ("document", document);
-      _document = document;
+      NonSharedAddInLoaded += (s, a) => RegisterService (a.AddIn);
+      SharedAddInLoaded += (s, a) => RegisterService (a.AddIn);
     }
 
-    public ServiceManager (HtmlDocumentHandle document, IList<IServiceAddIn> sharedAddedService)
-        : this (document)
+    protected override void Dispose (bool disposing)
     {
-      ArgumentUtility.CheckNotNull ("sharedAddedService", sharedAddedService);
-
-      _sharedAddedServices = sharedAddedService;
-    }
-
-    public void Dispose ()
-    {
-      foreach (var service in _services)
-        service.Value.OnBeforeUnload (_document);
-
-      foreach (var service in _nonSharedServices)
-      {
-        service.OnBeforeUnload (_document);
-        service.Dispose();
-      }
-    }
-
-    [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.NonShared)]
-    public IEnumerable<ExternalServiceBase> Services
-    {
-      set
-      {
-        ArgumentUtility.CheckNotNull ("value", value);
-        _nonSharedServices = value.ToArray();
-      }
-    }
-
-    [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.Shared)]
-    public IEnumerable<ExternalServiceBase> SharedServices
-    {
-      set
-      {
-        ArgumentUtility.CheckNotNull ("value", value);
-        _sharedServices = value.ToArray();
-      }
+      // pass
     }
 
 
     public IServiceAddIn GetService (string serviceName)
     {
-      return GetService (serviceName, name => new InvalidOperationException (string.Format ("Service '{0}' not found.", name)));
+      IServiceAddIn service;
+      if (!_services.TryGetValue (serviceName, out service))
+        throw MissingRegistration (serviceName);
+
+      return service;
     }
 
     public bool HasService (string name)
@@ -95,37 +58,12 @@ namespace DesktopGap.AddIns.Services
     }
 
 
-    public void OnImportsSatisfied ()
-    {
-      RegisterServices (_sharedAddedServices);
-      RegisterServices (_sharedServices);
-      RegisterServices (_nonSharedServices);
-    }
-
-    //
-    // OTHER
-    // 
-
     private void RegisterService (IServiceAddIn service)
     {
       if (HasService (service.Name))
-        throw new InvalidOperationException (string.Format ("Service '{0}' already registered.", service.Name));
+        throw DuplicateRegistration (service.Name);
+
       _services[service.Name] = service;
-    }
-
-    private void RegisterServices (IEnumerable<IServiceAddIn> services)
-    {
-      foreach (var service in services)
-        RegisterService (service);
-    }
-
-    private IServiceAddIn GetService<TException> (string serviceName, Func<string, TException> createServiceNotFoundException)
-        where TException : Exception
-    {
-      IServiceAddIn service;
-      if (!_services.TryGetValue (serviceName, out service))
-        throw createServiceNotFoundException (serviceName);
-      return service;
     }
   }
 }

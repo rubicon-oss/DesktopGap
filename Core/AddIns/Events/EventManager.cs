@@ -19,82 +19,40 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Events
 {
-  public class EventManager : IEventDispatcher, IEventHost, IPartImportsSatisfiedNotification
+  public class EventManager : AddInManagerBase<IEventAddIn>, IEventDispatcher, IEventHost
   {
-    private readonly HtmlDocumentHandle _document;
     private const string c_moduleEventSeperator = ".";
 
     private readonly Dictionary<string, IList<KeyValuePair<string, Condition>>> _clients =
         new Dictionary<string, IList<KeyValuePair<string, Condition>>>();
 
-    private IList<IEventAddIn> _sharedEvents;
-    private IList<IEventAddIn> _nonSharedEvents;
-    private IList<IEventAddIn> _sharedAddedEvents;
-
-
     public event EventHandler<ScriptEventArgs> EventFired;
 
-    public EventManager (HtmlDocumentHandle document)
+    public EventManager ()
     {
-      _document = document;
-
-      _sharedAddedEvents = new List<IEventAddIn>();
     }
 
-    public EventManager (HtmlDocumentHandle document, IList<IEventAddIn> sharedExternalEvents)
-        : this (document)
+    public EventManager (IList<IEventAddIn> sharedAddIns, IList<IEventAddIn> nonSharedAddIns, HtmlDocumentHandle documentHandle)
+        : base (sharedAddIns, nonSharedAddIns, documentHandle)
     {
-      ArgumentUtility.CheckNotNull ("sharedExternalEvents", sharedExternalEvents);
+      NonSharedAddInLoaded += (s, a) => a.AddIn.RegisterEvents (this);
+      SharedAddInLoaded += (s, a) => a.AddIn.RegisterEvents (this);
 
-      _sharedAddedEvents = sharedExternalEvents;
+      NonSharedAddInUnloaded += (s, a) => a.AddIn.UnregisterEvents (this);
+      SharedAddInUnloaded += (s, a) => a.AddIn.UnregisterEvents (this);
     }
 
-    public void Dispose ()
+    protected override void Dispose (bool disposing)
     {
-      _sharedAddedEvents = null;
-
-      foreach (var nonSharedEvent in _nonSharedEvents)
-      {
-        nonSharedEvent.OnBeforeUnload (_document);
-        nonSharedEvent.Dispose();
-      }
-
-      foreach (var sharedEvent in _sharedEvents)
-      {
-        sharedEvent.OnBeforeUnload (_document);
-        sharedEvent.UnregisterEvents (this);
-      }
       EventFired = null;
     }
 
-    [ImportMany (typeof (ExternalEventBase), RequiredCreationPolicy = CreationPolicy.NonShared)]
-    public IEnumerable<ExternalEventBase> NonSharedEvents
-    {
-      set
-      {
-        ArgumentUtility.CheckNotNull ("value", value);
-
-        _nonSharedEvents = value.ToList<IEventAddIn>();
-      }
-    }
-
-    [ImportMany (typeof (ExternalEventBase), RequiredCreationPolicy = CreationPolicy.Shared)]
-    public IEnumerable<ExternalEventBase> SharedEvents
-    {
-      set
-      {
-        ArgumentUtility.CheckNotNull ("value", value);
-
-        _sharedEvents = value.ToList<IEventAddIn>();
-      }
-    }
 
     public void Register (string eventName, string callbackName, string moduleName, Condition argument)
     {
@@ -161,14 +119,6 @@ namespace DesktopGap.AddIns.Events
       eventClients.Clear();
     }
 
-    private void LoadEvents (IEnumerable<IEventAddIn> events)
-    {
-      foreach (var evt in events)
-      {
-        evt.OnBeforeLoad (_document);
-        evt.RegisterEvents (this);
-      }
-    }
 
     private IList<KeyValuePair<string, Condition>> GetSubscriptions (string eventName, string moduleName)
     {
@@ -176,7 +126,7 @@ namespace DesktopGap.AddIns.Events
 
       IList<KeyValuePair<string, Condition>> registrations;
       if (!_clients.TryGetValue (eventIdentifier, out registrations))
-        throw new InvalidOperationException (string.Format ("Event '{0}' in module '{1}' was not found.", eventName, moduleName));
+        throw MissingRegistration (string.Join (c_moduleEventSeperator, eventName, moduleName));
 
       return registrations;
     }
@@ -184,7 +134,7 @@ namespace DesktopGap.AddIns.Events
     private void InitializeClients (string name)
     {
       if (GetClients (name) != null)
-        throw new InvalidOperationException (string.Format ("Event '{0}' already registered.", name));
+        throw DuplicateRegistration (name);
 
       _clients[name] = new List<KeyValuePair<string, Condition>>();
     }
@@ -203,7 +153,7 @@ namespace DesktopGap.AddIns.Events
 
       IList<KeyValuePair<string, Condition>> callbackNames;
       if (!_clients.TryGetValue (name, out callbackNames))
-        throw new InvalidOperationException (string.Format ("Event '{0}' in module '{1}' never registered.", eventName, source.Name));
+        throw MissingRegistration (name);
 
       foreach (var callback in callbackNames.Where (c => source.CheckRaiseCondition (c.Value)))
       {
@@ -211,13 +161,6 @@ namespace DesktopGap.AddIns.Events
         var eventArgs = new ScriptEventArgs { ScriptArgs = args, Function = callback.Key };
         EventFired (this, eventArgs);
       }
-    }
-
-    public void OnImportsSatisfied ()
-    {
-      foreach (var evnt in _sharedAddedEvents)
-        _sharedEvents.Add (evnt);
-      LoadEvents (_sharedEvents);
     }
   }
 }

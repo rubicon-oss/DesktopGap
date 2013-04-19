@@ -17,24 +17,15 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using DesktopGap.AddIns.Events.Arguments;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.AddIns
 {
-  public delegate void ScriptEvent (IEventAddIn source, string eventName, JsonData arguments);
+  public abstract class DecoratedAddInManagerFactoryBase<TAddIn>
+      where TAddIn : IAddIn
 
-  public interface IEventDispatcher
   {
-    /// <summary>
-    /// Occurs when a custom event has been dispatched. 
-    /// </summary>
-    event EventHandler<ScriptEventArgs> EventFired;
-
-    void Register (string eventName, string callbackName, string moduleName, Condition argument);
-
-    void Unregister (string eventName, string callbackName, string moduleName);
-
-    bool HasEvent (string moduleName, string eventName);
+    public abstract AddInManagerBase<TAddIn> CreateManager ();
   }
 }

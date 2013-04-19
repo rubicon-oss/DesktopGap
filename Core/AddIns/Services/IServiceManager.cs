@@ -21,7 +21,7 @@ using System;
 
 namespace DesktopGap.AddIns.Services
 {
-  public interface IServiceManager : IDisposable
+  public interface IServiceManager 
   {
     IServiceAddIn GetService (string serviceName);
 
