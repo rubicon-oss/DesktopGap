@@ -49,16 +49,11 @@ namespace DesktopGap.UnitTests
       const int documentCount = 100;
       var addInManager = new AddInManager();
 
-      Assert.That (
-          () =>
-          {
-            for (var i = 0; i < documentCount; i++)
-            {
-              var handle = CreateDocumentHandle();
-              addInManager.AddEventDispatcher (handle, new FakeEventDispatcher());
-            }
-          },
-          Throws.Nothing);
+      for (var i = 0; i < documentCount; i++)
+      {
+        var handle = CreateDocumentHandle();
+        addInManager.AddEventDispatcher (handle, new FakeEventDispatcher());
+      }
 
       Assert.That (addInManager.EventDispatcherCount, Is.EqualTo (documentCount));
     }
@@ -153,16 +148,11 @@ namespace DesktopGap.UnitTests
       const int documentCount = 100;
       var addInManager = new AddInManager();
 
-      Assert.That (
-          () =>
-          {
-            for (var i = 0; i < documentCount; i++)
-            {
-              var handle = CreateDocumentHandle();
-              addInManager.AddServiceManager (handle, new FakeServiceManager());
-            }
-          },
-          Throws.Nothing);
+      for (var i = 0; i < documentCount; i++)
+      {
+        var handle = CreateDocumentHandle();
+        addInManager.AddServiceManager (handle, new FakeServiceManager());
+      }
 
       Assert.That (addInManager.ServiceManagerCount, Is.EqualTo (documentCount));
     }

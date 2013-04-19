@@ -63,7 +63,7 @@ namespace DesktopGap.AddIns.Services
     }
 
     [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.NonShared)]
-    public IEnumerable<IServiceAddIn> Services
+    public IEnumerable<ExternalServiceBase> Services
     {
       set
       {
@@ -73,7 +73,7 @@ namespace DesktopGap.AddIns.Services
     }
 
     [ImportMany (typeof (ExternalServiceBase), RequiredCreationPolicy = CreationPolicy.Shared)]
-    public IEnumerable<IServiceAddIn> SharedServices
+    public IEnumerable<ExternalServiceBase> SharedServices
     {
       set
       {
@@ -94,12 +94,6 @@ namespace DesktopGap.AddIns.Services
       return _services.TryGetValue (name, out s);
     }
 
-    private void RegisterService (IServiceAddIn service)
-    {
-      if (HasService (service.Name))
-        throw new InvalidOperationException (string.Format ("Service '{0}' already registered.", service.Name));
-      _services[service.Name] = service;
-    }
 
     public void OnImportsSatisfied ()
     {
@@ -111,6 +105,13 @@ namespace DesktopGap.AddIns.Services
     //
     // OTHER
     // 
+
+    private void RegisterService (IServiceAddIn service)
+    {
+      if (HasService (service.Name))
+        throw new InvalidOperationException (string.Format ("Service '{0}' already registered.", service.Name));
+      _services[service.Name] = service;
+    }
 
     private void RegisterServices (IEnumerable<IServiceAddIn> services)
     {

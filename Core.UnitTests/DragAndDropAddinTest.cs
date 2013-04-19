@@ -21,7 +21,6 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Windows.Forms;
-using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.AddIns.Events.System;
 using DesktopGap.OleLibraryDependencies;
@@ -100,7 +99,8 @@ namespace DesktopGap.UnitTests
                                     {
                                       Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
                                       Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
-
+                                      Assert.That (((DragDropEventData) arguments).Names, Is.Empty);
+                                      Assert.That (((DragDropEventData) arguments).ResourceHandles, Is.Empty);
                                       wasRaised = true;
                                     };
 
@@ -120,14 +120,13 @@ namespace DesktopGap.UnitTests
       var eventArgs = new ExtendedDragEventHandlerArgs (dataObjectStub, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
       eventArgs.Current = _droppableElementData;
 
-      browserStub.Raise (_ => _.DragEnter += null, browserStub, eventArgs);
-
       var wasRaised = false;
       _dragAndDropAddIn.DragDrop += (source, name, arguments) =>
                                     {
                                       Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
                                       Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
                                       Assert.That (((DragDropEventData) arguments).Names, Is.EquivalentTo (_filePaths));
+                                      Assert.That (((DragDropEventData) arguments).ResourceHandles, Is.Not.Empty);
 
                                       wasRaised = true;
                                     };
@@ -157,32 +156,6 @@ namespace DesktopGap.UnitTests
     }
 
     [Test]
-    public void DragDrop_FilesAttachedButUnregistered_ShouldIgnore ()
-    {
-      var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
-
-      var dataObjectStub = MockRepository.GenerateStub<IDataObject>();
-      dataObjectStub.Stub (_ => _.GetData (DataFormats.FileDrop)).Return (_filePaths);
-
-      var eventArgs = new ExtendedDragEventHandlerArgs (dataObjectStub, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
-      eventArgs.Current = _droppableElementData;
-
-      var wasRaised = false;
-      _dragAndDropAddIn.DragDrop += (source, name, arguments) =>
-                                    {
-                                      Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
-                                      Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
-                                      Assert.That (((DragDropEventData) arguments).Names, Is.Empty);
-
-                                      wasRaised = true;
-                                    };
-
-      browserStub.Raise (_ => _.DragDrop += null, browserStub, eventArgs);
-      Assert.That (wasRaised, Is.True);
-    }
-
-    [Test]
     public void DragEnter_FilesAttached_ShouldSucceed ()
     {
       var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
@@ -198,8 +171,8 @@ namespace DesktopGap.UnitTests
       _dragAndDropAddIn.DragEnter += (source, name, arguments) =>
                                      {
                                        Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
-                                       Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
-                                       Assert.That (((DragDropEventData) arguments).Names, Is.EquivalentTo (_filePaths));
+                                       Assert.That (arguments, Is.InstanceOf<DragEventData>());
+                                       Assert.That (((DragEventData) arguments).Names, Is.EquivalentTo (_filePaths));
 
                                        wasRaised = true;
                                      };
@@ -219,12 +192,11 @@ namespace DesktopGap.UnitTests
       var eventArgs = new ExtendedDragEventHandlerArgs (dataObjectStub, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
 
       var wasRaised = false;
-      browserStub.Raise (_ => _.DragEnter += null, browserStub, eventArgs);
       _dragAndDropAddIn.DragOver += (source, name, arguments) =>
                                     {
                                       Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
-                                      Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
-                                      Assert.That (((DragDropEventData) arguments).Names, Is.EquivalentTo (_filePaths));
+                                      Assert.That (arguments, Is.InstanceOf<DragEventData>());
+                                      Assert.That (((DragEventData) arguments).Names, Is.EquivalentTo (_filePaths));
 
                                       wasRaised = true;
                                     };
@@ -245,57 +217,15 @@ namespace DesktopGap.UnitTests
       var eventArgs = new ExtendedDragEventHandlerArgs (dataObjectStub, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
 
       var wasRaised = false;
-      browserStub.Raise (_ => _.DragEnter += null, browserStub, eventArgs);
       _dragAndDropAddIn.DragLeave += (source, name, arguments) =>
                                      {
                                        Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
-                                       Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
-                                       Assert.That (((DragDropEventData) arguments).Names, Is.EquivalentTo (_filePaths));
+                                       Assert.That (arguments, Is.InstanceOf<DragEventData>());
 
                                        wasRaised = true;
                                      };
 
       browserStub.Raise (_ => _.DragLeave += null, browserStub, eventArgs);
-      Assert.That (wasRaised, Is.True);
-    }
-
-    [Test]
-    public void DragLeave_FilesRemovedIfNotDropped_ShouldSucceed ()
-    {
-      var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
-
-      var dataObjectStub = MockRepository.GenerateStub<IDataObject>();
-      dataObjectStub.Stub (_ => _.GetData (DataFormats.FileDrop)).Return (_filePaths);
-      var eventArgs = new ExtendedDragEventHandlerArgs (dataObjectStub, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
-
-      var wasRaised = false;
-      browserStub.Raise (_ => _.DragEnter += null, browserStub, eventArgs);
-      ScriptEvent onLeave = (source, name, arguments) =>
-                            {
-                              Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
-                              Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
-                              Assert.That (((DragDropEventData) arguments).Names, Is.EquivalentTo (_filePaths));
-
-                              wasRaised = true;
-                            };
-
-      ScriptEvent onSubsequentLeave = (source, name, arguments) =>
-                                      {
-                                        Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
-                                        Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
-                                        Assert.That (((DragDropEventData) arguments).Names, Is.Empty);
-
-                                        wasRaised = true;
-                                      };
-
-      _dragAndDropAddIn.DragLeave += onLeave;
-
-      browserStub.Raise (_ => _.DragLeave += null, browserStub, eventArgs);
-      _dragAndDropAddIn.DragLeave -= onLeave;
-      _dragAndDropAddIn.DragLeave += onSubsequentLeave;
-      browserStub.Raise (_ => _.DragLeave += null, browserStub, eventArgs);
-
       Assert.That (wasRaised, Is.True);
     }
 

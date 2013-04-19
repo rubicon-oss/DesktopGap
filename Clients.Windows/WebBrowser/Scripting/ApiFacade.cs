@@ -138,7 +138,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
     {
       var id = document.InvokeScript (GetDocumentIdentification);
       if (id == null)
-        throw new InvalidOperationException (string.Format ("The document '{0}' has not been identified yet!", document));
+        throw new InvalidOperationException (string.Format ("The document '{0}' has not been identified yet.", document));
       return new HtmlDocumentHandle (Guid.Parse (id.ToString()));
     }
 

@@ -39,7 +39,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private readonly bool _isCloseable;
 
-    public BrowserTab (WebBrowserHost webBrowserHost, bool isCloseable = true)
+    public BrowserTab (WebBrowserHost webBrowserHost, bool isCloseable = false)
     {
       ArgumentUtility.CheckNotNull ("webBrowserHost", webBrowserHost);
 

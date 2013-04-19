@@ -78,10 +78,6 @@ namespace DesktopGap.UnitTests
       Assert.That (serviceManager.GetService (serviceAddIn.Name), Is.SameAs (serviceAddIn));
     }
 
-    //
-    // UTILITY FUNCTIONS
-    //
-
     private HtmlDocumentHandle GetDocumentHandle ()
     {
       if (_consistentDocumentHandle == null)
@@ -89,7 +85,7 @@ namespace DesktopGap.UnitTests
         var guid = Guid.NewGuid();
         _consistentDocumentHandle = new HtmlDocumentHandle (guid);
       }
-      return (HtmlDocumentHandle) _consistentDocumentHandle;
+      return _consistentDocumentHandle.Value;
     }
 
     private ServiceManager CreateServiceManager (IList<IServiceAddIn> additionalEvents)

@@ -32,5 +32,7 @@ namespace DesktopGap.Resources
 
     void RemoveResource (ResourceHandle handle);
 
+    void ClearResources ();
+
   }
 }

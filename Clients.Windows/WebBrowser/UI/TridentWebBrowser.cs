@@ -291,7 +291,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
           handles.Add (ObjectForScripting.AddDocument (window.Document));
         }
       }
-      catch (UnauthorizedAccessException unauthorizedAccessException)
+      catch (UnauthorizedAccessException)
       {
         // pass. Maybe look at http://codecentrix.blogspot.co.at/2008/02/when-ihtmlwindow2document-throws.html later
       }
@@ -303,8 +303,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       var s = new StreamReader (DocumentStream);
       var x = s.ReadToEnd();
-      if (x.Contains ("meta"))
-        Debug.WriteLine ("### Meta tag found!");
 
       if (e.Url.AbsolutePath != Url.AbsolutePath)
         return;

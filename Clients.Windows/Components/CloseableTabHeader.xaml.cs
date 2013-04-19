@@ -1,5 +1,5 @@
 ﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, www.rubicon.eu
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,9 +17,8 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
-using System.Windows.Controls;
+using System.Windows;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.Components
@@ -29,6 +28,7 @@ namespace DesktopGap.Clients.Windows.Components
   /// </summary>
   public partial class CloseableTabHeader
   {
+    private bool _isCloseable;
     private const string c_defaultCloseButtonContent = "X";
 
     public event EventHandler TabClose;
@@ -39,14 +39,22 @@ namespace DesktopGap.Clients.Windows.Components
       set { _label.Content = value ?? String.Empty; }
     }
 
-    public bool IsCloseable { get; set; }
+    public bool IsCloseable
+    {
+      get { return _isCloseable; }
+      set
+      {
+        _isCloseable = value;
+        if (_closeButton != null)
+          _closeButton.Visibility = _isCloseable ? Visibility.Visible : Visibility.Hidden;
+      }
+    }
 
-    public CloseableTabHeader (string headerText, bool isCloseable = true, object closeButtonContent = null)
+    public CloseableTabHeader (string headerText, bool isCloseable = false, object closeButtonContent = null)
     {
       ArgumentUtility.CheckNotNull ("headerText", headerText);
-      
-      IsCloseable = isCloseable;
       InitializeComponent();
+      IsCloseable = isCloseable;
 
       if (closeButtonContent == null)
         closeButtonContent = c_defaultCloseButtonContent;

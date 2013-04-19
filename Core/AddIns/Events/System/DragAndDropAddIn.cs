@@ -52,13 +52,6 @@ namespace DesktopGap.AddIns.Events.System
     private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _elementUnderCursor = new KeyValuePair<HtmlDocumentHandle, HtmlElementData>();
     private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _enterElement = new KeyValuePair<HtmlDocumentHandle, HtmlElementData>();
 
-    private bool _wasDropped = false;
-
-
-    private List<ResourceHandle> _currentResources = new List<ResourceHandle>();
-    private List<string> _currentFilePaths = new List<string>();
-
-
     public DragAndDropAddIn (IResourceManager resourceManager)
     {
       ArgumentUtility.CheckNotNull ("resourceManager", resourceManager);
@@ -72,9 +65,6 @@ namespace DesktopGap.AddIns.Events.System
       DragDrop = null;
       DragLeave = null;
       DragOver = null;
-
-      if (!_wasDropped)
-        RemoveDraggedResources();
     }
 
     public IResourceManager ResourceManager { get; private set; }
@@ -100,7 +90,7 @@ namespace DesktopGap.AddIns.Events.System
       {
         return argument.Criteria.elementID == _elementUnderCursor.Value.ID && argument.Document.Equals (_elementUnderCursor.Key);
       }
-      catch (RuntimeBinderException runtimeBinderException)
+      catch (RuntimeBinderException)
       {
         throw new ArgumentException ("The provided 'Criteria' object does not have the required property 'elementID'.");
       }
@@ -155,8 +145,8 @@ namespace DesktopGap.AddIns.Events.System
 
       e.Droppable = IsDroppable (current);
 
-      var args = new DragDropEventData();
-      args.Names = _currentFilePaths.ToArray();
+      var args = new DragEventData();
+      args.Names = GetFileNames (e.Data);
 
       if (DragOver != null)
         DragOver (this, c_dragOverEventName, args);
@@ -170,26 +160,7 @@ namespace DesktopGap.AddIns.Events.System
     private void OnDragLeave (object sender, EventArgs e)
     {
       if (DragLeave != null)
-        DragLeave (
-            this,
-            c_dragLeaveEventName,
-            new DragDropEventData
-            {
-                ResourceHandles = _currentResources.Select (r => r.ToString()).ToArray(),
-                Names = _currentFilePaths.ToArray()
-            });
-
-      if (!_wasDropped)
-        RemoveDraggedResources();
-
-      _currentFilePaths.Clear();
-      _currentResources.Clear();
-    }
-
-    private void RemoveDraggedResources ()
-    {
-      foreach (var resource in _currentResources)
-        ResourceManager.RemoveResource (resource);
+        DragLeave (this, c_dragLeaveEventName, new DragEventData());
     }
 
     // when entering the window
@@ -199,21 +170,10 @@ namespace DesktopGap.AddIns.Events.System
       _elementUnderCursor = _enterElement;
 
       var args = new DragDropEventData();
-      if (e.Data != null)
-      {
-        _currentFilePaths = ((string[]) e.Data.GetData (DataFormats.FileDrop)).ToList();
-        var resources = _currentFilePaths.Select (
-            p => (File.GetAttributes (p) & FileAttributes.Directory) == FileAttributes.Directory
-                     ? new DirectoryInfo (p) as FileSystemInfo
-                     : new FileInfo (p) as FileSystemInfo
-            );
-        _currentResources = ResourceManager.AddResources (resources.ToArray()).ToList();
-      }
-      args.Names = _currentFilePaths.ToArray();
+      args.Names = GetFileNames (e.Data);
+
       if (DragEnter != null)
         DragEnter (this, c_dragEnterEventName, args);
-
-      _wasDropped = false;
     }
 
     private void OnDragDrop (object sender, ExtendedDragEventHandlerArgs e)
@@ -223,14 +183,22 @@ namespace DesktopGap.AddIns.Events.System
 
       if (DragDrop != null && e.Droppable)
       {
+        var paths = GetFileNames (e.Data);
+        var resources = paths.Select (
+            p => (File.GetAttributes (p) & FileAttributes.Directory) == FileAttributes.Directory
+                     ? new DirectoryInfo (p) as FileSystemInfo
+                     : new FileInfo (p) as FileSystemInfo
+            ).ToArray();
+
+        var handles = ResourceManager.AddResources (resources);
+
         var args = new DragDropEventData
                    {
-                       ResourceHandles = _currentResources.Select (r => r.ToString()).ToArray(),
-                       Names = _currentFilePaths.ToArray()
+                       ResourceHandles = handles.Select (r => r.ToString()).ToArray(),
+                       Names = paths
                    };
-        DragDrop (this, c_dragDropEventName, args);
 
-        _wasDropped = true;
+        DragDrop (this, c_dragDropEventName, args);
       }
     }
 
@@ -254,6 +222,15 @@ namespace DesktopGap.AddIns.Events.System
         Int32.TryParse (value, out result);
 
       return result % c_dragdropEffectCount;
+    }
+
+    private string[] GetFileNames (IDataObject data)
+    {
+      var paths = new string[0];
+      if (data != null)
+        paths = ((string[]) data.GetData (DataFormats.FileDrop));
+
+      return paths;
     }
   }
 }

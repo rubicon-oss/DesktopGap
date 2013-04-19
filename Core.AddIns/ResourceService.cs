@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,13 +17,34 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
+using System.ComponentModel.Composition;
+using DesktopGap.AddIns.Services;
+using DesktopGap.Utilities;
 
-namespace DesktopGap.AddIns.Events.Arguments
+namespace DesktopGap.AddIns
 {
-  public class DragDropEventData : DragEventData
+  [PartCreationPolicy (CreationPolicy.NonShared)]
+  public class ResourceService : ExternalServiceBase
   {
-    public string[] ResourceHandles { get; set; }
+    private const string c_name = "ResourceService";
+
+    public override void Dispose ()
+    {
+      ResourceManager.ClearResources();
+    }
+
+    public override string Name
+    {
+      get { return c_name; }
+    }
+
+    public bool UnregisterResource (string resourceID)
+    {
+      ArgumentUtility.CheckNotNullOrEmpty ("resourceID", resourceID);
+
+      var resourceHandle = new ResourceHandle (Guid.Parse (resourceID));
+      ResourceManager.RemoveResource (resourceHandle);
+    }
   }
 }

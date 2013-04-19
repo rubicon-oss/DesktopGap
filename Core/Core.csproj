@@ -45,10 +45,11 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="AddIns\Events\Arguments\DragEventData.cs" />
     <Compile Include="AddIns\Events\IEventAddIn.cs" />
     <Compile Include="AddIns\Events\Factory\EventDispatcherFactory.cs" />
     <Compile Include="AddIns\Events\Arguments\JsonData.cs" />
-    <Compile Include="AddIns\AddInBase.cs" />
+    <Compile Include="AddIns\IAddIn.cs" />
     <Compile Include="AddIns\Events\Arguments\DragDropEventData.cs" />
     <Compile Include="AddIns\Services\IServiceAddIn.cs" />
     <Compile Include="AddIns\Services\Factory\ServiceManagerFactory.cs" />

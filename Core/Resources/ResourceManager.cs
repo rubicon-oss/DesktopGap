@@ -88,5 +88,10 @@ namespace DesktopGap.Resources
       FileSystemInfo value;
       _resources.TryRemove (handle, out value);
     }
+
+    public void ClearResources ()
+    {
+      _resources.Clear();
+    }
   }
 }
