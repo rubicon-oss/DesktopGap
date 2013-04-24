@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.Linq;
 using DesktopGap.AddIns.Services;
 using DesktopGap.UnitTests.Fakes;
@@ -36,7 +35,7 @@ namespace DesktopGap.UnitTests
     [Test]
     public void HasService_ServiceDoesNotExist_ShouldReturnFalse ()
     {
-      var serviceManager = CreateServiceManager (new List<IServiceAddIn>());
+      var serviceManager = CreateServiceManager (new List<ServiceAddInBase>());
 
       var serviceName = "some service";
 
@@ -46,13 +45,13 @@ namespace DesktopGap.UnitTests
     [Test]
     public void GetService_ServiceDoesNotExist_ShouldThrowInvalidOperation ()
     {
-      var serviceManager = CreateServiceManager (new List<IServiceAddIn>());
+      var serviceManager = CreateServiceManager (new List<ServiceAddInBase>());
 
       var serviceName = "some service";
 
       Assert.That (
           () => serviceManager.GetService (serviceName),
-          Throws.InvalidOperationException.With.Message.EqualTo (string.Format ("Service '{0}' not found.", serviceName)));
+          Throws.InvalidOperationException.With.Message.EqualTo (string.Format ("Cannot find '{0}'.", serviceName)));
     }
 
     [Test]
@@ -88,17 +87,12 @@ namespace DesktopGap.UnitTests
       return _consistentDocumentHandle.Value;
     }
 
-    private ServiceManager CreateServiceManager (IList<IServiceAddIn> additionalEvents)
+    private ServiceManager CreateServiceManager (IEnumerable<ServiceAddInBase> additionalEvents)
     {
       var handle = GetDocumentHandle();
 
-      var catalog = new AggregateCatalog();
-      catalog.Catalogs.Add (new TypeCatalog());
-      var compositionContainer = new CompositionContainer (catalog);
-
-      var eventManager = new ServiceManager (handle, additionalEvents);
-      compositionContainer.ComposeParts (eventManager);
-      return eventManager;
+      var serviceManager = new ServiceManager (handle, additionalEvents, Enumerable.Empty<ServiceAddInBase>());
+      return serviceManager;
     }
   }
 }

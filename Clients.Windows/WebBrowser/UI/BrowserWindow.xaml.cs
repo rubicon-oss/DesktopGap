@@ -22,7 +22,6 @@ using System.Windows;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Arguments;
-using DesktopGap.WebBrowser.Factory;
 using DesktopGap.WebBrowser.Session;
 using DesktopGap.WebBrowser.StartOptions;
 using DesktopGap.WebBrowser.View;
@@ -98,7 +97,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       var browserTab = new BrowserTab (new WebBrowserHost ((TridentWebBrowser) browser));
 
-      browser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow
+      browser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow?
       browser.AfterNavigate += ((IWebBrowserView) browserTab).OnBeforeNavigate;
       browserTab.TabClosing += (s, e) => _tabControl.Items.Remove (s);
       return browserTab;

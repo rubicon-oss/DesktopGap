@@ -18,28 +18,30 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Services;
+using DesktopGap.Utilities;
 
-namespace DesktopGap.AddIns
+namespace DesktopGap.AddIns.Factories
 {
-  public interface IAddInManager : IDisposable
+  public class ServiceManagerFactory : IAddInManagerFactory<ServiceAddInBase>
   {
-    void AddEventDispatcher (HtmlDocumentHandle handle, IEventDispatcher eventDispatcher);
+    public ServiceManagerFactory (IAddInFactory<ServiceAddInBase> addInFactory)
+    {
+      ArgumentUtility.CheckNotNull ("addInFactory", addInFactory);
 
-    IEventDispatcher GetEventDispatcher (HtmlDocumentHandle handle);
+      AddInFactory = addInFactory;
+    }
 
-    void RemoveEventDispatcher (HtmlDocumentHandle handle);
+    public IAddInFactory<ServiceAddInBase> AddInFactory { get; private set; }
 
-    bool HasEventDispatcher (HtmlDocumentHandle handle);
+    public AddInManagerBase<ServiceAddInBase> CreateManager (HtmlDocumentHandle handle)
+    {
+      var sharedAddIns = AddInFactory.GetSharedAddIns();
+      var nonSharedAddIns = AddInFactory.GetNonSharedAddIns();
+      var serviceManager = new ServiceManager (handle, sharedAddIns, nonSharedAddIns);
+      serviceManager.LoadAddIns();
 
-
-    void AddServiceManager (HtmlDocumentHandle handle, IServiceManager serviceManager);
-
-    IServiceManager GetServiceManager (HtmlDocumentHandle handle);
-
-    void RemoveServiceManager (HtmlDocumentHandle handle);
-
-    bool HasServiceManager (HtmlDocumentHandle handle);
+      return serviceManager;
+    }
   }
 }

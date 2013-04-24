@@ -25,60 +25,59 @@ using NUnit.Framework;
 namespace DesktopGap.UnitTests
 {
   [TestFixture]
-  public class AddInManagerTest
+  public class HtmlDocumentHandleRegistryTest
   {
     private const string c_documentAlreadyRegisteredFormatString = "DocumentHandle '{0}' is already registered.";
     private const string c_documentNotRegisteredFormatString = "DocumentHandle '{0}' is not registered.";
 
     [Test]
-    public void AddEventDispatcher_DocumentHandleAlreadyExists_ShouldThrowInvalidOperation ()
+    public void RegisterDocumentHandle_DocumentHandleAlreadyExists_ShouldThrowInvalidOperation ()
     {
       var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
-      addInManager.AddEventDispatcher (handle, new FakeEventDispatcher());
+      addInManager.RegisterDocumentHandle (handle, new FakeScriptingHost());
 
       Assert.That (
-          () => addInManager.AddEventDispatcher (handle, new FakeEventDispatcher()),
+          () => addInManager.RegisterDocumentHandle (handle, new FakeScriptingHost()),
           Throws.InvalidOperationException.With.Message.EqualTo (string.Format (c_documentAlreadyRegisteredFormatString, handle)));
     }
 
     [Test]
-    public void AddEventDispatcher_AddMultipleServiceManagers_ShouldSucceed ()
+    public void RegisterDocumentHandle_AddMultipleDocuments_ShouldSucceed ()
     {
-      const int documentCount = 100;
-      var addInManager = new AddInManager();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
-      for (var i = 0; i < documentCount; i++)
-      {
-        var handle = CreateDocumentHandle();
-        addInManager.AddEventDispatcher (handle, new FakeEventDispatcher());
-      }
+      addInManager.RegisterDocumentHandle (CreateDocumentHandle(), new FakeScriptingHost());
+      addInManager.RegisterDocumentHandle (CreateDocumentHandle(), new FakeScriptingHost());
+      addInManager.RegisterDocumentHandle (CreateDocumentHandle(), new FakeScriptingHost());
+      addInManager.RegisterDocumentHandle (CreateDocumentHandle(), new FakeScriptingHost());
 
-      Assert.That (addInManager.EventDispatcherCount, Is.EqualTo (documentCount));
+
+      Assert.That (addInManager.EventDispatcherCount, Is.EqualTo (4));
     }
 
     [Test]
-    public void RemoveEventDispatcher_DocumentHandleDoesNotExist_ShouldThrowInvalidOperation ()
+    public void UnregisterDocumentHandle_DocumentHandleDoesNotExist_ShouldThrowInvalidOperation ()
     {
       var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
       Assert.That (
-          () => addInManager.RemoveEventDispatcher (handle),
+          () => addInManager.UnregisterDocumentHandle (handle),
           Throws.InvalidOperationException.With.Message.EqualTo (string.Format (c_documentNotRegisteredFormatString, handle)));
     }
 
     [Test]
-    public void RemoveEventDispatcher_RemoveDocumentHandle_ShouldSucceed ()
+    public void UnregisterDocumentHandle_RemoveDocumentHandle_ShouldSucceed ()
     {
       var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
       var count = addInManager.EventDispatcherCount;
-      addInManager.AddEventDispatcher (handle, new FakeEventDispatcher());
+      addInManager.RegisterDocumentHandle (handle, new FakeScriptingHost());
 
-      Assert.That (() => addInManager.RemoveEventDispatcher (handle), Throws.Nothing);
+      Assert.That (() => addInManager.UnregisterDocumentHandle (handle), Throws.Nothing);
       Assert.That (count, Is.EqualTo (addInManager.EventDispatcherCount));
     }
 
@@ -86,7 +85,7 @@ namespace DesktopGap.UnitTests
     public void GetEventDispatcher_DocumentHandleDoesNotExist_ShouldThrowInvalidOperation ()
     {
       var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
       Assert.That (
           () => addInManager.GetEventDispatcher (handle),
@@ -97,95 +96,18 @@ namespace DesktopGap.UnitTests
     public void GetEventDispatcher_GetByDocumentHandle_ShouldSucceed ()
     {
       var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-      var eventDispatcher = new FakeEventDispatcher();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
-      addInManager.AddEventDispatcher (handle, eventDispatcher);
+      addInManager.RegisterDocumentHandle (handle, new FakeScriptingHost());
 
-      Assert.That (() => addInManager.GetEventDispatcher (handle), Is.SameAs (eventDispatcher));
-    }
-
-    [Test]
-    public void HasEventDispatcher_GetByDocumentHandle_ShouldSucceed ()
-    {
-      var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-      var eventDispatcher = new FakeEventDispatcher();
-
-      addInManager.AddEventDispatcher (handle, eventDispatcher);
-
-      Assert.That (() => addInManager.HasEventDispatcher (handle), Is.True);
-    }
-
-    [Test]
-    public void HasEventDispatcher_GetByInvalidDocumentHandle_ShouldThrowInvalidOperation ()
-    {
-      var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-
-      Assert.That (
-          () => addInManager.HasEventDispatcher (handle),
-          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (c_documentNotRegisteredFormatString, handle)));
-    }
-
-
-    [Test]
-    public void AddServiceManager_DocumentHandleAlreadyExists_ShouldThrowInvalidOperation ()
-    {
-      var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-
-      addInManager.AddServiceManager (handle, new FakeServiceManager());
-
-      Assert.That (
-          () => addInManager.AddServiceManager (handle, new FakeServiceManager()),
-          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (c_documentAlreadyRegisteredFormatString, handle)));
-    }
-
-    [Test]
-    public void AddServiceManager_AddMultipleServiceManagers_ShouldSucceed ()
-    {
-      const int documentCount = 100;
-      var addInManager = new AddInManager();
-
-      for (var i = 0; i < documentCount; i++)
-      {
-        var handle = CreateDocumentHandle();
-        addInManager.AddServiceManager (handle, new FakeServiceManager());
-      }
-
-      Assert.That (addInManager.ServiceManagerCount, Is.EqualTo (documentCount));
-    }
-
-    [Test]
-    public void RemoveServiceManager_DocumentHandleDoesNotExist_ShouldThrowInvalidOperation ()
-    {
-      var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-
-      Assert.That (
-          () => addInManager.RemoveServiceManager (handle),
-          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (c_documentNotRegisteredFormatString, handle)));
-    }
-
-    [Test]
-    public void RemoveServiceManager_RemoveDocumentHandle_ShouldSucceed ()
-    {
-      var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-
-      var count = addInManager.ServiceManagerCount;
-      addInManager.AddServiceManager (handle, new FakeServiceManager());
-
-      Assert.That (() => addInManager.RemoveServiceManager (handle), Throws.Nothing);
-      Assert.That (count, Is.EqualTo (addInManager.ServiceManagerCount));
+      Assert.That (() => addInManager.GetEventDispatcher (handle), Is.InstanceOf<FakeEventDispatcher>());
     }
 
     [Test]
     public void GetServiceManager_DocumentHandleDoesNotExist_ShouldThrowInvalidOperation ()
     {
       var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
       Assert.That (
           () => addInManager.GetServiceManager (handle),
@@ -196,38 +118,24 @@ namespace DesktopGap.UnitTests
     public void GetServiceManager_GetByDocumentHandle_ShouldSucceed ()
     {
       var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-      var serviceManager = new FakeServiceManager();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
-      addInManager.AddServiceManager (handle, serviceManager);
+      addInManager.RegisterDocumentHandle (handle, new FakeScriptingHost());
 
-      Assert.That (() => addInManager.GetServiceManager (handle), Is.SameAs (serviceManager));
+      Assert.That (() => addInManager.GetServiceManager (handle), Is.InstanceOf<FakeServiceManager>());
     }
 
 
     [Test]
-    public void HasServiceManager_GetByDocumentHandle_ShouldSucceed ()
+    public void HasDocumentHandle_GetByDocumentHandle_ShouldSucceed ()
     {
       var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-      var serviceManager = new FakeServiceManager();
+      var addInManager = new HtmlDocumentHandleRegistry (new FakeServiceManagerFactory(), new FakeEventDispatcherFactory());
 
-      addInManager.AddServiceManager (handle, serviceManager);
+      addInManager.RegisterDocumentHandle (handle, new FakeScriptingHost());
 
-      Assert.That (() => addInManager.HasServiceManager (handle), Is.True);
+      Assert.That (() => addInManager.HasDocumentHandle (handle), Is.True);
     }
-
-    [Test]
-    public void HasServiceManager_GetByInvalidDocumentHandle_ShouldThrowInvalidOperation ()
-    {
-      var handle = CreateDocumentHandle();
-      var addInManager = new AddInManager();
-
-      Assert.That (
-          () => addInManager.HasServiceManager (handle),
-          Throws.InvalidOperationException.With.Message.EqualTo (string.Format (c_documentNotRegisteredFormatString, handle)));
-    }
-
 
     private HtmlDocumentHandle CreateDocumentHandle ()
     {

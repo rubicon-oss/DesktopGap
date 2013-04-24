@@ -17,19 +17,22 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
 
 namespace DesktopGap.UnitTests.Fakes
 {
-  public class FakeEventDispatcher : IEventDispatcher
+  public class FakeEventDispatcher : AddInManagerBase<EventAddInBase>, IEventDispatcher
   {
     public event EventHandler<ScriptEventArgs> EventFired;
 
-    public void Dispose ()
+    protected override void Dispose (bool disposing)
     {
+      
     }
 
     public void Register (string eventName, string callbackName, string moduleName, Condition argument)
@@ -43,6 +46,11 @@ namespace DesktopGap.UnitTests.Fakes
     public bool HasEvent (string moduleName, string eventName)
     {
       return true;
+    }
+
+    public IEnumerable<TSubscription> GetSubscribers<TSubscription> ()
+    {
+      return Enumerable.Empty<TSubscription>();
     }
   }
 }

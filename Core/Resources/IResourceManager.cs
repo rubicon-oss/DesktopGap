@@ -18,13 +18,14 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.ComponentModel.Composition;
 using System.IO;
 
 namespace DesktopGap.Resources
 {
+  [InheritedExport]
   public interface IResourceManager
   {
-
     FileSystemInfo GetResource (ResourceHandle handle);
     ResourceHandle[] AddResources (FileSystemInfo[] paths);
 
@@ -33,6 +34,5 @@ namespace DesktopGap.Resources
     void RemoveResource (ResourceHandle handle);
 
     void ClearResources ();
-
   }
 }

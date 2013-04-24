@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,11 +18,28 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.AddIns.Events;
+using DesktopGap.Utilities;
 
-namespace DesktopGap.AddIns.Events.Factory
+namespace DesktopGap.AddIns.Factories
 {
-  public interface IEventDispatcherFactory
+  public class EventManagerFactory : IAddInManagerFactory<EventAddInBase>
   {
-    IEventDispatcher CreateEventDispatcher (HtmlDocumentHandle document);
+    public EventManagerFactory (IAddInFactory<EventAddInBase> addInFactory)
+    {
+      ArgumentUtility.CheckNotNull ("addInFactory", addInFactory);
+      AddInFactory = addInFactory;
+    }
+
+    public IAddInFactory<EventAddInBase> AddInFactory { get; private set; }
+
+    public AddInManagerBase<EventAddInBase> CreateManager (HtmlDocumentHandle handle)
+    {
+      var sharedAddIns = AddInFactory.GetSharedAddIns();
+      var nonSharedAddIns = AddInFactory.GetNonSharedAddIns();
+      var eventManager = new EventManager (handle, sharedAddIns, nonSharedAddIns);
+      eventManager.LoadAddIns();
+      return eventManager;
+    }
   }
 }

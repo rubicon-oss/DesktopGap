@@ -22,12 +22,11 @@ using System.ComponentModel.Composition;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using DesktopGap.AddIns.Services;
-using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
   [ComVisible (true)]
-  [PartCreationPolicy(CreationPolicy.Shared)]
+  [PartCreationPolicy (CreationPolicy.Shared)]
   public class GuidService : ExternalServiceBase
   {
     public GuidService ()
@@ -41,13 +40,6 @@ namespace DesktopGap.AddIns
     }
 
     public override void Dispose ()
-    {}
-
-    public override void OnBeforeLoad (HtmlDocumentHandle document)
-    {
-    }
-
-    public override void OnBeforeUnload (HtmlDocumentHandle document)
     {
     }
 

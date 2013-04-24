@@ -17,19 +17,19 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
+using DesktopGap.AddIns;
 using DesktopGap.AddIns.Services;
 
 namespace DesktopGap.UnitTests.Fakes
 {
-  public class FakeServiceManager : IServiceManager
+  public class FakeServiceManager : AddInManagerBase<ServiceAddInBase>, IServiceManager
   {
-    public void Dispose ()
+    protected override void Dispose (bool disposing)
     {
     }
 
-    public IServiceAddIn GetService (string serviceName)
+    public ServiceAddInBase GetService (string serviceName)
     {
       return null;
     }

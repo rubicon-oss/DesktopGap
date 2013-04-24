@@ -24,8 +24,8 @@ namespace DesktopGap.AddIns.Events
   public interface IEventHost
   {
 
-    void RegisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string name);
+    void RegisterEvent (EventAddInBase externalEvent, ref ScriptEvent scriptEvent, string name);
 
-    void UnregisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string name);
+    void UnregisterEvent (EventAddInBase externalEvent, ref ScriptEvent scriptEvent, string name);
   }
 }

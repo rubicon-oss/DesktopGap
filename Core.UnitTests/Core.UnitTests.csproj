@@ -55,9 +55,12 @@
     <Compile Include="EventManagerTest.cs" />
     <Compile Include="Fakes\FakeEventAddIn.cs" />
     <Compile Include="Fakes\FakeEventData.cs" />
+    <Compile Include="Fakes\FakeEventDispatcherFactory.cs" />
+    <Compile Include="Fakes\FakeScriptingHost.cs" />
     <Compile Include="Fakes\FakeServiceAddIn.cs" />
     <Compile Include="Fakes\FakeEventDispatcher.cs" />
     <Compile Include="Fakes\FakeServiceManager.cs" />
+    <Compile Include="Fakes\FakeServiceManagerFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceManagerTest.cs" />
     <Compile Include="ServiceManagerTest.cs" />
@@ -69,6 +72,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core.AddIns\Core.AddIns.csproj">
+      <Project>{025B2C20-3622-474C-898B-AC1FF42FB837}</Project>
+      <Name>Core.AddIns</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core\Core.csproj">
       <Project>{f650ab80-45e1-44f3-897a-2af5f774c71d}</Project>
       <Name>Core</Name>

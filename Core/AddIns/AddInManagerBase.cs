@@ -19,12 +19,13 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns
 {
   public abstract class AddInManagerBase<TAddIn> : IDisposable
-      where TAddIn : IAddIn
+      where TAddIn : AddInBase
   {
     protected class AddInLoadedEventArgs : EventArgs
     {
@@ -37,12 +38,11 @@ namespace DesktopGap.AddIns
       }
     }
 
-
     private const string c_duplicateRegistrationFormatString = "'{0}' is already registered.";
     private const string c_missingRegistrationFormatString = "Cannot find '{0}'.";
 
-    private readonly IList<TAddIn> _sharedAddIns = new List<TAddIn>();
-    private readonly IList<TAddIn> _nonSharedAddIns = new List<TAddIn>();
+    private readonly IEnumerable<TAddIn> _sharedAddIns;
+    private readonly IEnumerable<TAddIn> _nonSharedAddIns;
 
     private readonly HtmlDocumentHandle _documentHandle;
 
@@ -53,11 +53,11 @@ namespace DesktopGap.AddIns
 
     protected AddInManagerBase ()
     {
-      _sharedAddIns = new List<TAddIn>();
-      _nonSharedAddIns = new List<TAddIn>();
+      _sharedAddIns = new HashSet<TAddIn>();
+      _nonSharedAddIns = new HashSet<TAddIn>();
     }
 
-    protected AddInManagerBase (IList<TAddIn> sharedAddIns, IList<TAddIn> nonSharedAddIns, HtmlDocumentHandle documentHandle)
+    protected AddInManagerBase (IEnumerable<TAddIn> sharedAddIns, IEnumerable<TAddIn> nonSharedAddIns, HtmlDocumentHandle documentHandle)
     {
       ArgumentUtility.CheckNotNull ("nonSharedAddIns", nonSharedAddIns);
       ArgumentUtility.CheckNotNull ("nonSharedAddIns", nonSharedAddIns);
@@ -65,7 +65,6 @@ namespace DesktopGap.AddIns
       _sharedAddIns = sharedAddIns;
       _nonSharedAddIns = nonSharedAddIns;
       _documentHandle = documentHandle;
-      LoadAddIns();
     }
 
     public void Dispose ()
@@ -77,7 +76,7 @@ namespace DesktopGap.AddIns
 
     protected abstract void Dispose (bool disposing);
 
-    protected void LoadAddIns ()
+    public void LoadAddIns ()
     {
       foreach (var addIn in _sharedAddIns)
       {
@@ -121,6 +120,12 @@ namespace DesktopGap.AddIns
     {
       if (evnt != null)
         evnt (this, addInArgs);
+    }
+
+    public IEnumerable<TSubscriber> GetSubscribers<TSubscriber> ()
+    {
+      return _sharedAddIns.OfType<TSubscriber>()
+          .Concat (_nonSharedAddIns.OfType<TSubscriber>());
     }
   }
 }

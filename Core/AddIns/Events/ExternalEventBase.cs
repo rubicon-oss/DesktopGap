@@ -19,32 +19,14 @@
 // 
 using System;
 using System.ComponentModel.Composition;
-using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.Resources;
-using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns.Events
 {
   [InheritedExport (typeof (ExternalEventBase))]
-  public abstract class ExternalEventBase : IEventAddIn
+  public abstract class ExternalEventBase : EventAddInBase
   {
-    public abstract void Dispose ();
-
-    public abstract string Name { get; }
-
-    [Import (typeof (IResourceManager), AllowDefault = true)]
-    public IResourceManager ResourceManager { get; private set; }
-
-    public abstract bool CheckRaiseCondition (Condition argument);
-    public abstract void RegisterEvents (IEventHost eventHost);
-    public abstract void UnregisterEvents (IEventHost eventHost);
-    
-    public virtual void OnBeforeLoad (HtmlDocumentHandle document)
-    {
-    }
-
-    public virtual void OnBeforeUnload (HtmlDocumentHandle document)
-    {
-    }
+    [Import (typeof (IResourceManager))]
+    public override IResourceManager ResourceManager { get; protected set; }
   }
 }

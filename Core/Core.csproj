@@ -45,24 +45,29 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="AddIns\AddInManagerBase.cs" />
+    <Compile Include="AddIns\Events\IBrowserEventSubscriber.cs" />
+    <Compile Include="AddIns\Events\ISubscriber.cs" />
+    <Compile Include="AddIns\Events\ISubscriptionHandler.cs" />
+    <Compile Include="AddIns\Factories\CompositionBasedAddInFactory.cs" />
+    <Compile Include="AddIns\Factories\EventManagerFactory.cs" />
     <Compile Include="AddIns\Events\Arguments\DragEventData.cs" />
-    <Compile Include="AddIns\Events\IEventAddIn.cs" />
-    <Compile Include="AddIns\Events\Factory\EventDispatcherFactory.cs" />
+    <Compile Include="AddIns\Events\EventAddInBase.cs" />
     <Compile Include="AddIns\Events\Arguments\JsonData.cs" />
-    <Compile Include="AddIns\IAddIn.cs" />
+    <Compile Include="AddIns\AddInBase.cs" />
     <Compile Include="AddIns\Events\Arguments\DragDropEventData.cs" />
-    <Compile Include="AddIns\Services\IServiceAddIn.cs" />
-    <Compile Include="AddIns\Services\Factory\ServiceManagerFactory.cs" />
+    <Compile Include="AddIns\Factories\IAddInFactory.cs" />
+    <Compile Include="AddIns\Factories\IAddInManagerFactory.cs" />
+    <Compile Include="AddIns\Factories\ServiceManagerFactory.cs" />
+    <Compile Include="AddIns\Services\ServiceAddInBase.cs" />
     <Compile Include="Handles.cs" />
     <Compile Include="AddIns\Events\Arguments\Condition.cs" />
     <Compile Include="AddIns\Events\EventManager.cs" />
-    <Compile Include="AddIns\AddInManager.cs" />
-    <Compile Include="AddIns\Events\Factory\IEventDispatcherFactory.cs" />
+    <Compile Include="AddIns\HtmlDocumentHandleRegistry.cs" />
     <Compile Include="AddIns\Events\IEventHost.cs" />
     <Compile Include="AddIns\Events\ExternalEventBase.cs" />
     <Compile Include="AddIns\Events\Arguments\ScriptEventArgs.cs" />
-    <Compile Include="AddIns\IAddInManager.cs" />
-    <Compile Include="AddIns\Services\Factory\IServiceManagerFactory.cs" />
+    <Compile Include="AddIns\IHtmlDocumentHandleRegistry.cs" />
     <Compile Include="Resources\IResourceManager.cs" />
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Utilities\ArgumentEmptyException.cs" />
@@ -73,9 +78,9 @@
     <Compile Include="Utilities\ReSharperAnnotations\InvokerParameterNameAttribute.cs" />
     <Compile Include="Utilities\ReSharperAnnotations\NoEnumerationAttribute.cs" />
     <Compile Include="WebBrowser\HtmlElementData.cs" />
+    <Compile Include="WebBrowser\IScriptingHost.cs" />
     <Compile Include="WebBrowser\StartOptions\BrowserWindowStartMode.cs" />
     <Compile Include="WebBrowser\StartOptions\BrowserWindowTarget.cs" />
-    <Compile Include="AddIns\Events\System\DragAndDropAddIn.cs" />
     <Compile Include="WebBrowser\Arguments\NavigationEventArgs.cs" />
     <Compile Include="WebBrowser\Session\ISession.cs" />
     <Compile Include="AddIns\Events\IEventDispatcher.cs" />
@@ -85,12 +90,11 @@
     <Compile Include="OleLibraryDependencies\ExtendedDragEventHandlerArgs.cs" />
     <Compile Include="WebBrowser\IExtendedWebBrowser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WebBrowser\Factory\IWebBrowserFactory.cs" />
+    <Compile Include="WebBrowser\IWebBrowserFactory.cs" />
     <Compile Include="WebBrowser\View\IWebBrowserView.cs" />
     <Compile Include="WebBrowser\View\IWebBrowserWindow.cs" />
     <Compile Include="WebBrowser\Session\Session.cs" />
     <Compile Include="WebBrowser\Arguments\WindowOpenEventArgs.cs" />
-    <Compile Include="WebBrowser\Factory\WebBrowserFactoryBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GPL.licenseheader">

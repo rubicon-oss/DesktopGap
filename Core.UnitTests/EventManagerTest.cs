@@ -42,7 +42,7 @@ namespace DesktopGap.UnitTests
     [Test]
     public void Register_EventDoesNotExist_ShouldThrowInvalidOperation ()
     {
-      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventManager = CreateEventManager (new List<EventAddInBase>());
 
       var eventName = "some event";
       var moduleName = "some module";
@@ -56,7 +56,7 @@ namespace DesktopGap.UnitTests
     [Test]
     public void Register_InvalidConditionObject_ShouldThrowArgumentException ()
     {
-      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventManager = CreateEventManager (new List<EventAddInBase>());
 
       var eventName = "some event";
       var moduleName = "some module";
@@ -70,7 +70,7 @@ namespace DesktopGap.UnitTests
     [Test]
     public void Unregister_EventDoesNotExist_ShouldThrowInvalidOperation ()
     {
-      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventManager = CreateEventManager (new List<EventAddInBase>());
 
       var eventName = "some event";
       var moduleName = "some module";
@@ -86,7 +86,7 @@ namespace DesktopGap.UnitTests
     public void RegisterEvent_EventRegistration_ShouldSucceed ()
     {
       ScriptEvent scriptEvent = null;
-      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventManager = CreateEventManager (new List<EventAddInBase>());
 
       var eventAddIn = new FakeEventAddIn();
 
@@ -101,7 +101,7 @@ namespace DesktopGap.UnitTests
     public void RegisterEvent_EventDuplicateRegistration_ShouldThrowInvalidOperation ()
     {
       ScriptEvent scriptEvent = null;
-      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventManager = CreateEventManager (new List<EventAddInBase>());
 
       var eventAddIn = new FakeEventAddIn();
 
@@ -121,7 +121,7 @@ namespace DesktopGap.UnitTests
     public void UnegisterEvent_EventDeregistration_ShouldSucceed ()
     {
       ScriptEvent scriptEvent = null;
-      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventManager = CreateEventManager (new List<EventAddInBase>());
 
       var eventAddIn = new FakeEventAddIn();
 
@@ -140,7 +140,7 @@ namespace DesktopGap.UnitTests
     [Test]
     public void HasEvent_EventDoesNotExist_ShouldReturnFalse ()
     {
-      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventManager = CreateEventManager (new List<EventAddInBase>());
 
       var eventName = "some event";
       var moduleName = "some module";
@@ -151,7 +151,7 @@ namespace DesktopGap.UnitTests
     [Test]
     public void HasEvent_EventDoesExist_ShouldReturnTrue ()
     {
-      var eventManager = CreateEventManager (new List<IEventAddIn>());
+      var eventManager = CreateEventManager (new List<EventAddInBase>());
       var eventAddIn = new FakeEventAddIn();
       eventAddIn.RegisterEvents (eventManager);
 
@@ -255,16 +255,11 @@ namespace DesktopGap.UnitTests
       return fakeCondition;
     }
 
-    private EventManager CreateEventManager (IList<IEventAddIn> additionalEvents)
+    private EventManager CreateEventManager (IEnumerable<EventAddInBase> additionalEvents)
     {
       var handle = GetDocumentHandle();
+      var eventManager = new EventManager (handle, additionalEvents, Enumerable.Empty<EventAddInBase>());
 
-      var catalog = new AggregateCatalog();
-      catalog.Catalogs.Add (new TypeCatalog());
-      var compositionContainer = new CompositionContainer (catalog);
-
-      var eventManager = new EventManager (handle, additionalEvents);
-      compositionContainer.ComposeParts (eventManager);
       return eventManager;
     }
   }

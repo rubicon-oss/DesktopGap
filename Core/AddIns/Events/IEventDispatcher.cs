@@ -18,13 +18,14 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using DesktopGap.AddIns.Events.Arguments;
 
 namespace DesktopGap.AddIns.Events
 {
-  public delegate void ScriptEvent (IEventAddIn source, string eventName, JsonData arguments);
+  public delegate void ScriptEvent (EventAddInBase source, string eventName, JsonData arguments);
 
-  public interface IEventDispatcher
+  public interface IEventDispatcher : IDisposable
   {
     /// <summary>
     /// Occurs when a custom event has been dispatched. 
@@ -36,5 +37,6 @@ namespace DesktopGap.AddIns.Events
     void Unregister (string eventName, string callbackName, string moduleName);
 
     bool HasEvent (string moduleName, string eventName);
-  }
+     IEnumerable<TSubscription> GetSubscribers<TSubscription> ();
+}
 }

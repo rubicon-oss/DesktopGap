@@ -24,7 +24,7 @@ using DesktopGap.Resources;
 
 namespace DesktopGap.UnitTests.Fakes
 {
-  public class FakeEventAddIn : IEventAddIn
+  public class FakeEventAddIn : EventAddInBase
   {
     public string FakeEventName { get; set; }
 
@@ -37,44 +37,44 @@ namespace DesktopGap.UnitTests.Fakes
       FakeEventName = "some event";
     }
 
-    public void Dispose ()
-    {
-    }
-    
+
     public bool IsLoaded { get; private set; }
 
     public bool EventsRegistered { get; private set; }
 
-
-    public IResourceManager ResourceManager { get; private set; }
-
-    public string Name
+    public override string Name
     {
       get { return c_fakeModuleName; }
     }
 
-    public void OnBeforeLoad (HtmlDocumentHandle document)
+    public new void OnBeforeLoad (HtmlDocumentHandle document)
     {
       IsLoaded = true;
     }
 
-    public void OnBeforeUnload (HtmlDocumentHandle document)
+    public new void OnBeforeUnload (HtmlDocumentHandle document)
     {
       IsLoaded = false;
     }
 
-    public bool CheckRaiseCondition (Condition argument)
+    public override void Dispose ()
+    {
+    }
+
+    public override IResourceManager ResourceManager { get; protected set; }
+
+    public override bool CheckRaiseCondition (Condition argument)
     {
       return true;
     }
 
-    public void RegisterEvents (IEventHost eventHost)
+    public override void RegisterEvents (IEventHost eventHost)
     {
       eventHost.RegisterEvent (this, ref _scriptEvent, FakeEventName);
       EventsRegistered = true;
     }
 
-    public void UnregisterEvents (IEventHost eventHost)
+    public override void UnregisterEvents (IEventHost eventHost)
     {
       eventHost.UnregisterEvent (this, ref _scriptEvent, FakeEventName);
       EventsRegistered = false;

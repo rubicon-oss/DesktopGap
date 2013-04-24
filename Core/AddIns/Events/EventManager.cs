@@ -25,7 +25,7 @@ using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Events
 {
-  public class EventManager : AddInManagerBase<IEventAddIn>, IEventDispatcher, IEventHost
+  public class EventManager : AddInManagerBase<EventAddInBase>, IEventDispatcher, IEventHost
   {
     private const string c_moduleEventSeperator = ".";
 
@@ -38,7 +38,7 @@ namespace DesktopGap.AddIns.Events
     {
     }
 
-    public EventManager (IList<IEventAddIn> sharedAddIns, IList<IEventAddIn> nonSharedAddIns, HtmlDocumentHandle documentHandle)
+    public EventManager (HtmlDocumentHandle documentHandle, IEnumerable<EventAddInBase> sharedAddIns, IEnumerable<EventAddInBase> nonSharedAddIns)
         : base (sharedAddIns, nonSharedAddIns, documentHandle)
     {
       NonSharedAddInLoaded += (s, a) => a.AddIn.RegisterEvents (this);
@@ -89,7 +89,7 @@ namespace DesktopGap.AddIns.Events
       return _clients.TryGetValue (name, out e);
     }
 
-    public void RegisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string eventName)
+    public void RegisterEvent (EventAddInBase externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
       ArgumentUtility.CheckNotNull ("externalEvent", externalEvent);
       ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
@@ -101,7 +101,7 @@ namespace DesktopGap.AddIns.Events
       InitializeClients (name);
     }
 
-    public void UnregisterEvent (IEventAddIn externalEvent, ref ScriptEvent scriptEvent, string eventName)
+    public void UnregisterEvent (EventAddInBase externalEvent, ref ScriptEvent scriptEvent, string eventName)
     {
       ArgumentUtility.CheckNotNull ("externalEvent", externalEvent);
       ArgumentUtility.CheckNotNull ("scriptEvent", scriptEvent);
@@ -111,7 +111,7 @@ namespace DesktopGap.AddIns.Events
       var eventClients = GetClients (name);
 
       if (eventClients == null)
-        throw new InvalidOperationException (string.Format ("Event '{0}' not found.", scriptEvent.Method.Name));
+        MissingRegistration(scriptEvent.Method.Name);
 
       _clients.Remove (name);
 
@@ -126,7 +126,7 @@ namespace DesktopGap.AddIns.Events
 
       IList<KeyValuePair<string, Condition>> registrations;
       if (!_clients.TryGetValue (eventIdentifier, out registrations))
-        throw MissingRegistration (string.Join (c_moduleEventSeperator, eventName, moduleName));
+        throw MissingRegistration (string.Join (c_moduleEventSeperator, moduleName, eventName));
 
       return registrations;
     }
@@ -147,8 +147,11 @@ namespace DesktopGap.AddIns.Events
       return eventClients;
     }
 
-    private void FireEvent (IEventAddIn source, string eventName, JsonData args)
+    private void FireEvent (EventAddInBase source, string eventName, JsonData args)
     {
+      if(EventFired == null)
+        throw new InvalidOperationException ("Nothing registered to call back");
+
       var name = string.Join (c_moduleEventSeperator, source.Name, eventName);
 
       IList<KeyValuePair<string, Condition>> callbackNames;

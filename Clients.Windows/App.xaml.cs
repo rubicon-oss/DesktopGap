@@ -17,15 +17,17 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.ComponentModel.Composition.Hosting;
 using System.Windows;
 using System.Windows.Threading;
+using DesktopGap.AddIns;
+using DesktopGap.AddIns.Events;
+using DesktopGap.AddIns.Factories;
+using DesktopGap.AddIns.Services;
 using DesktopGap.Clients.Windows.WebBrowser;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
-using DesktopGap.Resources;
-using DesktopGap.WebBrowser.Factory;
+using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.Clients.Windows
@@ -43,8 +45,13 @@ namespace DesktopGap.Clients.Windows
       var catalog = new AggregateCatalog();
       var dirCatalog = new DirectoryCatalog (c_addInDirectory);
       catalog.Catalogs.Add (dirCatalog);
+      var compositionContainer = new CompositionContainer (catalog);
 
-      _browserFactory = new TridentWebBrowserFactory (catalog, new ResourceManager());
+
+      var addInProvider = new HtmlDocumentHandleRegistry (
+          new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer)),
+          new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer)));
+      _browserFactory = new TridentWebBrowserFactory (addInProvider);
 
       try
       {

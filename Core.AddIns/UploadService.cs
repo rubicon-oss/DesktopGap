@@ -45,14 +45,6 @@ namespace DesktopGap.AddIns
       
     }
 
-    public override void OnBeforeLoad (HtmlDocumentHandle document)
-    {
-    }
-
-    public override void OnBeforeUnload (HtmlDocumentHandle document)
-    {
-    }
-
     public void Upload (dynamic url)
     {
     }

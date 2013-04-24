@@ -31,7 +31,8 @@ namespace DesktopGap.AddIns
 
     public override void Dispose ()
     {
-      ResourceManager.ClearResources();
+      if (ResourceManager != null)
+        ResourceManager.ClearResources();
     }
 
     public override string Name
@@ -39,7 +40,7 @@ namespace DesktopGap.AddIns
       get { return c_name; }
     }
 
-    public bool UnregisterResource (string resourceID)
+    public void UnregisterResource (string resourceID)
     {
       ArgumentUtility.CheckNotNullOrEmpty ("resourceID", resourceID);
 

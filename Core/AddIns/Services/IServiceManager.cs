@@ -18,13 +18,15 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 
 namespace DesktopGap.AddIns.Services
 {
-  public interface IServiceManager 
+  public interface IServiceManager : IDisposable
   {
-    IServiceAddIn GetService (string serviceName);
+    ServiceAddInBase GetService (string serviceName);
 
     bool HasService (string name);
+    IEnumerable<TSubscription> GetSubscribers<TSubscription> ();
   }
 }

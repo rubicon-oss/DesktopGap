@@ -19,6 +19,7 @@
 // 
 using System;
 using System.IO;
+using System.Linq;
 using DesktopGap.Resources;
 using NUnit.Framework;
 
@@ -69,31 +70,29 @@ namespace DesktopGap.UnitTests
     }
 
     [Test]
-    public void AddResource_AddADuplicateResource_ShouldThrowInvalidOperation ()
+    public void AddResource_AddADuplicateResource_ShouldReturnHandle ()
     {
       var resourceManager = new ResourceManager();
       var fileInfo = new FileInfo ("c:/this/is/a/test");
-      Assert.That (() => resourceManager.AddResource (fileInfo), Is.InstanceOf<ResourceHandle>());
-      Assert.That (
-          () => resourceManager.AddResource (fileInfo),
-          Throws.InvalidOperationException.With.Message.EqualTo (string.Format ("Resource at '{0}' already registered.", fileInfo.FullName)));
+      
+      var handle = resourceManager.AddResource (fileInfo);
+      var count = resourceManager.ResourceCount;
+
+      Assert.That (resourceManager.AddResource (fileInfo), Is.EqualTo (handle));
+      Assert.That (count, Is.EqualTo (resourceManager.ResourceCount));
     }
 
     [Test]
-    public void AddResource_AddADuplicateResourcePath_ShouldThrowInvalidOperation ()
+    public void AddResource_AddADuplicateResourcePath_ShouldReturnHandle ()
     {
       var resourceManager = new ResourceManager();
       var fileInfo = new FileInfo ("c:/this/is/a/test");
       var fileInfoDuplicate = new FileInfo ("c:/this/is/a/test");
 
-      Assert.That (() => resourceManager.AddResource (fileInfo), Is.InstanceOf<ResourceHandle>());
+      var handle = resourceManager.AddResource (fileInfo);
       var count = resourceManager.ResourceCount;
 
-      Assert.That (
-          () => resourceManager.AddResource (fileInfoDuplicate),
-          Throws.InvalidOperationException.
-              With.Message.EqualTo (string.Format ("Resource at '{0}' already registered.", fileInfoDuplicate.FullName)));
-
+      Assert.That (resourceManager.AddResource (fileInfoDuplicate), Is.EqualTo (handle));
       Assert.That (count, Is.EqualTo (resourceManager.ResourceCount));
     }
 
@@ -109,12 +108,11 @@ namespace DesktopGap.UnitTests
                           new FileInfo ("c:/this/is/yet/another/test"),
                       };
 
-      Assert.That (() => resourceManager.AddResources (resources), Is.InstanceOf<ResourceHandle[]>());
+      var handles = resourceManager.AddResources (resources);
       var count = resourceManager.ResourceCount;
 
       Assert.That (
-          () => resourceManager.AddResources (resources),
-          Throws.InvalidOperationException.With.Message.EndsWith ("already registered."));
+          resourceManager.AddResources (resources), Is.EquivalentTo (handles));
 
       Assert.That (count, Is.EqualTo (resourceManager.ResourceCount));
     }

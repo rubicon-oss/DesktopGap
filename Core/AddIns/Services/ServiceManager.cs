@@ -22,19 +22,21 @@ using System.Collections.Generic;
 
 namespace DesktopGap.AddIns.Services
 {
-  public class ServiceManager : AddInManagerBase<IServiceAddIn>, IServiceManager
+  public class ServiceManager : AddInManagerBase<ServiceAddInBase>, IServiceManager
   {
-    private readonly IDictionary<string, IServiceAddIn> _services =
-        new Dictionary<string, IServiceAddIn>();
-
+    private readonly IDictionary<string, ServiceAddInBase> _services =
+        new Dictionary<string, ServiceAddInBase>();
 
     public ServiceManager (
-        IList<IServiceAddIn> sharedAddIns, IList<IServiceAddIn> nonSharedAddIns, HtmlDocumentHandle documentHandle, HtmlDocumentHandle document)
+        HtmlDocumentHandle documentHandle,
+        IEnumerable<ServiceAddInBase> sharedAddIns,
+        IEnumerable<ServiceAddInBase> nonSharedAddIns)
         : base (sharedAddIns, nonSharedAddIns, documentHandle)
     {
       NonSharedAddInLoaded += (s, a) => RegisterService (a.AddIn);
       SharedAddInLoaded += (s, a) => RegisterService (a.AddIn);
     }
+
 
     protected override void Dispose (bool disposing)
     {
@@ -42,9 +44,9 @@ namespace DesktopGap.AddIns.Services
     }
 
 
-    public IServiceAddIn GetService (string serviceName)
+    public ServiceAddInBase GetService (string serviceName)
     {
-      IServiceAddIn service;
+      ServiceAddInBase service;
       if (!_services.TryGetValue (serviceName, out service))
         throw MissingRegistration (serviceName);
 
@@ -53,12 +55,12 @@ namespace DesktopGap.AddIns.Services
 
     public bool HasService (string name)
     {
-      IServiceAddIn s;
+      ServiceAddInBase s;
       return _services.TryGetValue (name, out s);
     }
 
 
-    private void RegisterService (IServiceAddIn service)
+    private void RegisterService (ServiceAddInBase service)
     {
       if (HasService (service.Name))
         throw DuplicateRegistration (service.Name);

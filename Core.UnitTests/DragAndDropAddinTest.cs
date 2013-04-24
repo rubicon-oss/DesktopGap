@@ -21,8 +21,8 @@ using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Windows.Forms;
+using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events.Arguments;
-using DesktopGap.AddIns.Events.System;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.Resources;
 using DesktopGap.WebBrowser;
@@ -54,7 +54,7 @@ namespace DesktopGap.UnitTests
     [SetUp]
     public void SetUp ()
     {
-      _dragAndDropAddIn = new DragAndDropAddIn (new ResourceManager());
+      _dragAndDropAddIn = new DragAndDropAddIn ();
 
       var attributesDictionary = new Dictionary<string, string>
                                  {

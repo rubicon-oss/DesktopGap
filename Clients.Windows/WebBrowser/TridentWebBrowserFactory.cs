@@ -18,39 +18,28 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition.Primitives;
 using DesktopGap.AddIns;
-using DesktopGap.AddIns.Events.Factory;
-using DesktopGap.AddIns.Services.Factory;
-using DesktopGap.Clients.Windows.WebBrowser.Scripting;
+using DesktopGap.AddIns.Events;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
-using DesktopGap.Resources;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.Factory;
 
 namespace DesktopGap.Clients.Windows.WebBrowser
 {
-  public class TridentWebBrowserFactory : WebBrowserFactoryBase
+  public class TridentWebBrowserFactory : IWebBrowserFactory
   {
-    private ApiFacade _apiFacade;
-
-    public TridentWebBrowserFactory (ComposablePartCatalog catalog, IResourceManager resourceManager)
-        : base (catalog, resourceManager)
+    public TridentWebBrowserFactory (IHtmlDocumentHandleRegistry htmlDocumentHandleRegistry)
     {
+      ArgumentUtility.CheckNotNull ("htmlDocumentHandleRegistry", htmlDocumentHandleRegistry);
+      
+      HtmlDocumentHandleRegistry = htmlDocumentHandleRegistry;
     }
 
-    protected override IExtendedWebBrowser CreateBrowser (
-        IServiceManagerFactory serviceManagerFactory, IEventDispatcherFactory eventDispatcherFactory, IAddInManager addInManager)
-    {
-      ArgumentUtility.CheckNotNull ("addInManager", addInManager);
-      ArgumentUtility.CheckNotNull ("serviceManagerFactory", serviceManagerFactory);
-      ArgumentUtility.CheckNotNull ("eventDispatcherFactory", eventDispatcherFactory);
-      
+    public IHtmlDocumentHandleRegistry HtmlDocumentHandleRegistry { get; private set; }
 
-      if (_apiFacade == null)
-        _apiFacade = new ApiFacade (serviceManagerFactory, eventDispatcherFactory, addInManager);
-      return new TridentWebBrowser (_apiFacade);
+    public IExtendedWebBrowser CreateBrowser ()
+    {
+      return new TridentWebBrowser (HtmlDocumentHandleRegistry, HtmlDocumentHandleRegistry as ISubscriptionHandler);
     }
   }
 }

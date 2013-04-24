@@ -23,32 +23,32 @@ using DesktopGap.Resources;
 
 namespace DesktopGap.UnitTests.Fakes
 {
-  public class FakeServiceAddIn : IServiceAddIn
+  public class FakeServiceAddIn : ServiceAddInBase
   {
     private const string c_fakeModuleName = "some service";
 
 
-    public void Dispose ()
+    public override void Dispose ()
     {
       IsLoaded = false;
     }
 
     public bool IsLoaded { get; private set; }
 
-    public IResourceManager ResourceManager { get; private set; }
+    public override IResourceManager ResourceManager { get; protected set; }
 
 
-    public string Name
+    public override string Name
     {
       get { return c_fakeModuleName; }
     }
 
-    public void OnBeforeLoad (HtmlDocumentHandle document)
+    public new void OnBeforeLoad (HtmlDocumentHandle document)
     {
       IsLoaded = true;
     }
 
-    public void OnBeforeUnload (HtmlDocumentHandle document)
+    public new void OnBeforeUnload (HtmlDocumentHandle document)
     {
       IsLoaded = false;
     }

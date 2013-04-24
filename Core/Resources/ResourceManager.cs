@@ -20,12 +20,14 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel.Composition;
 using System.IO;
 using System.Linq;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.Resources
 {
+  [PartCreationPolicy (CreationPolicy.Shared)]
   public class ResourceManager : IResourceManager
   {
     private readonly ConcurrentDictionary<ResourceHandle, FileSystemInfo> _resources = new ConcurrentDictionary<ResourceHandle, FileSystemInfo>();
@@ -71,12 +73,14 @@ namespace DesktopGap.Resources
     public ResourceHandle AddResource (FileSystemInfo path)
     {
       ArgumentUtility.CheckNotNull ("path", path);
-      if (_resources.Values.Any (r => r.FullName.Equals (path.FullName)))
-        throw new InvalidOperationException (string.Format ("Resource at '{0}' already registered.", path.FullName));
 
-      var handle = new ResourceHandle (Guid.NewGuid());
-      _resources[handle] = path;
-
+      var resource = _resources.FirstOrDefault (p => p.Value.FullName == path.FullName);
+      var handle = resource.Key;
+      if (handle == default (ResourceHandle))
+      {
+        handle = new ResourceHandle (Guid.NewGuid());
+        _resources[handle] = path;
+      }
       return handle;
     }
 

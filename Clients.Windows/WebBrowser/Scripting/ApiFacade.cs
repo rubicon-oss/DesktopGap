@@ -19,11 +19,8 @@
 // 
 using System;
 using System.Runtime.InteropServices;
-using System.Windows.Forms;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events.Arguments;
-using DesktopGap.AddIns.Events.Factory;
-using DesktopGap.AddIns.Services.Factory;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
@@ -39,31 +36,16 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
   //}
 
   [ComVisible (true)]
-  public class ApiFacade : IDisposable
+  public class ApiFacade
   {
-    private readonly IServiceManagerFactory _serviceManagerFactory;
-    private readonly IEventDispatcherFactory _eventDispatcherFactory;
-    private readonly IAddInManager _addInManager;
+    private readonly IHtmlDocumentHandleRegistry _addInProvider;
 
-    public const string GetDocumentIdentification = "dg_retrieveID";
-    public const string AddDocumentIdentification = "dg_assignID";
-
-
-    public ApiFacade (IServiceManagerFactory serviceManagerFactory, IEventDispatcherFactory eventDispatcherFactory, IAddInManager addInManager)
+    public ApiFacade (IHtmlDocumentHandleRegistry addInProvider)
     {
-      ArgumentUtility.CheckNotNull ("serviceManagerFactory", serviceManagerFactory);
-      ArgumentUtility.CheckNotNull ("eventDispatcherFactory", eventDispatcherFactory);
-      ArgumentUtility.CheckNotNull ("addInManager", addInManager);
-
-      _eventDispatcherFactory = eventDispatcherFactory;
-      _addInManager = addInManager;
-      _serviceManagerFactory = serviceManagerFactory;
+      ArgumentUtility.CheckNotNull ("addInProvider", addInProvider);
+      _addInProvider = addInProvider;
     }
 
-    public void Dispose ()
-    {
-      _addInManager.Dispose();
-    }
 
     //
     // Services
@@ -74,7 +56,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       ArgumentUtility.CheckNotNullOrEmpty ("serviceName", serviceName);
       ArgumentUtility.CheckNotNullOrEmpty ("guid", guid);
 
-      return _addInManager.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).GetService (serviceName);
+      return _addInProvider.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).GetService (serviceName);
     }
 
     public bool HasService (string guid, string name)
@@ -82,7 +64,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       ArgumentUtility.CheckNotNull ("name", name);
       ArgumentUtility.CheckNotNullOrEmpty ("guid", guid);
 
-      return _addInManager.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).HasService (name);
+      return _addInProvider.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).HasService (name);
     }
 
     //
@@ -110,7 +92,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
         }
       }
 
-      _addInManager.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).Register (
+      _addInProvider.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).Register (
           eventName, callbackName, moduleName, eventArgument);
     }
 
@@ -121,7 +103,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       ArgumentUtility.CheckNotNullOrEmpty ("documentID", documentID);
       ArgumentUtility.CheckNotNullOrEmpty ("callbackName", callbackName);
 
-      _addInManager.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).Unregister (eventName, callbackName, moduleName);
+      _addInProvider.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).Unregister (eventName, callbackName, moduleName);
     }
 
     public bool HasEvent (string documentID, string moduleName, string eventName)
@@ -130,69 +112,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
       ArgumentUtility.CheckNotNullOrEmpty ("documentID", documentID);
 
-      return _addInManager.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).HasEvent (moduleName, eventName);
-    }
-
-    [ComVisible (false)]
-    public HtmlDocumentHandle GetDocumentHandle (HtmlDocument document)
-    {
-      var id = document.InvokeScript (GetDocumentIdentification);
-      if (id == null)
-        throw new InvalidOperationException (string.Format ("The document '{0}' has not been identified yet.", document));
-      return new HtmlDocumentHandle (Guid.Parse (id.ToString()));
-    }
-
-    [ComVisible (false)]
-    public HtmlDocumentHandle AddDocument (HtmlDocument htmlDocument)
-    {
-      var guidObj = htmlDocument.InvokeScript (GetDocumentIdentification);
-
-      var docID = guidObj != null ? new HtmlDocumentHandle (Guid.Parse (guidObj.ToString())) : new HtmlDocumentHandle (Guid.NewGuid());
-      var hasDispatcher = _addInManager.HasEventDispatcher (docID);
-      var hasServiceManager = _addInManager.HasServiceManager (docID);
-      if (hasDispatcher && hasServiceManager)
-
-        return docID;
-
-      htmlDocument.InvokeScript (AddDocumentIdentification, new object[] { docID.ToString() });
-
-      if (!hasServiceManager)
-      {
-        var serviceManager = _serviceManagerFactory.CreateServiceManager (docID);
-        _addInManager.AddServiceManager (docID, serviceManager);
-      }
-
-      if (!hasDispatcher)
-      {
-        var eventDispatcher = _eventDispatcherFactory.CreateEventDispatcher (docID);
-
-        _addInManager.AddEventDispatcher (docID, eventDispatcher);
-        eventDispatcher.EventFired += (s, a) => htmlDocument.InvokeScript (a.Function, new object[] { a.Serialize() });
-      }
-
-      return docID;
-    }
-
-    [ComVisible (false)]
-    public void RemoveDocument (HtmlDocument htmlDocument)
-    {
-      var guidObj = htmlDocument.InvokeScript (GetDocumentIdentification);
-
-      if (guidObj == null)
-        return;
-
-      var guid = guidObj.ToString();
-      var docID = new HtmlDocumentHandle (Guid.Parse (guid));
-
-      _addInManager.RemoveServiceManager (docID);
-      _addInManager.RemoveEventDispatcher (docID);
-    }
-
-    [ComVisible (false)]
-    public void RemoveDocument (HtmlDocumentHandle handle)
-    {
-      _addInManager.RemoveServiceManager (handle);
-      _addInManager.RemoveEventDispatcher (handle);
+      return _addInProvider.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).HasEvent (moduleName, eventName);
     }
   }
 }
