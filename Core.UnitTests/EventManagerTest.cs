@@ -19,8 +19,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.ComponentModel.Composition.Hosting;
 using System.Dynamic;
 using System.Linq;
 using DesktopGap.AddIns.Events;
@@ -33,9 +31,9 @@ namespace DesktopGap.UnitTests
   [TestFixture]
   public class EventManagerTest
   {
-    private const string c_eventNotFoundFormatString = "Event '{0}' in module '{1}' was not found.";
+    private const string c_eventNotFoundFormatString = "Cannot find '{0}.{1}'.";
     private const string c_fakeEventID = "GUID identifying the event in JS";
-    
+
     private HtmlDocumentHandle? _consistentDocumentHandle;
 
 
@@ -50,7 +48,7 @@ namespace DesktopGap.UnitTests
       Assert.That (
           () => eventManager.Register (eventName, "some callback", moduleName, new Condition (CreateCondition())),
           Throws.InvalidOperationException.
-              With.Message.EqualTo (string.Format (c_eventNotFoundFormatString, eventName, moduleName)));
+              With.Message.EqualTo (string.Format (c_eventNotFoundFormatString, moduleName, eventName)));
     }
 
     [Test]
@@ -78,7 +76,7 @@ namespace DesktopGap.UnitTests
       Assert.That (
           () => eventManager.Unregister (eventName, "some callback", moduleName),
           Throws.InvalidOperationException.
-              With.Message.EqualTo (string.Format (c_eventNotFoundFormatString, eventName, moduleName)));
+              With.Message.EqualTo (string.Format (c_eventNotFoundFormatString, moduleName, eventName)));
     }
 
 
@@ -164,7 +162,7 @@ namespace DesktopGap.UnitTests
     {
       var eventAddIn = new FakeEventAddIn();
       var eventManager = CreateEventManager (new[] { eventAddIn });
-
+      eventManager.LoadAddIns();
       Assert.That (eventManager.HasEvent (eventAddIn.Name, eventAddIn.FakeEventName), Is.True);
       Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.True);
     }
@@ -173,11 +171,9 @@ namespace DesktopGap.UnitTests
     public void Constructor_AddEventDuplicate_ShouldThrowInvalidOperation ()
     {
       var eventAddIn = new FakeEventAddIn();
+      var eventManager = CreateEventManager (new[] { eventAddIn, eventAddIn });
 
-      var compositionException = Assert.Throws<CompositionException> (
-          () => CreateEventManager (new[] { eventAddIn, eventAddIn }));
-      Assert.That (
-          compositionException.RootCauses.First().InnerException, Is.InstanceOf<InvalidOperationException>());
+      Assert.That (() => eventManager.LoadAddIns(), Throws.InvalidOperationException);
     }
 
     [Test]
@@ -185,7 +181,7 @@ namespace DesktopGap.UnitTests
     {
       var eventAddIn = new FakeEventAddIn();
       var eventManager = CreateEventManager (new[] { eventAddIn });
-
+      eventManager.LoadAddIns();
       var wasCalled = false;
       eventManager.EventFired += (sender, args) =>
                                  {
@@ -204,7 +200,7 @@ namespace DesktopGap.UnitTests
     {
       var eventAddIn = new FakeEventAddIn();
       var eventManager = CreateEventManager (new[] { eventAddIn });
-
+      eventManager.LoadAddIns();
       Assert.That (eventManager.HasEvent (eventAddIn.Name, eventAddIn.FakeEventName), Is.True);
       Assert.That (eventAddIn.IsLoaded && eventAddIn.EventsRegistered, Is.True);
 
@@ -218,7 +214,7 @@ namespace DesktopGap.UnitTests
     {
       var eventAddIn = new FakeEventAddIn();
       var eventManager = CreateEventManager (new[] { eventAddIn });
-
+      eventManager.LoadAddIns();
       eventManager.EventFired += (sender, args) => { }; // will never be called
 
       eventManager.Register (eventAddIn.FakeEventName, "some callback", eventAddIn.Name, new Condition (CreateCondition()));
@@ -226,7 +222,7 @@ namespace DesktopGap.UnitTests
       Assert.That (
           () => eventAddIn.RaiseEvent(),
           Throws.InvalidOperationException
-              .With.Message.EqualTo (string.Format ("Event '{0}' in module '{1}' never registered.", eventAddIn.FakeEventName, eventAddIn.Name)));
+              .With.Message.EqualTo (string.Format ("Cannot find '{0}.{1}'.", eventAddIn.Name,  eventAddIn.FakeEventName)));
     }
 
 

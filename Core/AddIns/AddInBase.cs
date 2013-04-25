@@ -29,7 +29,7 @@ namespace DesktopGap.AddIns
     {
     }
 
-    public void OnBeforeUnload (HtmlDocumentHandle document)
+    public virtual void OnBeforeUnload (HtmlDocumentHandle document)
     {
     }
 

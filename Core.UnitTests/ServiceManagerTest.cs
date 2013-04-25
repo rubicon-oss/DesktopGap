@@ -19,7 +19,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
 using DesktopGap.AddIns.Services;
 using DesktopGap.UnitTests.Fakes;
@@ -59,10 +58,8 @@ namespace DesktopGap.UnitTests
     {
       var serviceAddIn = new FakeServiceAddIn();
 
-      var compositionException = Assert.Throws<CompositionException> (
-          () => CreateServiceManager (new[] { serviceAddIn, serviceAddIn }));
-      Assert.That (
-          compositionException.RootCauses.First().InnerException, Is.InstanceOf<InvalidOperationException>());
+      var serviceManager = CreateServiceManager (new[] { serviceAddIn, serviceAddIn });
+      Assert.That (() => serviceManager.LoadAddIns(), Throws.InvalidOperationException);
     }
 
     [Test]
@@ -71,7 +68,7 @@ namespace DesktopGap.UnitTests
       var serviceAddIn = new FakeServiceAddIn();
 
       var serviceManager = CreateServiceManager (new[] { serviceAddIn });
-
+      serviceManager.LoadAddIns();
       Assert.That (serviceManager, Is.Not.Null);
       Assert.That (serviceManager.HasService (serviceAddIn.Name), Is.True);
       Assert.That (serviceManager.GetService (serviceAddIn.Name), Is.SameAs (serviceAddIn));

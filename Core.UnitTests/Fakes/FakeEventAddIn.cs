@@ -47,12 +47,12 @@ namespace DesktopGap.UnitTests.Fakes
       get { return c_fakeModuleName; }
     }
 
-    public new void OnBeforeLoad (HtmlDocumentHandle document)
+    public override void OnBeforeLoad (HtmlDocumentHandle document)
     {
       IsLoaded = true;
     }
 
-    public new void OnBeforeUnload (HtmlDocumentHandle document)
+    public override void OnBeforeUnload (HtmlDocumentHandle document)
     {
       IsLoaded = false;
     }

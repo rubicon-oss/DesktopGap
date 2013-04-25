@@ -54,7 +54,7 @@ namespace DesktopGap.UnitTests
     [SetUp]
     public void SetUp ()
     {
-      _dragAndDropAddIn = new DragAndDropAddIn ();
+      _dragAndDropAddIn = new DragAndDropAddIn (new ResourceManager());
 
       var attributesDictionary = new Dictionary<string, string>
                                  {

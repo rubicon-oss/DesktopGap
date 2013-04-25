@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
@@ -56,6 +55,13 @@ namespace DesktopGap.AddIns
     private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _elementUnderCursor = new KeyValuePair<HtmlDocumentHandle, HtmlElementData>();
     private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _enterElement = new KeyValuePair<HtmlDocumentHandle, HtmlElementData>();
 
+    public DragAndDropAddIn (IResourceManager resourceManager)
+    {
+      ArgumentUtility.CheckNotNull ("resourceManager", resourceManager);
+      
+      ResourceManager = resourceManager;
+    }
+
     public override void Dispose ()
     {
       DragEnter = null;
@@ -64,13 +70,10 @@ namespace DesktopGap.AddIns
       DragOver = null;
     }
 
-
     public override string Name
     {
       get { return c_name; }
     }
-    
-    public override IResourceManager ResourceManager { get; protected set; }
 
     public override bool CheckRaiseCondition (Condition argument)
     {
