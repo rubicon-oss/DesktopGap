@@ -25,6 +25,9 @@ namespace DesktopGap.AddIns.Events.Arguments
 {
   public sealed class ScriptEventArgs : EventArgs
   {
+
+    public HtmlDocumentHandle DocumentHandle { get; set; }
+
     public string Function { get; set; }
 
     public JsonData ScriptArgs { get; set; }

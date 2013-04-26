@@ -71,6 +71,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="WebBrowser\ComTypes\Web\WindowOpenParameters.cs" />
+    <Compile Include="WebBrowser\Util\FrameIterator.cs" />
+    <Compile Include="WebBrowser\Util\DocumentIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="WebBrowser\UI\BrowserWindow.xaml.cs">

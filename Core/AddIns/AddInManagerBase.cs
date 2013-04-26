@@ -44,7 +44,7 @@ namespace DesktopGap.AddIns
     private readonly IEnumerable<TAddIn> _sharedAddIns;
     private readonly IEnumerable<TAddIn> _nonSharedAddIns;
 
-    private readonly HtmlDocumentHandle _documentHandle;
+    protected HtmlDocumentHandle DocumentHandle { get; private set; }
 
     protected event EventHandler<AddInLoadedEventArgs> NonSharedAddInLoaded;
     protected event EventHandler<AddInLoadedEventArgs> SharedAddInLoaded;
@@ -64,7 +64,7 @@ namespace DesktopGap.AddIns
 
       _sharedAddIns = sharedAddIns;
       _nonSharedAddIns = nonSharedAddIns;
-      _documentHandle = documentHandle;
+      DocumentHandle = documentHandle;
     }
 
     public void Dispose ()
@@ -80,12 +80,12 @@ namespace DesktopGap.AddIns
     {
       foreach (var addIn in _sharedAddIns)
       {
-        addIn.OnBeforeLoad (_documentHandle);
+        addIn.OnBeforeLoad (DocumentHandle);
         Notify (SharedAddInLoaded, new AddInLoadedEventArgs (addIn));
       }
       foreach (var addIn in _nonSharedAddIns)
       {
-        addIn.OnBeforeLoad (_documentHandle);
+        addIn.OnBeforeLoad (DocumentHandle);
         Notify (NonSharedAddInLoaded, new AddInLoadedEventArgs (addIn));
       }
     }
@@ -94,12 +94,12 @@ namespace DesktopGap.AddIns
     {
       foreach (var addIn in _sharedAddIns)
       {
-        addIn.OnBeforeUnload (_documentHandle);
+        addIn.OnBeforeUnload (DocumentHandle);
         Notify (SharedAddInUnloaded, new AddInLoadedEventArgs (addIn));
       }
       foreach (var addIn in _nonSharedAddIns)
       {
-        addIn.OnBeforeUnload (_documentHandle);
+        addIn.OnBeforeUnload (DocumentHandle);
         Notify (NonSharedAddInUnloaded, new AddInLoadedEventArgs (addIn));
 
         addIn.Dispose();

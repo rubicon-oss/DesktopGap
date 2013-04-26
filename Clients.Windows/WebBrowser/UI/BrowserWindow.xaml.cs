@@ -74,7 +74,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       var webBrowser = _browserFactory.CreateBrowser();
       IWebBrowserView view;
-      switch (eventArgs.TargetControl)
+      switch (eventArgs.BrowserWindowTarget)
       {
         case BrowserWindowTarget.PopUp:
           var newPopUp = CreatePopUp (webBrowser);

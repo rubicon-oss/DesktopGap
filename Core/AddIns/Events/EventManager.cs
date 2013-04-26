@@ -111,7 +111,7 @@ namespace DesktopGap.AddIns.Events
       var eventClients = GetClients (name);
 
       if (eventClients == null)
-        MissingRegistration(scriptEvent.Method.Name);
+        MissingRegistration (scriptEvent.Method.Name);
 
       _clients.Remove (name);
 
@@ -149,7 +149,7 @@ namespace DesktopGap.AddIns.Events
 
     private void FireEvent (EventAddInBase source, string eventName, JsonData args)
     {
-      if(EventFired == null)
+      if (EventFired == null)
         throw new InvalidOperationException ("Nothing registered to call back");
 
       var name = string.Join (c_moduleEventSeperator, source.Name, eventName);
@@ -161,7 +161,7 @@ namespace DesktopGap.AddIns.Events
       foreach (var callback in callbackNames.Where (c => source.CheckRaiseCondition (c.Value)))
       {
         args.EventID = callback.Value.EventID;
-        var eventArgs = new ScriptEventArgs { ScriptArgs = args, Function = callback.Key };
+        var eventArgs = new ScriptEventArgs { ScriptArgs = args, Function = callback.Key, DocumentHandle = DocumentHandle };
         EventFired (this, eventArgs);
       }
     }

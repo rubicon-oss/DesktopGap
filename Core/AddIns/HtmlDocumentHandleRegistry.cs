@@ -77,7 +77,7 @@ namespace DesktopGap.AddIns
     {
       ArgumentUtility.CheckNotNull ("scriptingHost", scriptingHost);
 
-      if (_eventDispatchers.ContainsKey (handle) || _serviceManagers.ContainsKey (handle))
+      if (HasDocumentHandle(handle))
         throw new InvalidOperationException (string.Format (c_documentAlreadyRegisteredFormatString, handle));
 
       var eventDispatcher = (IEventDispatcher) _eventManagerFactory.CreateManager (handle);
@@ -92,11 +92,8 @@ namespace DesktopGap.AddIns
 
     public void UnregisterDocumentHandle (HtmlDocumentHandle handle)
     {
-      IEventDispatcher eventDispatcher;
-      IServiceManager serviceManager;
-
-      if (!(_eventDispatchers.TryGetValue (handle, out eventDispatcher) && _serviceManagers.TryGetValue (handle, out serviceManager)))
-        throw new InvalidOperationException (string.Format (c_documentNotRegisteredFormatString, handle));
+      var eventDispatcher = GetEventDispatcher (handle);
+      var serviceManager = GetServiceManager (handle);
 
       _eventDispatchers.Remove (handle);
       _serviceManagers.Remove (handle);
@@ -107,7 +104,7 @@ namespace DesktopGap.AddIns
 
     public bool HasDocumentHandle (HtmlDocumentHandle handle)
     {
-      return HasEventDispatcher (handle) || HasServiceManager (handle);
+      return HasEventDispatcher (handle) && HasServiceManager (handle);
     }
 
 

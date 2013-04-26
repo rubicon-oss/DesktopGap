@@ -17,10 +17,11 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using DesktopGap.OleLibraryDependencies;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.AddIns.Events.Subscriptions
 {
   public interface IBrowserEventSubscriber : ISubscriber
   {

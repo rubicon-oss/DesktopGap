@@ -26,6 +26,6 @@ namespace DesktopGap.WebBrowser.StartOptions
   {
     Active,
     Modal,
-    InBackground
+    Background
   }
 }

@@ -46,9 +46,10 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="AddIns\AddInManagerBase.cs" />
-    <Compile Include="AddIns\Events\IBrowserEventSubscriber.cs" />
-    <Compile Include="AddIns\Events\ISubscriber.cs" />
+    <Compile Include="AddIns\Events\Subscriptions\IBrowserEventSubscriber.cs" />
+    <Compile Include="AddIns\Events\Subscriptions\ISubscriber.cs" />
     <Compile Include="AddIns\Events\ISubscriptionHandler.cs" />
+    <Compile Include="AddIns\Events\Subscriptions\IWindowEventSubscriber.cs" />
     <Compile Include="AddIns\Factories\CompositionBasedAddInFactory.cs" />
     <Compile Include="AddIns\Factories\EventManagerFactory.cs" />
     <Compile Include="AddIns\Events\Arguments\DragEventData.cs" />

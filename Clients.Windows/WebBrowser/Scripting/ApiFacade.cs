@@ -25,25 +25,17 @@ using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
 {
-  //// primitive object for testing parameter passing to js
-  //[PermissionSet(SecurityAction.Demand, Name = "FullTrust")]
-  //  [ComVisible(true)]
-  //  public class A
-  //{
-  //  public int i = 0;
-  //  public string[] Names = { "hello", "world", "!" };
-  //  public string name = "COMOBJECT!";
-  //}
 
   [ComVisible (true)]
   public class ApiFacade
   {
-    private readonly IHtmlDocumentHandleRegistry _addInProvider;
+    public readonly IHtmlDocumentHandleRegistry _htmlDocumentHandleRegistry;
 
-    public ApiFacade (IHtmlDocumentHandleRegistry addInProvider)
+    public ApiFacade (IHtmlDocumentHandleRegistry htmlDocumentHandleRegistry)
     {
-      ArgumentUtility.CheckNotNull ("addInProvider", addInProvider);
-      _addInProvider = addInProvider;
+      ArgumentUtility.CheckNotNull ("htmlDocumentHandleRegistry", htmlDocumentHandleRegistry);
+
+      _htmlDocumentHandleRegistry = htmlDocumentHandleRegistry;
     }
 
 
@@ -56,7 +48,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       ArgumentUtility.CheckNotNullOrEmpty ("serviceName", serviceName);
       ArgumentUtility.CheckNotNullOrEmpty ("guid", guid);
 
-      return _addInProvider.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).GetService (serviceName);
+      return _htmlDocumentHandleRegistry.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).GetService (serviceName);
     }
 
     public bool HasService (string guid, string name)
@@ -64,7 +56,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       ArgumentUtility.CheckNotNull ("name", name);
       ArgumentUtility.CheckNotNullOrEmpty ("guid", guid);
 
-      return _addInProvider.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).HasService (name);
+      return _htmlDocumentHandleRegistry.GetServiceManager (new HtmlDocumentHandle (Guid.Parse (guid))).HasService (name);
     }
 
     //
@@ -92,8 +84,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
         }
       }
 
-      _addInProvider.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).Register (
-          eventName, callbackName, moduleName, eventArgument);
+      var eventDispatcher = _htmlDocumentHandleRegistry.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID)));
+      eventDispatcher.Register (eventName, callbackName, moduleName, eventArgument);
     }
 
     public void RemoveEventListener (string documentID, string eventName, string callbackName, string moduleName)
@@ -103,7 +95,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       ArgumentUtility.CheckNotNullOrEmpty ("documentID", documentID);
       ArgumentUtility.CheckNotNullOrEmpty ("callbackName", callbackName);
 
-      _addInProvider.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).Unregister (eventName, callbackName, moduleName);
+      _htmlDocumentHandleRegistry.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).Unregister (
+          eventName, callbackName, moduleName);
     }
 
     public bool HasEvent (string documentID, string moduleName, string eventName)
@@ -112,7 +105,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
       ArgumentUtility.CheckNotNullOrEmpty ("eventName", eventName);
       ArgumentUtility.CheckNotNullOrEmpty ("documentID", documentID);
 
-      return _addInProvider.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).HasEvent (moduleName, eventName);
+      return _htmlDocumentHandleRegistry.GetEventDispatcher (new HtmlDocumentHandle (Guid.Parse (documentID))).HasEvent (moduleName, eventName);
     }
   }
 }
+

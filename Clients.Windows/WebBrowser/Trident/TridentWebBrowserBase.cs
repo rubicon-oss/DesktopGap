@@ -23,7 +23,6 @@ using System.Windows.Forms;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.UIHandler;
 using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Utilities;
-using DesktopGap.WebBrowser.StartOptions;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
@@ -43,8 +42,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     protected bool _enableWebBrowserContextMenu = false;
 
     protected bool _enableWebBrowserShortcuts = false;
-
-    protected BrowserWindowStartMode _startMode;
 
 
     /// <summary>
@@ -97,7 +94,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     {
       //var wrapper = WebBrowserWrapper.CreateInstance (
       //    (IWebBrowser2) nativeActiveXObject, nativeActiveXObject.GetType());
-//      _axIWebBrowser2 = wrapper as IWebBrowser2;
+      //      _axIWebBrowser2 = wrapper as IWebBrowser2;
       _axIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
 
       base.AttachInterfaces (_axIWebBrowser2);

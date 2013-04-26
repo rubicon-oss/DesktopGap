@@ -25,63 +25,30 @@ using System.Windows.Forms;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
+using DesktopGap.AddIns.Events.Subscriptions;
 using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
+using DesktopGap.Clients.Windows.WebBrowser.Util;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Arguments;
+using DesktopGap.WebBrowser.StartOptions;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   public class TridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IScriptingHost
   {
-    private class DocumentIdentifier
+    private class WindowPreparations
     {
-      private const string c_getDocumentIdentification = "dg_retrieveID";
-      private const string c_addDocumentIdentification = "dg_assignID";
+      public BrowserWindowTarget Type { get; set; }
 
-      public static HtmlDocumentHandle GetOrCreateDocumentHandle (HtmlDocument htmlDocument)
-      {
-        var guidObj = htmlDocument.InvokeScript (c_getDocumentIdentification);
-
-        var docID = guidObj != null ? new HtmlDocumentHandle (Guid.Parse (guidObj.ToString())) : new HtmlDocumentHandle (Guid.NewGuid());
-
-        htmlDocument.InvokeScript (c_addDocumentIdentification, new object[] { docID.ToString() });
-
-
-        return docID;
-      }
+      public BrowserWindowStartMode StartMode { get; set; }
+      public string TargetName { get; set; }
     }
 
-    private class FrameIterator
-    {
-      private readonly HtmlDocument _htmlDocument;
-
-      public FrameIterator (HtmlDocument htmlDocument)
-      {
-        ArgumentUtility.CheckNotNull ("htmlDocument", htmlDocument);
-
-        _htmlDocument = htmlDocument;
-      }
-
-      private IEnumerable<HtmlWindow> WalkFrame (HtmlWindow frame)
-      {
-        if (frame == null) //|| frame.Url == null || frame.Url.AbsoluteUri == c_blankSite)
-          yield break;
-
-        yield return frame;
-
-        if (frame.Frames != null)
-          foreach (var subframe in frame.Frames.Cast<HtmlWindow>().SelectMany (WalkFrame))
-            yield return subframe;
-      }
-
-      public IEnumerable<HtmlWindow> GetFrames ()
-      {
-        return WalkFrame (_htmlDocument.Window);
-      }
-    }
+    private const BrowserWindowStartMode c_defaultStartMode = BrowserWindowStartMode.Active;
+    private const BrowserWindowTarget c_defaultWindowTarget = BrowserWindowTarget.Tab;
 
     private const DragDropEffects c_defaulEffect = DragDropEffects.Move;
     private const string c_blankSite = "about:blank";
@@ -104,11 +71,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public event EventHandler<int> WindowSetTop;
     public event EventHandler<int> WindowSetWidth;
 
-    private ISet<HtmlDocumentHandle> _activeHandles;
+    private IDictionary<HtmlDocumentHandle, HtmlDocument> _currentDocuments = new Dictionary<HtmlDocumentHandle, HtmlDocument>();
 
     private readonly IHtmlDocumentHandleRegistry _documentHandleRegistry;
     private readonly ISubscriptionHandler _subscriptionHandler;
 
+    private WindowPreparations _windowPreparations = null;
 
     public TridentWebBrowser (
         IHtmlDocumentHandleRegistry documentHandleRegistry, ISubscriptionHandler subscriptionHandler)
@@ -123,12 +91,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _documentHandleRegistry = documentHandleRegistry;
       _subscriptionHandler = subscriptionHandler;
 
-      BrowserMode = TridentWebBrowserMode.Edge;
+      BrowserMode = TridentWebBrowserMode.ForcedIE10;
       InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
 
       DocumentCompleted += TridentWebBrowser_DocumentCompleted;
     }
-
 
     protected override void Dispose (bool disposing)
     {
@@ -150,9 +117,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       WindowSetTop = null;
       WindowSetWidth = null;
 
-      if (_activeHandles != null)
-        _activeHandles.Clear();
-      _activeHandles = null;
+      if (_currentDocuments != null)
+        _currentDocuments.Clear();
+      _currentDocuments = null;
 
       base.Dispose (disposing);
     }
@@ -212,8 +179,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       ArgumentUtility.CheckNotNull ("eventArgs", eventArgs);
 
+       if(_windowPreparations != null)
+         eventArgs.BrowserWindowTarget = _windowPreparations.Type;
+
       if (WindowOpen != null)
         WindowOpen (this, eventArgs);
+
     }
 
     public void OnBeforeNavigate (NavigationEventArgs navigationEventArgs)
@@ -223,10 +194,20 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (navigationEventArgs.URL == c_blankSite)
         return;
 
-      _startMode = navigationEventArgs.StartMode;
-
       if (BeforeNavigate != null)
         BeforeNavigate (this, navigationEventArgs);
+
+      if (navigationEventArgs.Handled)
+      {
+        _windowPreparations = new WindowPreparations
+                              {
+                                  StartMode = navigationEventArgs.StartMode,
+                                  Type = navigationEventArgs.BrowserWindowTarget,
+                                  TargetName = navigationEventArgs.TargetName
+                              };
+      }
+      else
+        _windowPreparations = null;
     }
 
     //
@@ -237,8 +218,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       var element = ElementAt (e.X, e.Y);
 
-      e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
-      e.Document = DocumentIdentifier.GetOrCreateDocumentHandle (element.Document);
+      var document = element != null ? element.Document : Document;
+
+      if (element != null)
+        e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
+
+      e.Document = DocumentIdentifier.GetOrCreateDocumentHandle (document);
       e.Effect = DragDropEffects.None;
 
       if (DragEnter != null)
@@ -254,10 +239,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     public void OnDragDrop (ExtendedDragEventHandlerArgs e)
     {
-      e.Effect = DragDropEffects.None;
       var element = ElementAt (e.X, e.Y);
-      e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
-      e.Document = DocumentIdentifier.GetOrCreateDocumentHandle (element.Document);
+      var document = element != null ? element.Document : Document;
+
+      if (element != null)
+        e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
+
+      e.Document = DocumentIdentifier.GetOrCreateDocumentHandle (document);
+      e.Effect = DragDropEffects.None;
+
       if (DragDrop != null)
         DragDrop (this, e);
 
@@ -278,8 +268,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public void OnDragOver (ExtendedDragEventHandlerArgs e)
     {
       var element = ElementAt (e.X, e.Y);
-      e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
-      e.Document = DocumentIdentifier.GetOrCreateDocumentHandle (element.Document);
+      var document = element != null ? element.Document : Document;
+
+      if (element != null)
+        e.Current = new HtmlElementData (element.Id, GetRelevantAttributes (element));
+
+      e.Document = DocumentIdentifier.GetOrCreateDocumentHandle (document);
       e.Effect = DragDropEffects.None;
 
       if (DragOver != null)
@@ -314,6 +308,16 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
+    public void OnExecute (object sender, ScriptEventArgs args)
+    {
+      ArgumentUtility.CheckNotNull ("args", args);
+      ArgumentUtility.CheckNotNull ("sender", sender);
+
+
+      HtmlDocument document;
+      if (_currentDocuments.TryGetValue (args.DocumentHandle, out document))
+        document.InvokeScript (args.Function, new object[] { args.Serialize() });
+    }
 
     //
     // OTHER METHODS & EVENTS
@@ -324,23 +328,56 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (Document == null)
         return null;
 
-      var locationOnScreen = PointToScreen (Location);
-      return Document.GetElementFromPoint (new Point (x - locationOnScreen.X, y - locationOnScreen.Y));
+      HtmlWindow previous = null;
+      HtmlElement element = null;
+      foreach (var frame in new FrameIterator (Document).GetFrames().TakeWhile (frame => frame.Position.X <= x && frame.Position.Y <= y))
+      {
+        previous = frame;
+      }
+      if (previous != null && previous.Document != null)
+      {
+        var point = new Point (x - previous.Position.X, y - previous.Position.Y);
+        element = previous.Document.GetElementFromPoint (point);
+      }
+      return element;
     }
 
     private void AddSubscribedAddIns (ISubscriptionHandler subscriptionHandler, HtmlDocumentHandle handle)
     {
-      foreach (var subscriber in subscriptionHandler.GetSubscribers<IBrowserEventSubscriber> (handle))
+      foreach (var subscriber in subscriptionHandler.GetSubscribers<ISubscriber> (handle))
       {
         //Unsubscribe (subscriber);
-        Subscribe (subscriber);
+        if (subscriber is IBrowserEventSubscriber)
+          Subscribe (subscriber as IBrowserEventSubscriber);
+        else if (subscriber is IWindowEventSubscriber)
+          Subscribe (subscriber as IWindowEventSubscriber);
       }
+    }
+
+    private void AddDocument (HtmlDocumentHandle handle, HtmlDocument document)
+    {
+      _documentHandleRegistry.RegisterDocumentHandle (handle, this);
+      AddSubscribedAddIns (_subscriptionHandler, handle);
+      _currentDocuments[handle] = document;
     }
 
     private void RemoveSubscribedAddIns (ISubscriptionHandler subscriptionHandler, HtmlDocumentHandle handle)
     {
-      foreach (var subscriber in subscriptionHandler.GetSubscribers<IBrowserEventSubscriber> (handle))
-        Unsubscribe (subscriber);
+      foreach (var subscriber in subscriptionHandler.GetSubscribers<ISubscriber> (handle))
+      {
+        //Unsubscribe (subscriber);
+        if (subscriber.GetType().IsAssignableFrom (typeof (IBrowserEventSubscriber)))
+          Unsubscribe (subscriber as IBrowserEventSubscriber);
+        else if (subscriber.GetType().IsAssignableFrom (typeof (IWindowEventSubscriber)))
+          Unsubscribe (subscriber as IWindowEventSubscriber);
+      }
+    }
+
+    private void RemoveDocument (HtmlDocumentHandle handle)
+    {
+      _currentDocuments.Remove (handle);
+      RemoveSubscribedAddIns (_subscriptionHandler, handle);
+      _documentHandleRegistry.UnregisterDocumentHandle (handle);
     }
 
     private void Subscribe (IBrowserEventSubscriber subscriber)
@@ -351,6 +388,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       DragLeave += subscriber.OnDragLeave;
     }
 
+    private void Subscribe (IWindowEventSubscriber subscriber)
+    {
+      BeforeNavigate += subscriber.OnBeforeNavigate;
+    }
+
     private void Unsubscribe (IBrowserEventSubscriber subscriber)
     {
       DragEnter -= subscriber.OnDragEnter;
@@ -359,50 +401,55 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       DragLeave -= subscriber.OnDragLeave;
     }
 
+    private void Unsubscribe (IWindowEventSubscriber subscriber)
+    {
+      BeforeNavigate -= subscriber.OnBeforeNavigate;
+    }
+
     private void TridentWebBrowser_DocumentCompleted (object sender, WebBrowserDocumentCompletedEventArgs e)
     {
-      if (e.Url.AbsolutePath != Url.AbsolutePath)
-        return;
-
-      if (PageLoadFinished != null)
-        PageLoadFinished (this, this);
-
-      if (AfterNavigate != null)
-        AfterNavigate (this, new NavigationEventArgs (_startMode, false, Url.AbsolutePath, ""));
-
       if (ObjectForScripting == null || Document == null || Document.Window == null)
         return;
 
-      var handles = new HashSet<HtmlDocumentHandle>();
+      var activeHandles = new List<HtmlDocumentHandle>();
       foreach (var frame in new FrameIterator (Document).GetFrames())
       {
         try
         {
           var handle = DocumentIdentifier.GetOrCreateDocumentHandle (frame.Document);
-          handles.Add (handle);
+          activeHandles.Add (handle);
 
-          if (!_documentHandleRegistry.HasDocumentHandle (handle))
-          {
-            _documentHandleRegistry.RegisterDocumentHandle (handle, this);
-            AddSubscribedAddIns (_subscriptionHandler, handle);
-          }
+          if (!_currentDocuments.ContainsKey (handle))
+            AddDocument (handle, frame.Document);
         }
         catch (UnauthorizedAccessException)
         {
           // pass
         }
       }
+      var inactiveHandles = _currentDocuments.Keys.Where (handle => !activeHandles.Contains (handle)).ToList();
+      foreach (var handle in inactiveHandles)
+        RemoveDocument (handle);
 
 
-      if (_activeHandles != null)
-        foreach (var handle in _activeHandles.Except (handles))
+      if (e.Url.AbsolutePath == Url.AbsolutePath)
+      {
+        var startMode = c_defaultStartMode;
+        var windowTarget = c_defaultWindowTarget;
+        var targetName = String.Empty;
+        if (_windowPreparations != null)
         {
-          RemoveSubscribedAddIns (_subscriptionHandler, handle);
-
-          _documentHandleRegistry.UnregisterDocumentHandle (handle);
+          startMode = _windowPreparations.StartMode;
+          windowTarget = _windowPreparations.Type;
+          targetName = _windowPreparations.TargetName;
         }
-      _activeHandles = handles;
+        if (AfterNavigate != null)
+          AfterNavigate (this, new NavigationEventArgs (startMode, false, e.Url.AbsolutePath, targetName, windowTarget));
+        if(PageLoadFinished != null)
+          PageLoadFinished (this, this);
+      }
     }
+
 
     private IDictionary<string, string> GetRelevantAttributes (HtmlElement element)
     {
@@ -411,15 +458,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         dict.Add (attributeName, element.GetAttribute (attributeName));
 
       return dict;
-    }
-
-    public void OnExecute (object sender, ScriptEventArgs args)
-    {
-      ArgumentUtility.CheckNotNull ("args", args);
-      ArgumentUtility.CheckNotNull ("sender", sender);
-
-      if (Document != null)
-        Document.InvokeScript (args.Function, new object[] { args.Serialize() });
     }
   }
 

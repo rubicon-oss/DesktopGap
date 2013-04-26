@@ -26,7 +26,7 @@ namespace DesktopGap.WebBrowser.Arguments
 {
   public class WindowOpenEventArgs
   {
-    public BrowserWindowTarget TargetControl { get; private set; }
+    public BrowserWindowTarget BrowserWindowTarget { get; set; }
 
     public bool Cancel { get; set; }
 
@@ -47,7 +47,7 @@ namespace DesktopGap.WebBrowser.Arguments
     {
       Cancel = cancel;
       URL = targetURL;
-      TargetControl = targetControl;
+      BrowserWindowTarget = targetControl;
     }
   }
 }
