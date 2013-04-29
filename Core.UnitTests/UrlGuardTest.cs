@@ -1,5 +1,4 @@
-using DesktopGap.WebBrowser.Arguments;
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -19,11 +18,22 @@ using DesktopGap.WebBrowser.Arguments;
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+using DesktopGap.Security;
+using NUnit.Framework;
 
-namespace DesktopGap.AddIns.Events.Subscriptions
+namespace DesktopGap.UnitTests
 {
-  public interface IWindowEventSubscriber : ISubscriber
+  [TestFixture]
+  public class UrlGuardTest
   {
-    void OnPrepareNavigation (object sender, NavigationEventArgs args);
+    [Test]
+    public void IsAllowed_AskForProhibitedUrl_ShouldReturnFalse ()
+    {
+      var urlGuard = new UrlGuard();
+      urlGuard.AddRule (new Regex (@"\w+.*"), false);
+      Assert.That (urlGuard.IsAllowed ("not/allowed.html"), Is.False);
+    }
   }
 }

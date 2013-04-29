@@ -22,7 +22,6 @@ using System.Windows.Controls;
 using DesktopGap.Clients.Windows.Components;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
 using DesktopGap.WebBrowser.View;
 
@@ -33,9 +32,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   /// </summary>
   public sealed class BrowserTab : TabItem, IWebBrowserView
   {
-    public event EventHandler TabClosing;
     private readonly WebBrowserHost _browserHost;
-
+    public event EventHandler<EventArgs> TabClosing;
 
     private readonly bool _isCloseable;
 
@@ -64,13 +62,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       get { return _browserHost.WebBrowser; }
     }
 
-    public void OnBeforeNavigate (object parent, NavigationEventArgs args)
+    public void Show (BrowserWindowStartMode startMode)
     {
-      ArgumentUtility.CheckNotNull ("args", args);
-      ArgumentUtility.CheckNotNull ("parent", parent);
+      switch (startMode)
+      {
+        case BrowserWindowStartMode.Active:
+          Focus();
+          break;
 
-      if (args.StartMode == BrowserWindowStartMode.Active)
-        Focus();
+        case BrowserWindowStartMode.Background:
+        case BrowserWindowStartMode.Modal:
+        default:
+          break;
+      }
     }
 
     private void OnTabFocussed (object sender, EventArgs e)
@@ -87,11 +91,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnTabClose (object sender, EventArgs e)
     {
-      if (TabClosing != null)
-      {
-        TabClosing (this, e);
-        CleanUp();
-      }
+      if (TabClosing == null)
+        return;
+
+      TabClosing (this, e);
+
+      ((TabControl) Parent).Items.Remove (this);
+      CleanUp();
     }
 
     private void CleanUp ()

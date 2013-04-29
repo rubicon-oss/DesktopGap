@@ -60,6 +60,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public event EventHandler<NavigationEventArgs> AfterNavigate;
     public event EventHandler<WindowOpenEventArgs> WindowOpen;
     public event EventHandler<NavigationEventArgs> BeforeNavigate;
+    public event EventHandler<NavigationEventArgs> PrepareNavigation;
 
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     public new event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
@@ -179,23 +180,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       ArgumentUtility.CheckNotNull ("eventArgs", eventArgs);
 
-       if(_windowPreparations != null)
-         eventArgs.BrowserWindowTarget = _windowPreparations.Type;
+      if (_windowPreparations != null)
+        eventArgs.BrowserWindowTarget = _windowPreparations.Type;
 
       if (WindowOpen != null)
         WindowOpen (this, eventArgs);
-
     }
 
     public void OnBeforeNavigate (NavigationEventArgs navigationEventArgs)
     {
       ArgumentUtility.CheckNotNull ("navigationEventArgs", navigationEventArgs);
 
-      if (navigationEventArgs.URL == c_blankSite)
-        return;
-
-      if (BeforeNavigate != null)
-        BeforeNavigate (this, navigationEventArgs);
+      if (PrepareNavigation != null)
+        PrepareNavigation (this, navigationEventArgs);
 
       if (navigationEventArgs.Handled)
       {
@@ -206,9 +203,17 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
                                   TargetName = navigationEventArgs.TargetName
                               };
       }
-      else
-        _windowPreparations = null;
+
+      if (navigationEventArgs.URL == c_blankSite)
+        return;
+
+
+      if (BeforeNavigate != null)
+        BeforeNavigate (this, navigationEventArgs);
+
+      _windowPreparations = null;
     }
+
 
     //
     // INTERACTION EVENTS
@@ -331,9 +336,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       HtmlWindow previous = null;
       HtmlElement element = null;
       foreach (var frame in new FrameIterator (Document).GetFrames().TakeWhile (frame => frame.Position.X <= x && frame.Position.Y <= y))
-      {
         previous = frame;
-      }
+      
       if (previous != null && previous.Document != null)
       {
         var point = new Point (x - previous.Position.X, y - previous.Position.Y);
@@ -390,7 +394,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void Subscribe (IWindowEventSubscriber subscriber)
     {
-      BeforeNavigate += subscriber.OnBeforeNavigate;
+      PrepareNavigation += subscriber.OnPrepareNavigation;
     }
 
     private void Unsubscribe (IBrowserEventSubscriber subscriber)
@@ -403,7 +407,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void Unsubscribe (IWindowEventSubscriber subscriber)
     {
-      BeforeNavigate -= subscriber.OnBeforeNavigate;
+      PrepareNavigation -= subscriber.OnPrepareNavigation;
     }
 
     private void TridentWebBrowser_DocumentCompleted (object sender, WebBrowserDocumentCompletedEventArgs e)
@@ -445,7 +449,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         }
         if (AfterNavigate != null)
           AfterNavigate (this, new NavigationEventArgs (startMode, false, e.Url.AbsolutePath, targetName, windowTarget));
-        if(PageLoadFinished != null)
+
+        if (PageLoadFinished != null)
           PageLoadFinished (this, this);
       }
     }

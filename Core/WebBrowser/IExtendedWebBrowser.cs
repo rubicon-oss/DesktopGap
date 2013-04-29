@@ -28,10 +28,11 @@ namespace DesktopGap.WebBrowser
     string Title { get; }
     string Name { get; }
 
-    event EventHandler GotFocus; 
-    event EventHandler<NavigationEventArgs> AfterNavigate; 
+    event EventHandler GotFocus;
+    event EventHandler<NavigationEventArgs> AfterNavigate;
     event EventHandler<WindowOpenEventArgs> WindowOpen;
-    event EventHandler<NavigationEventArgs> BeforeNavigate; 
+    event EventHandler<NavigationEventArgs> BeforeNavigate;
+    event EventHandler<NavigationEventArgs> PrepareNavigation;
 
     event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;
@@ -40,5 +41,6 @@ namespace DesktopGap.WebBrowser
     event EventHandler DragLeave;
 
     void Navigate (string to);
+    void Navigate (string to, string target);
   }
 }

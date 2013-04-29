@@ -25,9 +25,6 @@ namespace DesktopGap.WebBrowser.View
   public interface IWebBrowserWindow : IDisposable
   {
     ISession CurrentSession { get; }
-
-    void NewPopUp (string url);
-
     void NewTab (string url);
   }
 }

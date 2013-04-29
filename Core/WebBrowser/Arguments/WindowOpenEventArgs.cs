@@ -30,9 +30,9 @@ namespace DesktopGap.WebBrowser.Arguments
 
     public bool Cancel { get; set; }
 
-    public IWebBrowserView TargetView { get; set; }
+    public IExtendedWebBrowser TargetView { get; set; }
 
-    public string URL { get; private set; }
+    public string Url { get; private set; }
 
     /// <summary>
     /// C'tor for the WindowOpen event arguments.
@@ -46,7 +46,7 @@ namespace DesktopGap.WebBrowser.Arguments
         string targetURL)
     {
       Cancel = cancel;
-      URL = targetURL;
+      Url = targetURL;
       BrowserWindowTarget = targetControl;
     }
   }

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:element name="desktopgap">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="startup" minOccurs="1" maxOccurs="1" type="UrlAllowDenyType"/>
+				<xs:element name="urls" minOccurs="1" maxOccurs="1" type="UrlAllowDenyType"/>
+				<xs:element name="addins" minOccurs="1" maxOccurs="1" type="NameAllowDenyType"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+	<xs:complexType name="NameAllowDenyType">
+		<xs:sequence>
+			<xs:element name="allow" minOccurs="1" maxOccurs="1" type="NamesType"/>
+			<xs:element name="deny" minOccurs="1" maxOccurs="1" type="NamesType"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="NamesType">
+		<xs:sequence>
+			<xs:element name="addin">
+				<xs:complexType>
+					<xs:attribute name="name" type="xs:string" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="UrlAllowDenyType">
+		<xs:sequence>
+			<xs:element name="allow" minOccurs="1" maxOccurs="1" type="UrlsType"/>
+			<xs:element name="deny" minOccurs="1" maxOccurs="1" type="UrlsType"/>
+		</xs:sequence>
+	</xs:complexType>
+
+
+	<xs:complexType name="UrlsType">
+		<xs:sequence>
+			<xs:element name="url">
+				<xs:complexType>
+					<xs:attribute name="domain" type="xs:string" />
+					<xs:attribute name="path" type="xs:string" />
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

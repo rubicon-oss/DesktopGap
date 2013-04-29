@@ -20,7 +20,6 @@
 using System;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
 using DesktopGap.WebBrowser.View;
 
@@ -33,16 +32,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   {
     private readonly WebBrowserHost _browserHost;
 
+
     public PopUpWindow (WebBrowserHost browserHost)
     {
       ArgumentUtility.CheckNotNull ("browserHost", browserHost);
 
-      _browserHost = browserHost;
       InitializeComponent();
+
+      _browserHost = browserHost;
       Content = _browserHost;
-
-
-      //_browserHost.WebBrowser.
 
       _browserHost.WebBrowser.WindowSetWidth += (s, w) => Width = w;
       _browserHost.WebBrowser.WindowSetHeight += (s, h) => Height = h;
@@ -56,23 +54,21 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserHost.Dispose();
     }
 
+
     public IExtendedWebBrowser WebBrowser
     {
       get { return _browserHost.WebBrowser; }
     }
 
-    public void OnBeforeNavigate (object parent, NavigationEventArgs args)
+    public void Show (BrowserWindowStartMode startMode)
     {
-      ArgumentUtility.CheckNotNull ("args", args);
-      ArgumentUtility.CheckNotNull ("parent", parent);
-
-
-      switch (args.StartMode)
+      switch (startMode)
       {
-        case BrowserWindowStartMode.Modal:
-          ShowDialog();
+        case BrowserWindowStartMode.Modal: // TODO: make non-blocking
+          WebBrowser.AfterNavigate += (s, a) => ShowDialog();
           break;
-
+        case BrowserWindowStartMode.Background:
+        case BrowserWindowStartMode.Active:
         default:
           Show();
           break;

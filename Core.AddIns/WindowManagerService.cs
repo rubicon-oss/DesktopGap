@@ -51,11 +51,12 @@ namespace DesktopGap.AddIns
     {
     }
 
-    public void PrepareNewWindow (string url, string target, string type, string option)
+    public string PrepareNewWindow (string url, string type, string option)
     {
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNull ("url", url);
-      ArgumentUtility.CheckNotNull ("target", target);
+
+      var id = "_" + Guid.NewGuid().ToString();
 
       BrowserWindowTarget parsedType;
       if (!BrowserWindowTarget.TryParse (type, true, out parsedType))
@@ -65,17 +66,21 @@ namespace DesktopGap.AddIns
       if (!BrowserWindowStartMode.TryParse (option, true, out startMode))
         startMode = BrowserWindowStartMode.Active;
 
-      _registeredPreparations[target] = new WindowPreparations { Type = parsedType, URL = url, StartMode = startMode };
+      _registeredPreparations[id] = new WindowPreparations { Type = parsedType, URL = url, StartMode = startMode };
+      return id;
     }
 
     public void OpenTab (string url, string arguments)
     {
     }
 
-    public void OnBeforeNavigate (object sender, NavigationEventArgs args)
+    public void OnPrepareNavigation (object sender, NavigationEventArgs args)
     {
       ArgumentUtility.CheckNotNull ("args", args);
       ArgumentUtility.CheckNotNull ("sender", sender);
+
+      if(args.URL == "about:blank")
+        return;
 
       WindowPreparations preparations;
       var isRegistered = _registeredPreparations.TryGetValue (args.TargetName, out preparations);

@@ -18,10 +18,8 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
-using DesktopGap.Utilities;
 using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
 
@@ -32,7 +30,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser
   /// </summary>
   public class DesktopGapWebBrowserEvents : WebBrowserEventsBase
   {
-
     /// <summary>
     /// The corresponding WebBrowser control
     /// </summary>
@@ -88,40 +85,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
     public override void NewWindow3 (ref object ppDisp, ref bool Cancel, uint dwFlags, string bstrUrlContext, string bstrUrl)
     {
-      var targetControl = BrowserWindowTarget.PopUp;
-      //switch ((WindowOpenParameters) dwFlags)
-      //{
-      //    // DO NOTHING ON THESE FLAGS (= open in a tab)
-      //    //case WindowOpenParameters.None:
-      //    //case WindowOpenParameters.Unloading:
-      //    //case WindowOpenParameters.UserInitiated:
-      //    //case WindowOpenParameters.First:
-      //    //case WindowOpenParameters.OverrideKey:
-      //    //case WindowOpenParameters.ShowHelp:
-      //    //case WindowOpenParameters.ForceTab:
-      //    //case WindowOpenParameters.SuggestWindow:
-      //    //case WindowOpenParameters.SuggestTab:
-      //    //case WindowOpenParameters.FromDialogChild:
-      //    //case WindowOpenParameters.UserRequested:
-      //    //case WindowOpenParameters.UserAllowed:
-
-      //  case WindowOpenParameters.UserInitiated | WindowOpenParameters.First | WindowOpenParameters.SuggestWindow:
-      //  case WindowOpenParameters.UserInitiated | WindowOpenParameters.First | WindowOpenParameters.HtmlDialog:
-      //  case WindowOpenParameters.InactiveTab | WindowOpenParameters.HtmlDialog:
-      //  case WindowOpenParameters.InactiveTab | WindowOpenParameters.SuggestWindow:
-
-      //    targetControl = BrowserWindowTarget.PopUp;
-      //    break;
-      //}
-
       var ppDispOriginal = ppDisp;
-      var eventArgs = new WindowOpenEventArgs (targetControl, Cancel, bstrUrl);
+      var eventArgs = new WindowOpenEventArgs (BrowserWindowTarget.PopUp, Cancel, bstrUrl);
 
       _browserControl.OnNewWindow (eventArgs);
 
       if (eventArgs.TargetView != null)
-        ppDisp = ((TridentWebBrowserBase) eventArgs.TargetView.WebBrowser).Application ?? ppDispOriginal;
-      
+        ppDisp = ((TridentWebBrowserBase) eventArgs.TargetView).Application ?? ppDispOriginal;
+
       Cancel = eventArgs.Cancel;
     }
   }
