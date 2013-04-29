@@ -71,6 +71,7 @@
     <Compile Include="AddIns\IHtmlDocumentHandleRegistry.cs" />
     <Compile Include="Resources\IResourceManager.cs" />
     <Compile Include="Resources\ResourceManager.cs" />
+    <Compile Include="Security\UrlGuard.cs" />
     <Compile Include="Utilities\ArgumentEmptyException.cs" />
     <Compile Include="Utilities\ArgumentUtility.cs" />
     <Compile Include="Utilities\ReSharperAnnotations\AssertionConditionAttribute.cs" />
@@ -100,6 +101,9 @@
   <ItemGroup>
     <None Include="..\GPL.licenseheader">
       <Link>GPL.licenseheader</Link>
+    </None>
+    <None Include="desktopgap-security-manifest.xsd">
+      <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup />
