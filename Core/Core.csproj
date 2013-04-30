@@ -71,6 +71,8 @@
     <Compile Include="AddIns\IHtmlDocumentHandleRegistry.cs" />
     <Compile Include="Resources\IResourceManager.cs" />
     <Compile Include="Resources\ResourceManager.cs" />
+    <Compile Include="Security\AddInGuard.cs" />
+    <Compile Include="Security\IGuard.cs" />
     <Compile Include="Security\UrlGuard.cs" />
     <Compile Include="Utilities\ArgumentEmptyException.cs" />
     <Compile Include="Utilities\ArgumentUtility.cs" />

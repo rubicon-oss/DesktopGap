@@ -18,7 +18,6 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -26,39 +25,93 @@ using DesktopGap.Utilities;
 
 namespace DesktopGap.Security
 {
-  public class UrlGuard
+  public class UrlGuard : IGuard
   {
-    private readonly IList<Regex> _allowed = new List<Regex>();
-
-    public UrlGuard ()
+    private class Rule : IEquatable<Rule>
     {
-    }
-
-    public UrlGuard (IDictionary<string,bool> rulePatterns)
-    {
-      ArgumentUtility.CheckNotNull ("rulePatterns", rulePatterns);
-      foreach (var rulePattern in rulePatterns)
+      public Rule (Regex domain, Regex path, bool isAllowed = true)
       {
-        var regex = new Regex (rulePattern.Key, RegexOptions.Compiled);
-        if(rulePattern.Value)
-          _allowed.Add (regex);
+        ArgumentUtility.CheckNotNull ("path", path);
+        ArgumentUtility.CheckNotNull ("domain", domain);
+
+        if (!path.RightToLeft)
+          throw new ArgumentException ("'Path' regular expression needs to be RightToLeft");
+
+        _domain = domain;
+        _path = path;
+        _isAllowed = isAllowed;
+      }
+
+      private readonly Regex _domain;
+      private readonly Regex _path;
+      private readonly bool _isAllowed;
+
+      public bool Match (string url)
+      {
+        return _domain.IsMatch (url) && _path.IsMatch (url) && _isAllowed;
+      }
+
+      public bool Equals (Rule other)
+      {
+        if (ReferenceEquals (null, other))
+          return false;
+        if (ReferenceEquals (this, other))
+          return true;
+        return Equals (_domain.ToString(), other._domain.ToString()) && Equals (_path.ToString(), other._path.ToString());
+      }
+
+      public override bool Equals (object obj)
+      {
+        return !ReferenceEquals (null, obj)
+               && (ReferenceEquals (this, obj)
+                   || obj.GetType() == GetType()
+                   && Equals ((Rule) obj));
+      }
+
+      public override int GetHashCode ()
+      {
+        unchecked
+        {
+          return _domain.ToString().GetHashCode() * 397 ^ _path.ToString().GetHashCode();
+        }
       }
     }
 
+    
+    private const RegexOptions c_defaultDomainRegexOptions = RegexOptions.Compiled
+                                                             | RegexOptions.IgnoreCase
+                                                             | RegexOptions.Singleline;
+
+    private const RegexOptions c_defaultPathRegexOptions = RegexOptions.Compiled
+                                                           | RegexOptions.IgnoreCase
+                                                           | RegexOptions.Singleline
+                                                           | RegexOptions.RightToLeft;
+
+    private readonly ISet<Rule> _allowed = new HashSet<Rule>();
+
     public bool IsAllowed (string url)
     {
-      return _allowed.Any (r => r.Match (url).Success);
+      ArgumentUtility.CheckNotNull ("url", url);
+
+      return _allowed.Any (r => r.Match (url));
     }
 
-    public void AddRule (Regex regex, bool isAllowed)
+    public void ChangeRule (string domainExpression, string pathExpression, bool isAllowed)
     {
-      if(isAllowed)
-        _allowed.Insert (0, regex);
-    }
+      ArgumentUtility.CheckNotNullOrEmpty ("domainExpression", domainExpression);
+      ArgumentUtility.CheckNotNull ("pathExpression", pathExpression);
 
-    public void RemoveRule (Regex regex)
-    {
-      
+      var rule = new Rule (
+          new Regex (domainExpression, c_defaultDomainRegexOptions),
+          new Regex (pathExpression, c_defaultPathRegexOptions));
+
+      if (_allowed.Contains (rule) && isAllowed)
+        throw new InvalidOperationException ("Rule is already present.");
+
+      if (isAllowed)
+        _allowed.Add (rule);
+      else
+        _allowed.Remove (rule);
     }
   }
 }
