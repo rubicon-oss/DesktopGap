@@ -18,29 +18,34 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.AddIns;
-using DesktopGap.AddIns.Events;
-using DesktopGap.Clients.Windows.WebBrowser.UI;
-using DesktopGap.Security.Urls;
-using DesktopGap.Utilities;
-using DesktopGap.WebBrowser;
+using System.Collections.Generic;
+using System.Configuration;
+using DesktopGap.Security.AddIns;
 
-namespace DesktopGap.Clients.Windows.WebBrowser
+namespace DesktopGap.Configuration.Security
 {
-  public class TridentWebBrowserFactory : IWebBrowserFactory
+  public class AddInPermissionConfigurationElement : ConfigurationElement, IAddInRules
   {
-    public TridentWebBrowserFactory (IHtmlDocumentHandleRegistry htmlDocumentHandleRegistry, UrlFilter urlFilter)
+    [ConfigurationProperty ("allow")]
+    public AddInConfigurationElementCollection Allow
     {
-      ArgumentUtility.CheckNotNull ("htmlDocumentHandleRegistry", htmlDocumentHandleRegistry);
-      
-      HtmlDocumentHandleRegistry = htmlDocumentHandleRegistry;
+      get { return (AddInConfigurationElementCollection) this["allow"]; }
     }
 
-    public IHtmlDocumentHandleRegistry HtmlDocumentHandleRegistry { get; private set; }
-
-    public IExtendedWebBrowser CreateBrowser ()
+    [ConfigurationProperty ("deny")]
+    public AddInConfigurationElementCollection Deny
     {
-      return new TridentWebBrowser (HtmlDocumentHandleRegistry, HtmlDocumentHandleRegistry as ISubscriptionHandler);
+      get { return (AddInConfigurationElementCollection) this["deny"]; }
+    }
+
+    public IEnumerable<IAddInRule> Allowed
+    {
+      get { return Allow; }
+    }
+
+    public IEnumerable<IAddInRule> Denied
+    {
+      get { return Deny; }
     }
   }
 }

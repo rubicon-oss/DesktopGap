@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,11 +18,17 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.Security.AddIns;
 
-namespace DesktopGap.Security
+namespace DesktopGap.UnitTests.Fakes
 {
-  public interface IGuard
+  public class FakeAddInRule : IAddInRule
   {
-    bool IsAllowed (string url);
+    public string Name { get; private set; }
+
+    public FakeAddInRule (string name)
+    {
+      Name = name;
+    }
   }
 }

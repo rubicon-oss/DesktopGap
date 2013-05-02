@@ -23,6 +23,7 @@ using System.ComponentModel.Composition;
 using System.ComponentModel.Composition.Hosting;
 using System.ComponentModel.Composition.Primitives;
 using System.Linq;
+using DesktopGap.Security.AddIns;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Factories
@@ -35,7 +36,7 @@ namespace DesktopGap.AddIns.Factories
     private IEnumerable<TAddIn> _sharedAddIns;
 
 
-    public CompositionBasedAddInFactory (CompositionContainer compositionContainer)
+    public CompositionBasedAddInFactory (CompositionContainer compositionContainer, IAddInRules addInRules)
     {
       ArgumentUtility.CheckNotNull ("compositionContainer", compositionContainer);
             _compositionContainer = compositionContainer;

@@ -1,4 +1,5 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿using DesktopGap.Security.AddIns;
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -19,30 +20,20 @@
 // 
 using System;
 using System.Collections.Generic;
-using DesktopGap.Utilities;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace DesktopGap.Security
+namespace DesktopGap.UnitTests.Fakes
 {
-  public class AddInGuard : IGuard
+  public class FakeAddInRules: IAddInRules
   {
-    private readonly ISet<string> _allowed = new HashSet<string>();
-
-    public bool IsAllowed (string name)
+    public FakeAddInRules ()
     {
-      return _allowed.Contains (name);
+      
     }
 
-    public void ChangeRule (string name, bool isAllowed)
-    {
-      ArgumentUtility.CheckNotNull ("name", name);
-
-      if (_allowed.Contains (name) && isAllowed)
-        throw new InvalidOperationException ("Rule is already present.");
-
-      if (isAllowed)
-        _allowed.Add (name);
-      else
-        _allowed.Remove (name);
-    }
+    public IEnumerable<IAddInRule> Allowed { get; private set; }
+    public IEnumerable<IAddInRule> Denied { get; private set; }
   }
 }

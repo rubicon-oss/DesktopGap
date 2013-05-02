@@ -77,10 +77,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private readonly IHtmlDocumentHandleRegistry _documentHandleRegistry;
     private readonly ISubscriptionHandler _subscriptionHandler;
 
-    private WindowPreparations _windowPreparations = null;
+    private WindowPreparations _windowPreparations;
 
-    public TridentWebBrowser (
-        IHtmlDocumentHandleRegistry documentHandleRegistry, ISubscriptionHandler subscriptionHandler)
+    public TridentWebBrowser (IHtmlDocumentHandleRegistry documentHandleRegistry, ISubscriptionHandler subscriptionHandler)
     {
       ArgumentUtility.CheckNotNull ("documentHandleRegistry", documentHandleRegistry);
       ArgumentUtility.CheckNotNull ("subscriptionHandler", subscriptionHandler);
@@ -337,7 +336,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       HtmlElement element = null;
       foreach (var frame in new FrameIterator (Document).GetFrames().TakeWhile (frame => frame.Position.X <= x && frame.Position.Y <= y))
         previous = frame;
-      
+
       if (previous != null && previous.Document != null)
       {
         var point = new Point (x - previous.Position.X, y - previous.Position.Y);
@@ -412,9 +411,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void TridentWebBrowser_DocumentCompleted (object sender, WebBrowserDocumentCompletedEventArgs e)
     {
-      if (ObjectForScripting == null || Document == null || Document.Window == null)
-        return;
-
+      try
+      {
+        if (ObjectForScripting == null || Document == null || Document.Window == null)
+          return;
+      }
+      catch (UnauthorizedAccessException)
+      {
+        // pass
+      }
       var activeHandles = new List<HtmlDocumentHandle>();
       foreach (var frame in new FrameIterator (Document).GetFrames())
       {

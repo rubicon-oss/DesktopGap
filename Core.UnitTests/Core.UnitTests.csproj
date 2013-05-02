@@ -30,6 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
@@ -51,6 +54,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="AddInGuardTest.cs" />
+    <Compile Include="Fakes\Dev.cs" />
     <Compile Include="HtmlDocumentHandleRegistryTest.cs" />
     <Compile Include="DragAndDropAddinTest.cs" />
     <Compile Include="EventManagerTest.cs" />

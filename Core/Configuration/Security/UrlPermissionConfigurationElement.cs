@@ -18,29 +18,34 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.AddIns;
-using DesktopGap.AddIns.Events;
-using DesktopGap.Clients.Windows.WebBrowser.UI;
+using System.Collections.Generic;
+using System.Configuration;
 using DesktopGap.Security.Urls;
-using DesktopGap.Utilities;
-using DesktopGap.WebBrowser;
 
-namespace DesktopGap.Clients.Windows.WebBrowser
+namespace DesktopGap.Configuration.Security
 {
-  public class TridentWebBrowserFactory : IWebBrowserFactory
+  public class UrlPermissionConfigurationElement : ConfigurationElement, IUrlRules
   {
-    public TridentWebBrowserFactory (IHtmlDocumentHandleRegistry htmlDocumentHandleRegistry, UrlFilter urlFilter)
+    [ConfigurationProperty ("allow")]
+    public UrlConfigurationElementCollection Allow
     {
-      ArgumentUtility.CheckNotNull ("htmlDocumentHandleRegistry", htmlDocumentHandleRegistry);
-      
-      HtmlDocumentHandleRegistry = htmlDocumentHandleRegistry;
+      get { return (UrlConfigurationElementCollection) this["allow"]; }
     }
 
-    public IHtmlDocumentHandleRegistry HtmlDocumentHandleRegistry { get; private set; }
-
-    public IExtendedWebBrowser CreateBrowser ()
+    [ConfigurationProperty ("deny")]
+    public UrlConfigurationElementCollection Deny
     {
-      return new TridentWebBrowser (HtmlDocumentHandleRegistry, HtmlDocumentHandleRegistry as ISubscriptionHandler);
+      get { return (UrlConfigurationElementCollection) this["deny"]; }
+    }
+
+    public IEnumerable<IUrlRule> Allowed
+    {
+      get { return Allow; }
+    }
+
+    public IEnumerable<IUrlRule> Denied
+    {
+      get { return Deny; }
     }
   }
 }

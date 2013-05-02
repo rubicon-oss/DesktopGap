@@ -27,6 +27,9 @@ using DesktopGap.AddIns.Factories;
 using DesktopGap.AddIns.Services;
 using DesktopGap.Clients.Windows.WebBrowser;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
+using DesktopGap.Configuration.Security.Providers;
+using DesktopGap.Security.AddIns;
+using DesktopGap.Security.Urls;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.View;
 
@@ -42,6 +45,10 @@ namespace DesktopGap.Clients.Windows
 
     private void Application_Startup (object sender, StartupEventArgs e)
     {
+      var security = DesktopGapSecurityProvider.Create (@"C:\Development", "secuirty-manifest-example.config").GetConfiguration();
+      IUrlRules urlRules = security.Urls;
+      IAddInRules addInRules = security.AddIns;
+
       var catalog = new AggregateCatalog();
       var dirCatalog = new DirectoryCatalog (c_addInDirectory);
       catalog.Catalogs.Add (dirCatalog);
@@ -49,10 +56,15 @@ namespace DesktopGap.Clients.Windows
 
 
       var addInProvider = new HtmlDocumentHandleRegistry (
-          new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer)),
-          new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer)));
-      _browserFactory = new TridentWebBrowserFactory (addInProvider);
+          new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, addInRules)),
+          new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer, addInRules)));
 
+
+      var baseUri = new Uri ("http://www.dg.at");
+      _browserFactory = new TridentWebBrowserFactory (addInProvider, new UrlFilter (baseUri, urlRules));
+
+      //var config = new DesktopGapConfiguration();
+      //config.SetSecurityConfiguration (DesktopGapSecurityProvider.Create ("", @"C:\Development\security-manifest-example.config"));
       try
       {
         var mainWindow = new BrowserWindow (_browserFactory);

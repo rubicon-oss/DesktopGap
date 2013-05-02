@@ -19,6 +19,7 @@
 // 
 using System;
 using DesktopGap.Security;
+using DesktopGap.Security.AddIns;
 using NUnit.Framework;
 
 namespace DesktopGap.UnitTests
@@ -29,15 +30,15 @@ namespace DesktopGap.UnitTests
     [Test]
     public void IsAllowed_AskForProhibitedAddIn_ShouldReturnFalse ()
     {
-      var addInGuard = new AddInGuard();
-      addInGuard.ChangeRule ("not.allowed", false);
+      var addInGuard = new AddInFilter();
+      addInGuard.ChangeRule (, false);
       Assert.That (addInGuard.IsAllowed ("not.allowed"), Is.False);
     }
 
     [Test]
     public void IsAllowed_AskForPermittedAddIn_ShouldReturnTrue ()
     {
-      var addInGuard = new AddInGuard();
+      var addInGuard = new AddInFilter();
       addInGuard.ChangeRule ("is.allowed", true);
       Assert.That (addInGuard.IsAllowed ("is.allowed"), Is.True);
     }
@@ -45,14 +46,14 @@ namespace DesktopGap.UnitTests
     [Test]
     public void IsAllowed_AskForInexistentAddIn_ShouldReturnFalse ()
     {
-      var addInGuard = new AddInGuard();
+      var addInGuard = new AddInFilter();
       Assert.That (addInGuard.IsAllowed ("this/is/not/allowed.html"), Is.False);
     }
 
     [Test]
     public void ChangeRule_AddDuplicateRule_ShouldThrowInvalidOperationException ()
     {
-      var addInGuard = new AddInGuard();
+      var addInGuard = new AddInFilter();
       addInGuard.ChangeRule ("duplicate.rule", true);
       Assert.That (() => addInGuard.ChangeRule ("duplicate.rule", true), Throws.InvalidOperationException);
     }
@@ -60,7 +61,7 @@ namespace DesktopGap.UnitTests
     [Test]
     public void ChangeRule_AddControverseRule_ShouldUseLatter ()
     {
-      var addInGuard = new AddInGuard();
+      var addInGuard = new AddInFilter();
       addInGuard.ChangeRule ("duplicate.rule", true);
       Assert.That (addInGuard.IsAllowed ("duplicate.rule"), Is.True);
       addInGuard.ChangeRule ("duplicate.rule", false);

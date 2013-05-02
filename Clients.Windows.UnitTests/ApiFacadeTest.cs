@@ -18,16 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Windows.Forms;
-using DesktopGap;
-using DesktopGap.AddIns;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Events.Factory;
-using DesktopGap.AddIns.Services;
-using DesktopGap.AddIns.Services.Factory;
-using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using NUnit.Framework;
-using Rhino.Mocks;
 
 namespace Clients.Windows.UnitTests
 {
