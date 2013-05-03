@@ -37,7 +37,6 @@ namespace DesktopGap.AddIns
 
     public UploadService ()
     {
-      Debug.WriteLine ("UploadService created");
     }
 
     public override void Dispose ()

@@ -26,16 +26,16 @@ namespace DesktopGap.Configuration.Security
 {
   public class AddInPermissionConfigurationElement : ConfigurationElement, IAddInRules
   {
-    [ConfigurationProperty ("allow")]
+    [ConfigurationProperty ("Allow")]
     public AddInConfigurationElementCollection Allow
     {
-      get { return (AddInConfigurationElementCollection) this["allow"]; }
+      get { return (AddInConfigurationElementCollection) this["Allow"]; }
     }
 
-    [ConfigurationProperty ("deny")]
+    [ConfigurationProperty ("Deny")]
     public AddInConfigurationElementCollection Deny
     {
-      get { return (AddInConfigurationElementCollection) this["deny"]; }
+      get { return (AddInConfigurationElementCollection) this["Deny"]; }
     }
 
     public IEnumerable<IAddInRule> Allowed

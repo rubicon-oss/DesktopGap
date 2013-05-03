@@ -18,43 +18,33 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
-using System.Configuration;
-using DesktopGap.Security.AddIns;
+using System.ComponentModel.Composition;
+using System.Runtime.InteropServices;
+using System.Threading;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.Configuration.Security
+namespace DesktopGap.AddIns
 {
-  public class AddInConfigurationElementCollection : ConfigurationElementCollection, IEnumerable<IAddInRule>
+  [ComVisible (true)]
+  [PartCreationPolicy (CreationPolicy.NonShared)]
+  public class SleepService : ExternalServiceBase
   {
-    public AddInConfigurationElement this [int index]
+    public SleepService ()
     {
-      get { return BaseGet (index) as AddInConfigurationElement; }
     }
 
-    protected override ConfigurationElement CreateNewElement ()
+    public override string Name
     {
-      return new AddInConfigurationElement();
+      get { return "SleepService"; }
     }
 
-    protected override string ElementName
+    public override void Dispose ()
     {
-      get { return "AddIn"; }
     }
 
-    public override ConfigurationElementCollectionType CollectionType
+    public void Sleep (int milliseconds)
     {
-      get { return ConfigurationElementCollectionType.BasicMap; }
-    }
-
-    protected override object GetElementKey (ConfigurationElement element)
-    {
-      return ((IRuleIdentification) element).Key;
-    }
-
-    public new IEnumerator<IAddInRule> GetEnumerator ()
-    {
-      for (var i = 0; i < Count; i++)
-        yield return (IAddInRule) BaseGet (i);
+      Thread.Sleep (milliseconds);
     }
   }
 }

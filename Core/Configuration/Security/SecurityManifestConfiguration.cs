@@ -21,24 +21,24 @@ using System;
 using System.Configuration;
 namespace DesktopGap.Configuration.Security
 {
-  public class DesktopGapSecurityConfiguration : ConfigurationSection
+  public class SecurityManifestConfiguration : ConfigurationSection
   {
-    [ConfigurationProperty ("startup")]
+    [ConfigurationProperty ("Startup")]
     public UrlPermissionConfigurationElement Startup
     {
-      get { return (UrlPermissionConfigurationElement) this["startup"]; }
+      get { return (UrlPermissionConfigurationElement) this["Startup"]; }
     }
 
-    [ConfigurationProperty ("urls")]
+    [ConfigurationProperty ("Urls")]
     public UrlPermissionConfigurationElement Urls
     {
-      get { return (UrlPermissionConfigurationElement) this["urls"]; }
+      get { return (UrlPermissionConfigurationElement) this["Urls"]; }
     }
 
-    [ConfigurationProperty ("addins")]
+    [ConfigurationProperty ("AddIns")]
     public AddInPermissionConfigurationElement AddIns
     {
-      get { return (AddInPermissionConfigurationElement) this["addins"]; }
+      get { return (AddInPermissionConfigurationElement) this["AddIns"]; }
     }
   }
 }

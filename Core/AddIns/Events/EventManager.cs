@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DesktopGap.AddIns.Events.Arguments;
+using DesktopGap.Security.AddIns;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Events
@@ -34,11 +35,16 @@ namespace DesktopGap.AddIns.Events
 
     public event EventHandler<ScriptEventArgs> EventFired;
 
+
     public EventManager ()
     {
+      
     }
 
-    public EventManager (HtmlDocumentHandle documentHandle, IEnumerable<EventAddInBase> sharedAddIns, IEnumerable<EventAddInBase> nonSharedAddIns)
+    public EventManager (
+        HtmlDocumentHandle documentHandle,
+        IEnumerable<EventAddInBase> sharedAddIns,
+        IEnumerable<EventAddInBase> nonSharedAddIns)
         : base (sharedAddIns, nonSharedAddIns, documentHandle)
     {
       NonSharedAddInLoaded += (s, a) => a.AddIn.RegisterEvents (this);

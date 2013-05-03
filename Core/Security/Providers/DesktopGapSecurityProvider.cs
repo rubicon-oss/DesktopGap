@@ -17,32 +17,35 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.IO;
 using System.Net;
+using DesktopGap.Configuration;
+using DesktopGap.Configuration.Security;
 using DesktopGap.Utilities;
 using DesktopGap.Utilities.Web;
 using Remotion.Dms.Shared.IO;
 
-namespace DesktopGap.Configuration.Security.Providers
+namespace DesktopGap.Security.Providers
 {
-  public static class DesktopGapSecurityProvider
+  public static class SecurityProvider
   {
-    private const string c_securitySectionName = "desktopgap";
+    private const string c_securitySectionName = "SecurityManifest";
 
-    public static IDesktopGapConfigurationProvider<DesktopGapSecurityConfiguration> Create (string configurationBase, string source)
+    public static IDesktopGapConfigurationProvider<SecurityManifestConfiguration> Create (string configurationBase, string source)
     {
       ArgumentUtility.CheckNotNull ("configurationBase", configurationBase);
       ArgumentUtility.CheckNotNull ("source", source);
 
       if (Uri.IsWellFormedUriString (source, UriKind.Absolute))
-        return new RemoteDesktopGapConfigurationProvider<DesktopGapSecurityConfiguration> (
+        return new RemoteDesktopGapConfigurationProvider<SecurityManifestConfiguration> (
             new Uri (source), new WebClientWrapper (new WebClient()), new FileSystemHelper(), c_securitySectionName);
 
       if (Path.IsPathRooted (source))
-        return new LocalDesktopGapConfigurationProvider<DesktopGapSecurityConfiguration> (source, c_securitySectionName);
+        return new LocalDesktopGapConfigurationProvider<SecurityManifestConfiguration> (source, c_securitySectionName);
 
-      return new LocalDesktopGapConfigurationProvider<DesktopGapSecurityConfiguration> (
+      return new LocalDesktopGapConfigurationProvider<SecurityManifestConfiguration> (
           Path.Combine (configurationBase, source), c_securitySectionName);
     }
   }

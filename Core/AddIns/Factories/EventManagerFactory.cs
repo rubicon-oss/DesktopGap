@@ -19,6 +19,7 @@
 // 
 using System;
 using DesktopGap.AddIns.Events;
+using DesktopGap.Security.AddIns;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns.Factories
@@ -28,6 +29,7 @@ namespace DesktopGap.AddIns.Factories
     public EventManagerFactory (IAddInFactory<EventAddInBase> addInFactory)
     {
       ArgumentUtility.CheckNotNull ("addInFactory", addInFactory);
+
       AddInFactory = addInFactory;
     }
 

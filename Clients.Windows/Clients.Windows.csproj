@@ -83,8 +83,8 @@
     <Compile Include="Components\CloseableTabHeader.xaml.cs">
       <DependentUpon>CloseableTabHeader.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WebBrowser\DesktopGapBrowserEvents.cs" />
-    <Compile Include="WebBrowser\DesktopGapDocumentUIHandler.cs" />
+    <Compile Include="WebBrowser\WebBrowserEvents.cs" />
+    <Compile Include="WebBrowser\DocumentHostUIHandler.cs" />
     <Compile Include="WebBrowser\TridentWebBrowserFactory.cs" />
     <Compile Include="WebBrowser\Trident\TridentWebBrowserMode.cs" />
     <Compile Include="WebBrowser\ComTypes\UIHandler\WindowsMessages.cs" />

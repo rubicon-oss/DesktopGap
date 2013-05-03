@@ -70,12 +70,12 @@
     <Compile Include="Security\AddIns\IAddInRule.cs" />
     <Compile Include="Security\AddIns\IAddInRules.cs" />
     <Compile Include="Security\Urls\IUrlRule.cs" />
-    <Compile Include="Configuration\Security\Providers\DesktopGapSecurityProvider.cs" />
+    <Compile Include="Security\Providers\DesktopGapSecurityProvider.cs" />
     <Compile Include="Configuration\LocalDesktopGapConfigurationProvider.cs" />
     <Compile Include="Configuration\Security\AddInConfigurationElement.cs" />
     <Compile Include="Configuration\Security\AddInConfigurationElementCollection.cs" />
     <Compile Include="Configuration\Security\AddInPermissionConfigurationElement.cs" />
-    <Compile Include="Configuration\Security\DesktopGapSecurityConfiguration.cs" />
+    <Compile Include="Configuration\Security\SecurityManifestConfiguration.cs" />
     <Compile Include="Configuration\RemoteDesktopGapConfigurationProvider.cs" />
     <Compile Include="Configuration\Security\UrlPermissionConfigurationElement.cs" />
     <Compile Include="Configuration\Security\UrlConfigurationElementCollection.cs" />

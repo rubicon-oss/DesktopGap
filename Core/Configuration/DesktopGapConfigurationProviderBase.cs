@@ -19,6 +19,7 @@
 // 
 using System;
 using System.Configuration;
+using System.IO;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.Configuration
@@ -38,6 +39,9 @@ namespace DesktopGap.Configuration
 
     protected TConfiguration GetConfiguration (string configFileName)
     {
+      if (!File.Exists (configFileName))
+        throw new ArgumentException (string.Format ("Config file at '{0}' does not exist.", configFileName));
+
       var exeConfigurationFileMap = new ExeConfigurationFileMap();
       exeConfigurationFileMap.ExeConfigFilename = configFileName;
       var configuration = ConfigurationManager.OpenMappedExeConfiguration (exeConfigurationFileMap, ConfigurationUserLevel.None);

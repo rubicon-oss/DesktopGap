@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DesktopGap.Security.AddIns;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns
@@ -53,13 +54,15 @@ namespace DesktopGap.AddIns
 
     protected AddInManagerBase ()
     {
+
       _sharedAddIns = new HashSet<TAddIn>();
       _nonSharedAddIns = new HashSet<TAddIn>();
     }
 
-    protected AddInManagerBase (IEnumerable<TAddIn> sharedAddIns, IEnumerable<TAddIn> nonSharedAddIns, HtmlDocumentHandle documentHandle)
+    protected AddInManagerBase (
+        IEnumerable<TAddIn> sharedAddIns, IEnumerable<TAddIn> nonSharedAddIns, HtmlDocumentHandle documentHandle)
     {
-      ArgumentUtility.CheckNotNull ("nonSharedAddIns", nonSharedAddIns);
+      ArgumentUtility.CheckNotNull ("sharedAddIns", sharedAddIns);
       ArgumentUtility.CheckNotNull ("nonSharedAddIns", nonSharedAddIns);
 
       _sharedAddIns = sharedAddIns;

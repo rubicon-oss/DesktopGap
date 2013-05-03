@@ -36,11 +36,15 @@
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.2\lib\nunit.framework.dll</HintPath>
     </Reference>
+    <Reference Include="Remotion.Dms.Shared">
+      <HintPath>..\Clients.Windows\bin\Debug\Remotion.Dms.Shared.dll</HintPath>
+    </Reference>
     <Reference Include="Rhino.Mocks">
       <HintPath>..\packages\RhinoMocks.3.6.1\lib\net\Rhino.Mocks.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
@@ -53,8 +57,10 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="AddInGuardTest.cs" />
-    <Compile Include="Fakes\Dev.cs" />
+    <Compile Include="AddInFilterTest.cs" />
+    <Compile Include="SecurityManifestConfigurationTest.cs" />
+    <Compile Include="Fakes\FakeAddInRule.cs" />
+    <Compile Include="Fakes\FakeAddInRules.cs" />
     <Compile Include="HtmlDocumentHandleRegistryTest.cs" />
     <Compile Include="DragAndDropAddinTest.cs" />
     <Compile Include="EventManagerTest.cs" />
@@ -69,7 +75,8 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceManagerTest.cs" />
     <Compile Include="ServiceManagerTest.cs" />
-    <Compile Include="UrlGuardTest.cs" />
+    <Compile Include="UrlFilterTest.cs" />
+    <Compile Include="Utilities\TempFile.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GPL.licenseheader">

@@ -139,7 +139,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       webBrowser.BeforeNavigate += OnBeforeNavigate;
     }
 
-
     private void OnBeforeNavigate (object sender, NavigationEventArgs e)
     {
       if (_preparer == null || _preparer.Url != e.URL)

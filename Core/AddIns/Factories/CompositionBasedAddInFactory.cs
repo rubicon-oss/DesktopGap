@@ -32,17 +32,21 @@ namespace DesktopGap.AddIns.Factories
       where TAddIn : AddInBase
   {
     private readonly CompositionContainer _compositionContainer;
+    private readonly IAddInFilter _addInFilter;
 
     private IEnumerable<TAddIn> _sharedAddIns;
 
 
-    public CompositionBasedAddInFactory (CompositionContainer compositionContainer, IAddInRules addInRules)
+    public CompositionBasedAddInFactory (CompositionContainer compositionContainer, IAddInFilter addInFilter)
     {
       ArgumentUtility.CheckNotNull ("compositionContainer", compositionContainer);
-            _compositionContainer = compositionContainer;
+      ArgumentUtility.CheckNotNull ("addInFilter", addInFilter);
+
+      _compositionContainer = compositionContainer;
+      _addInFilter = addInFilter;
     }
 
-  
+
     public IEnumerable<TAddIn> GetSharedAddIns ()
     {
       return _sharedAddIns ?? (_sharedAddIns = GetExports (CreationPolicy.Shared));
@@ -55,7 +59,10 @@ namespace DesktopGap.AddIns.Factories
 
     private IEnumerable<TAddIn> GetExports (CreationPolicy policy)
     {
-      return _compositionContainer.GetExports (CreateImportManyDefiniton (policy)).Select (e => (TAddIn) e.Value);
+      return
+          _compositionContainer.GetExports (CreateImportManyDefiniton (policy))
+              .Select (e => (TAddIn) e.Value)
+              .Where (a => _addInFilter.IsAllowed (a.Name));
     }
 
     private ImportDefinition CreateImportManyDefiniton (CreationPolicy policy)

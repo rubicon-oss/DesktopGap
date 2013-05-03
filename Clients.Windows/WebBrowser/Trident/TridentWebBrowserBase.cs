@@ -52,7 +52,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <summary>
     /// Object for returning the basic scripting interface when the .NET Framework demands it (Application property)
     /// </summary>
-    private IWebBrowser2 _axIWebBrowser2;
+    protected IWebBrowser2 AxIWebBrowser2;
 
 
     /// <summary>
@@ -95,9 +95,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       //var wrapper = WebBrowserWrapper.CreateInstance (
       //    (IWebBrowser2) nativeActiveXObject, nativeActiveXObject.GetType());
       //      _axIWebBrowser2 = wrapper as IWebBrowser2;
-      _axIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
+      AxIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
 
-      base.AttachInterfaces (_axIWebBrowser2);
+      base.AttachInterfaces (AxIWebBrowser2);
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void DetachInterfaces ()
     {
-      _axIWebBrowser2 = null;
+      AxIWebBrowser2 = null;
       base.DetachInterfaces();
     }
 
@@ -115,7 +115,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     public object Application
     {
-      get { return _axIWebBrowser2.Application; }
+      get { return AxIWebBrowser2.Application; }
     }
 
     /// <summary>
@@ -154,10 +154,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     protected void InstallCustomUIHandler (IDocHostUIHandler desktopGapDocumentUiHandler)
     {
       ArgumentUtility.CheckNotNull ("desktopGapDocumentUiHandler", desktopGapDocumentUiHandler);
-      _axIWebBrowser2.RegisterAsDropTarget = false;
+      AxIWebBrowser2.RegisterAsDropTarget = false;
 
-      var customDoc = (ICustomDoc) _axIWebBrowser2.Document;
-      customDoc.SetUIHandler (desktopGapDocumentUiHandler);
+
+      var customDoc = (ICustomDoc) AxIWebBrowser2.Document;
+      if(customDoc != null)
+        customDoc.SetUIHandler (desktopGapDocumentUiHandler);
     }
   }
 }

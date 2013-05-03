@@ -17,14 +17,13 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace DesktopGap.Security
+using System;
+
+namespace DesktopGap.Security.AddIns
 {
   public interface IAddInFilter
   {
+    bool IsAllowed (string name);
   }
 }

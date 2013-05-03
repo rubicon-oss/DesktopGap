@@ -20,6 +20,7 @@
 using System;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
+using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
 using DesktopGap.WebBrowser.View;
 
@@ -31,7 +32,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   public sealed partial class PopUpWindow : IWebBrowserView
   {
     private readonly WebBrowserHost _browserHost;
-
+    
 
     public PopUpWindow (WebBrowserHost browserHost)
     {
@@ -60,12 +61,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       get { return _browserHost.WebBrowser; }
     }
 
+
     public void Show (BrowserWindowStartMode startMode)
     {
       switch (startMode)
       {
-        case BrowserWindowStartMode.Modal: // TODO: make non-blocking
-          WebBrowser.AfterNavigate += (s, a) => ShowDialog();
+        case BrowserWindowStartMode.Modal:
+          WebBrowser.AfterNavigate += OnAfterNavigate;
           break;
         case BrowserWindowStartMode.Background:
         case BrowserWindowStartMode.Active:
@@ -73,6 +75,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
           Show();
           break;
       }
+    }
+
+    private void OnAfterNavigate (object sender, NavigationEventArgs e)
+    {
+      if(!IsVisible) // TODO find out why this is called more than once
+        ShowDialog();
+      WebBrowser.AfterNavigate -= OnAfterNavigate;
     }
   }
 }

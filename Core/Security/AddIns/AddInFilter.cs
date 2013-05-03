@@ -40,7 +40,7 @@ namespace DesktopGap.Security.AddIns
 
     public bool IsAllowed (string name)
     {
-      return _allowed.Contains (name) && !_denied.Contains (name);
+      return (_allowed.Contains (name) && !_denied.Contains (name)) || !_denied.Contains (name);
     }
   }
 }

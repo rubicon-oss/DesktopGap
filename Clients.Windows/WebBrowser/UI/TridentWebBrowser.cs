@@ -30,6 +30,7 @@ using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.Util;
 using DesktopGap.OleLibraryDependencies;
+using DesktopGap.Security.Urls;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Arguments;
@@ -79,12 +80,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private WindowPreparations _windowPreparations;
 
-    public TridentWebBrowser (IHtmlDocumentHandleRegistry documentHandleRegistry, ISubscriptionHandler subscriptionHandler)
+    public TridentWebBrowser (IHtmlDocumentHandleRegistry documentHandleRegistry, ISubscriptionHandler subscriptionHandler, IUrlFilter urlFilter)
     {
       ArgumentUtility.CheckNotNull ("documentHandleRegistry", documentHandleRegistry);
       ArgumentUtility.CheckNotNull ("subscriptionHandler", subscriptionHandler);
-
-      _BrowserEvents = new DesktopGapWebBrowserEvents (this);
+      ArgumentUtility.CheckNotNull ("urlFilter", urlFilter);
+      
+      _BrowserEvents = new WebBrowserEvents (this, urlFilter);
 
       Navigate (c_blankSite); // bootstrap
       ObjectForScripting = new ApiFacade (documentHandleRegistry);
@@ -92,7 +94,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _subscriptionHandler = subscriptionHandler;
 
       BrowserMode = TridentWebBrowserMode.ForcedIE10;
-      InstallCustomUIHandler (new DesktopGapDocumentUIHandler (this));
+      InstallCustomUIHandler (new DocumentHostUIHandler (this));
 
       DocumentCompleted += TridentWebBrowser_DocumentCompleted;
     }
@@ -468,6 +470,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         dict.Add (attributeName, element.GetAttribute (attributeName));
 
       return dict;
+    }
+
+    public void OnPropertyChange (string szProperty)
+    {
+      var result = AxIWebBrowser2.GetProperty (szProperty);
     }
   }
 

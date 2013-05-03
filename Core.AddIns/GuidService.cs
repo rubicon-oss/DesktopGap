@@ -19,7 +19,6 @@
 // 
 using System;
 using System.ComponentModel.Composition;
-using System.Diagnostics;
 using System.Runtime.InteropServices;
 using DesktopGap.AddIns.Services;
 
@@ -31,7 +30,6 @@ namespace DesktopGap.AddIns
   {
     public GuidService ()
     {
-      Debug.WriteLine ("GuidService created");
     }
 
     public override string Name

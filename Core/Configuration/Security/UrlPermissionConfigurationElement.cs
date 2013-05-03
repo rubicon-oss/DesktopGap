@@ -26,16 +26,16 @@ namespace DesktopGap.Configuration.Security
 {
   public class UrlPermissionConfigurationElement : ConfigurationElement, IUrlRules
   {
-    [ConfigurationProperty ("allow")]
+    [ConfigurationProperty ("Allow")]
     public UrlConfigurationElementCollection Allow
     {
-      get { return (UrlConfigurationElementCollection) this["allow"]; }
+      get { return (UrlConfigurationElementCollection) this["Allow"]; }
     }
 
-    [ConfigurationProperty ("deny")]
+    [ConfigurationProperty ("Deny")]
     public UrlConfigurationElementCollection Deny
     {
-      get { return (UrlConfigurationElementCollection) this["deny"]; }
+      get { return (UrlConfigurationElementCollection) this["Deny"]; }
     }
 
     public IEnumerable<IUrlRule> Allowed

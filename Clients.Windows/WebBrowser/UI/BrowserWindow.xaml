@@ -33,7 +33,7 @@
 
         </TabControl>
         <StackPanel Grid.Row="1" Orientation="Horizontal">
-            <TextBox Name="_urlTextBox" MinWidth="400" Text="\\rubicon\home\claus.matzinger\test.html"/>
+            <TextBox Name="_urlTextBox" MinWidth="400" Text="http://localhost:3936/Default.aspx"/>
             <Button  Name="btnAddNew" Click="btnAddNew_Click_1" MinWidth="50" >Go!</Button>
         </StackPanel>
     </Grid>

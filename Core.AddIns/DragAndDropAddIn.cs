@@ -87,7 +87,8 @@ namespace DesktopGap.AddIns
 
       try
       {
-        return _elementUnderCursor.Value != null && argument.Criteria.elementID == _elementUnderCursor.Value.ID && argument.Document.Equals (_elementUnderCursor.Key);
+        var elementID = argument.Criteria.elementID;
+        return _elementUnderCursor.Value != null && elementID  == _elementUnderCursor.Value.ID && argument.Document.Equals (_elementUnderCursor.Key);
       }
       catch (RuntimeBinderException)
       {

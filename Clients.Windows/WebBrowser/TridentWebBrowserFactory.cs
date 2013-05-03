@@ -29,18 +29,22 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 {
   public class TridentWebBrowserFactory : IWebBrowserFactory
   {
+    private readonly UrlFilter _urlFilter;
+
     public TridentWebBrowserFactory (IHtmlDocumentHandleRegistry htmlDocumentHandleRegistry, UrlFilter urlFilter)
     {
       ArgumentUtility.CheckNotNull ("htmlDocumentHandleRegistry", htmlDocumentHandleRegistry);
-      
+      ArgumentUtility.CheckNotNull ("urlFilter", urlFilter);
+
       HtmlDocumentHandleRegistry = htmlDocumentHandleRegistry;
+      _urlFilter = urlFilter;
     }
 
     public IHtmlDocumentHandleRegistry HtmlDocumentHandleRegistry { get; private set; }
 
     public IExtendedWebBrowser CreateBrowser ()
     {
-      return new TridentWebBrowser (HtmlDocumentHandleRegistry, HtmlDocumentHandleRegistry as ISubscriptionHandler);
+      return new TridentWebBrowser (HtmlDocumentHandleRegistry, HtmlDocumentHandleRegistry as ISubscriptionHandler, _urlFilter);
     }
   }
 }

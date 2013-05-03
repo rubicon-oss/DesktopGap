@@ -38,7 +38,7 @@ namespace DesktopGap.Configuration.Security
 
     protected override string ElementName
     {
-      get { return "url"; }
+      get { return "Url"; }
     }
 
     public override ConfigurationElementCollectionType CollectionType
