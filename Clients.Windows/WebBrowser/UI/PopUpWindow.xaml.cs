@@ -20,7 +20,6 @@
 using System;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
 using DesktopGap.WebBrowser.View;
 
@@ -29,10 +28,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   /// <summary>
   /// Interaction logic for PopUpWindow.xaml
   /// </summary>
-  public sealed partial class PopUpWindow : IWebBrowserView
+  public partial class PopUpWindow : IWebBrowserView
   {
     private readonly WebBrowserHost _browserHost;
-    
+
 
     public PopUpWindow (WebBrowserHost browserHost)
     {
@@ -43,10 +42,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserHost = browserHost;
       Content = _browserHost;
 
+      Width = _browserHost.WebBrowser.Width;
       _browserHost.WebBrowser.WindowSetWidth += (s, w) => Width = w;
+
+      Height = _browserHost.WebBrowser.Height;
       _browserHost.WebBrowser.WindowSetHeight += (s, h) => Height = h;
+
+      Left = _browserHost.WebBrowser.Left;
       _browserHost.WebBrowser.WindowSetLeft += (s, l) => Left = l;
+
+      Top = _browserHost.WebBrowser.Top;
       _browserHost.WebBrowser.WindowSetTop += (s, t) => Top = t;
+
+      _browserHost.WebBrowser.DocumentTitleChanged += (s, e) => Title = _browserHost.WebBrowser.Title;
     }
 
 
@@ -67,8 +75,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       switch (startMode)
       {
         case BrowserWindowStartMode.Modal:
-          WebBrowser.AfterNavigate += OnAfterNavigate;
-          break;
+          //((TridentWebBrowser) WebBrowser).DocumentsFinished += OnDocumentsFinished;
+          //break;
         case BrowserWindowStartMode.Background:
         case BrowserWindowStartMode.Active:
         default:
@@ -77,11 +85,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
-    private void OnAfterNavigate (object sender, NavigationEventArgs e)
+    private void OnDocumentsFinished (object sender, EventArgs e)
     {
-      if(!IsVisible) // TODO find out why this is called more than once
+      if (!IsVisible) // TODO find out why this is called more than once
+      {
         ShowDialog();
-      WebBrowser.AfterNavigate -= OnAfterNavigate;
+      }
+      ((TridentWebBrowser) WebBrowser).DocumentsFinished -= OnDocumentsFinished;
     }
   }
 }

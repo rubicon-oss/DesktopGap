@@ -79,7 +79,7 @@ namespace DesktopGap.AddIns
       ArgumentUtility.CheckNotNull ("args", args);
       ArgumentUtility.CheckNotNull ("sender", sender);
 
-      if(args.URL == "about:blank")
+      if(args.URL.ToString() == "about:blank")
         return;
 
       WindowPreparations preparations;

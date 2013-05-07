@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,26 +17,21 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Services;
-using DesktopGap.WebBrowser;
+using DesktopGap.Utilities;
 
 namespace DesktopGap.AddIns
 {
-  public interface IHtmlDocumentHandleRegistry : IDisposable
+  public class DocumentRegisteredEventArgs : EventArgs
   {
-    event EventHandler<DocumentRegisteredEventArgs> NewDocumentRegistered; 
+    public DocumentRegisteredEventArgs (HtmlDocumentHandle documentHandle)
+    {
+      ArgumentUtility.CheckNotNull ("documentHandle", documentHandle);
+      DocumentHandle = documentHandle;
 
-    void RegisterDocumentHandle (HtmlDocumentHandle handle, IScriptingHost scriptingHost);
+    }
 
-    void UnregisterDocumentHandle (HtmlDocumentHandle handle);
-
-    bool HasDocumentHandle (HtmlDocumentHandle handle);
-
-
-    IEventDispatcher GetEventDispatcher (HtmlDocumentHandle handle);
-
-    IServiceManager GetServiceManager (HtmlDocumentHandle handle);
+    public HtmlDocumentHandle DocumentHandle { get; private set; }
   }
-}  
+}

@@ -62,7 +62,7 @@ namespace DesktopGap.Security.Urls
 
 
       var escapedBaseUri = Regex.Escape (baseUri.Host);
-      var escapedPath = Regex.Escape (baseUri.AbsolutePath) + "[?/].*";
+      var escapedPath = Regex.Escape (baseUri.AbsolutePath) + @"[\?/].*";
 
       _allowed = new[]
                  {

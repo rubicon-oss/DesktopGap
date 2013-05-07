@@ -47,8 +47,9 @@ namespace DesktopGap.AddIns
         IAddInManagerFactory<ServiceAddInBase> serviceManagerFactory,
         IAddInManagerFactory<EventAddInBase> eventManagerFactory)
     {
-      ArgumentUtility.CheckNotNull ("eventManagerFactory", eventManagerFactory);
       ArgumentUtility.CheckNotNull ("serviceManagerFactory", serviceManagerFactory);
+      ArgumentUtility.CheckNotNull ("eventManagerFactory", eventManagerFactory);
+
 
       _serviceManagerFactory = serviceManagerFactory;
       _eventManagerFactory = eventManagerFactory;
@@ -73,11 +74,13 @@ namespace DesktopGap.AddIns
       get { return _eventDispatchers.Count; }
     }
 
+    public event EventHandler<DocumentRegisteredEventArgs> NewDocumentRegistered;
+
     public void RegisterDocumentHandle (HtmlDocumentHandle handle, IScriptingHost scriptingHost)
     {
       ArgumentUtility.CheckNotNull ("scriptingHost", scriptingHost);
 
-      if (HasDocumentHandle(handle))
+      if (HasDocumentHandle (handle))
         throw new InvalidOperationException (string.Format (c_documentAlreadyRegisteredFormatString, handle));
 
       var eventDispatcher = (IEventDispatcher) _eventManagerFactory.CreateManager (handle);
@@ -87,6 +90,8 @@ namespace DesktopGap.AddIns
 
       _eventDispatchers.Add (handle, eventDispatcher);
       _serviceManagers.Add (handle, serviceManager);
+      if (NewDocumentRegistered != null)
+        NewDocumentRegistered (this, new DocumentRegisteredEventArgs (handle));
     }
 
 

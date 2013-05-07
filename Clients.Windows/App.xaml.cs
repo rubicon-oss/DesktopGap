@@ -21,6 +21,7 @@ using System;
 using System.ComponentModel.Composition.Hosting;
 using System.Windows;
 using System.Windows.Threading;
+using Clients.Windows.Protocol;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Factories;
@@ -54,6 +55,8 @@ namespace DesktopGap.Clients.Windows
       catalog.Catalogs.Add (dirCatalog);
       var compositionContainer = new CompositionContainer (catalog);
 
+
+      //FilterUtils.RegisterFilter();
 
       var addInProvider = new HtmlDocumentHandleRegistry (
           new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, new AddInFilter(addInRules))),

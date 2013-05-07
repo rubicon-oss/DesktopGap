@@ -37,7 +37,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Scripting
 
       _htmlDocumentHandleRegistry = htmlDocumentHandleRegistry;
     }
-
+    
 
     //
     // Services

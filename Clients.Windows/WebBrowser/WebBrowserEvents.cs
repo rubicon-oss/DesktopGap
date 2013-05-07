@@ -64,6 +64,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     }
 
 
+    public override void WindowSetResizable (bool Resizable)
+    {
+      _browserControl.OnWindowSetResizable (Resizable);
+    }
+
     public override void WindowSetHeight (int height)
     {
       _browserControl.OnWindowSetHeight (height);
@@ -92,6 +97,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
     public override void NewWindow3 (ref object ppDisp, ref bool Cancel, uint dwFlags, string bstrUrlContext, string bstrUrl)
     {
+      if (!_urlFilter.IsAllowed (bstrUrl))
+      {
+        Cancel = true;
+        return;
+      }
+
       var ppDispOriginal = ppDisp;
       var eventArgs = new WindowOpenEventArgs (BrowserWindowTarget.PopUp, Cancel, bstrUrl);
 
@@ -102,10 +113,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
       Cancel = eventArgs.Cancel;
     }
-    public override void PropertyChange (string szProperty)
-    {
-      _browserControl.OnPropertyChange(szProperty);
 
+    public override void DocumentComplete (object pDisp, ref object URL)
+    {
+      _browserControl.OnDocumentComplete (URL.ToString());
     }
   }
 }

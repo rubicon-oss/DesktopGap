@@ -60,9 +60,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private class WindowPreparer
     {
+      private const string c_protocolSeparator = "://";
+      private const string c_httpProtocolHandler = "http";
+
       private IExtendedWebBrowser Browser { get; set; }
 
-      public string Url { get; private set; }
+      public Uri Url { get; private set; }
 
       public event EventHandler<NewTabEventArgs> NewTab;
 
@@ -74,7 +77,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         ArgumentUtility.CheckNotNull ("url", url);
 
         Browser = browser;
-        Url = url;
+        Url = new Uri (!url.Contains (c_protocolSeparator) ? string.Join (c_protocolSeparator, c_httpProtocolHandler, url) : url);
       }
 
       public IWebBrowserView Create (BrowserWindowTarget target)
@@ -141,7 +144,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnBeforeNavigate (object sender, NavigationEventArgs e)
     {
-      if (_preparer == null || _preparer.Url != e.URL)
+      if (_preparer == null || !_preparer.Url.Equals(e.URL))
         return;
 
       switch (e.BrowserWindowTarget)

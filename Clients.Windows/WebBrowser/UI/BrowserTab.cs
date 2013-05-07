@@ -42,14 +42,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       ArgumentUtility.CheckNotNull ("webBrowserHost", webBrowserHost);
 
       _browserHost = webBrowserHost;
-      _browserHost.WebBrowser.PageLoadFinished += OnPageLoaded;
-      GotFocus += OnTabFocussed;
+      _browserHost.WebBrowser.DocumentTitleChanged += OnDocumentTitleChanged;
 
       _browserHost = webBrowserHost;
       _isCloseable = isCloseable;
 
       Content = _browserHost;
     }
+
 
     public void Dispose ()
     {
@@ -77,11 +77,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
-    private void OnTabFocussed (object sender, EventArgs e)
-    {
-    }
-
-    private void OnPageLoaded (object sender, IExtendedWebBrowser webBrowser)
+    private void OnDocumentTitleChanged (object sender, EventArgs e)
     {
       var header = new CloseableTabHeader (_browserHost.WebBrowser.Title, _isCloseable);
       if (_isCloseable)

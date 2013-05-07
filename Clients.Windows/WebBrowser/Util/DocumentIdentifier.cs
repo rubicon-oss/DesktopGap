@@ -24,8 +24,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Util
 {
   public class DocumentIdentifier
   {
-    private const string c_getDocumentIdentification = "dg_retrieveID";
-    private const string c_addDocumentIdentification = "dg_assignID";
+    private const string c_getDocumentIdentification = "DesktopGap_RetrieveID";
+    private const string c_addDocumentIdentification = "DesktopGap_AssignID";
 
     public static HtmlDocumentHandle GetOrCreateDocumentHandle (HtmlDocument htmlDocument)
     {
@@ -34,8 +34,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Util
       var docID = guidObj != null ? new HtmlDocumentHandle (Guid.Parse (guidObj.ToString())) : new HtmlDocumentHandle (Guid.NewGuid());
 
       htmlDocument.InvokeScript (c_addDocumentIdentification, new object[] { docID.ToString() });
-
-
       return docID;
     }
   }

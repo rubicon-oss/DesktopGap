@@ -57,7 +57,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private static readonly string[] s_attributes = new[] { "dg_droptarget", "dg_dropcondition" };
 
 
-    public event EventHandler<IExtendedWebBrowser> PageLoadFinished;
+    public event EventHandler<EventArgs> DocumentsFinished;
     public event EventHandler<NavigationEventArgs> AfterNavigate;
     public event EventHandler<WindowOpenEventArgs> WindowOpen;
     public event EventHandler<NavigationEventArgs> BeforeNavigate;
@@ -72,6 +72,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public event EventHandler<int> WindowSetLeft;
     public event EventHandler<int> WindowSetTop;
     public event EventHandler<int> WindowSetWidth;
+    public event EventHandler<bool> WindowSetResizable;
 
     private IDictionary<HtmlDocumentHandle, HtmlDocument> _currentDocuments = new Dictionary<HtmlDocumentHandle, HtmlDocument>();
 
@@ -85,7 +86,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       ArgumentUtility.CheckNotNull ("documentHandleRegistry", documentHandleRegistry);
       ArgumentUtility.CheckNotNull ("subscriptionHandler", subscriptionHandler);
       ArgumentUtility.CheckNotNull ("urlFilter", urlFilter);
-      
+
       _BrowserEvents = new WebBrowserEvents (this, urlFilter);
 
       Navigate (c_blankSite); // bootstrap
@@ -97,14 +98,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       InstallCustomUIHandler (new DocumentHostUIHandler (this));
 
       DocumentCompleted += TridentWebBrowser_DocumentCompleted;
+      _documentHandleRegistry.NewDocumentRegistered += OnNewDocumentRegistered;
     }
 
     protected override void Dispose (bool disposing)
     {
       BeforeNavigate = null;
       AfterNavigate = null;
-      PageLoadFinished = null;
-
+      DocumentsFinished = null;
       WindowOpen = null;
 
       DragDrop = null;
@@ -128,9 +129,23 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     public string Title
     {
-      get { return Document == null ? String.Empty : Document.Title; }
+      get
+      {
+        var title = String.Empty;
+        try
+        {
+          if (Document != null)
+            title = Document.Title;
+        }
+        catch
+        {
+          // pass
+        }
+        return title;
+      }
     }
 
+    public bool Resizable { get; private set; }
 
     private new ApiFacade ObjectForScripting
     {
@@ -144,34 +159,43 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     public void OnWindowSetHeight (int height)
     {
-      ArgumentUtility.CheckNotNull ("height", height);
-
       if (WindowSetHeight != null)
         WindowSetHeight (this, height);
+
+      Height = height;
     }
 
     public void OnWindowSetLeft (int left)
     {
-      ArgumentUtility.CheckNotNull ("left", left);
-
       if (WindowSetLeft != null)
         WindowSetLeft (this, left);
+
+      Left = left;
     }
 
     public void OnWindowSetTop (int top)
     {
-      ArgumentUtility.CheckNotNull ("top", top);
-
       if (WindowSetTop != null)
         WindowSetTop (this, top);
+
+      Top = top;
     }
 
     public void OnWindowSetWidth (int width)
     {
-      ArgumentUtility.CheckNotNull ("width", width);
-
       if (WindowSetWidth != null)
         WindowSetWidth (this, width);
+
+      Width = width;
+    }
+
+
+    public void OnWindowSetResizable (bool resizable)
+    {
+      if (WindowSetResizable != null)
+        WindowSetResizable (this, resizable);
+
+      Resizable = resizable;
     }
 
     //
@@ -205,7 +229,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
                               };
       }
 
-      if (navigationEventArgs.URL == c_blankSite)
+      if (navigationEventArgs.URL.ToString() == c_blankSite)
         return;
 
 
@@ -325,9 +349,17 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         document.InvokeScript (args.Function, new object[] { args.Serialize() });
     }
 
+
     //
     // OTHER METHODS & EVENTS
     // 
+
+    private void OnNewDocumentRegistered (object sender, DocumentRegisteredEventArgs e)
+    {
+      HtmlDocument document;
+      if (_currentDocuments.TryGetValue (e.DocumentHandle, out document))
+        document.InvokeScript ("DesktopGap_DocumentRegistered");
+    }
 
     private HtmlElement ElementAt (int x, int y)
     {
@@ -361,16 +393,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void AddDocument (HtmlDocumentHandle handle, HtmlDocument document)
     {
+      _currentDocuments[handle] = document;
       _documentHandleRegistry.RegisterDocumentHandle (handle, this);
       AddSubscribedAddIns (_subscriptionHandler, handle);
-      _currentDocuments[handle] = document;
     }
 
     private void RemoveSubscribedAddIns (ISubscriptionHandler subscriptionHandler, HtmlDocumentHandle handle)
     {
       foreach (var subscriber in subscriptionHandler.GetSubscribers<ISubscriber> (handle))
       {
-        //Unsubscribe (subscriber);
         if (subscriber.GetType().IsAssignableFrom (typeof (IBrowserEventSubscriber)))
           Unsubscribe (subscriber as IBrowserEventSubscriber);
         else if (subscriber.GetType().IsAssignableFrom (typeof (IWindowEventSubscriber)))
@@ -456,9 +487,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         }
         if (AfterNavigate != null)
           AfterNavigate (this, new NavigationEventArgs (startMode, false, e.Url.AbsolutePath, targetName, windowTarget));
-
-        if (PageLoadFinished != null)
-          PageLoadFinished (this, this);
       }
     }
 
@@ -472,9 +500,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       return dict;
     }
 
-    public void OnPropertyChange (string szProperty)
+
+    public void OnDocumentComplete (string url)
     {
-      var result = AxIWebBrowser2.GetProperty (szProperty);
+      if (url != Url.ToString())
+        return;
+
+      if (DocumentsFinished != null)
+        DocumentsFinished (this, new EventArgs());
     }
   }
 

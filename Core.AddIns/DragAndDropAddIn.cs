@@ -58,13 +58,12 @@ namespace DesktopGap.AddIns
 
     public DragAndDropAddIn ()
     {
-      
     }
 
     public DragAndDropAddIn (IResourceManager resourceManager)
     {
       ArgumentUtility.CheckNotNull ("resourceManager", resourceManager);
-      
+
       ResourceManager = resourceManager;
     }
 
@@ -88,7 +87,7 @@ namespace DesktopGap.AddIns
       try
       {
         var elementID = argument.Criteria.elementID;
-        return _elementUnderCursor.Value != null && elementID  == _elementUnderCursor.Value.ID && argument.Document.Equals (_elementUnderCursor.Key);
+        return _elementUnderCursor.Value != null && elementID == _elementUnderCursor.Value.ID && argument.Document.Equals (_elementUnderCursor.Key);
       }
       catch (RuntimeBinderException)
       {
@@ -140,7 +139,7 @@ namespace DesktopGap.AddIns
     public void OnDragOver (object sender, ExtendedDragEventHandlerArgs e)
     {
       var current = e.Current;
-      if (current != null && !_elementUnderCursor.Value.Equals (current))
+      if (_elementUnderCursor.Value == null || (current != null && !_elementUnderCursor.Value.Equals (current)))
         _elementUnderCursor = new KeyValuePair<HtmlDocumentHandle, HtmlElementData> (e.Document, current);
 
       e.Droppable = IsDroppable (current);
@@ -166,8 +165,8 @@ namespace DesktopGap.AddIns
     // when entering the window
     public void OnDragEnter (object sender, ExtendedDragEventHandlerArgs e)
     {
-      if(e.Current != null)
-      _enterElement = new KeyValuePair<HtmlDocumentHandle, HtmlElementData> (e.Document, e.Current);
+      if (e.Current != null)
+        _enterElement = new KeyValuePair<HtmlDocumentHandle, HtmlElementData> (e.Document, e.Current);
       _elementUnderCursor = _enterElement;
 
       var args = new DragDropEventData();

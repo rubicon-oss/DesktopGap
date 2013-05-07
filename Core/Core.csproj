@@ -50,6 +50,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="AddIns\AddInManagerBase.cs" />
+    <Compile Include="AddIns\DocumentRegisteredEventArgs.cs" />
     <Compile Include="AddIns\Events\Subscriptions\IBrowserEventSubscriber.cs" />
     <Compile Include="AddIns\Events\Subscriptions\ISubscriber.cs" />
     <Compile Include="AddIns\Events\ISubscriptionHandler.cs" />
@@ -128,6 +129,7 @@
     <None Include="..\GPL.licenseheader">
       <Link>GPL.licenseheader</Link>
     </None>
+    <None Include="ClassDiagram1.cd" />
     <None Include="desktopgap-security-manifest.xsd">
       <SubType>Designer</SubType>
     </None>

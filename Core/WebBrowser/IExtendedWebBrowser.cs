@@ -40,6 +40,7 @@ namespace DesktopGap.WebBrowser
 
     event EventHandler DragLeave;
 
+
     void Navigate (string to);
     void Navigate (string to, string target);
   }

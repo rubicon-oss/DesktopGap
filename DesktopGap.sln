@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core", "Core\Core.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests", "Core.UnitTests\Core.UnitTests.csproj", "{CB3C98F1-3BDC-4B98-92EC-A80691B01AD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clients.Windows.UnitTests", "Clients.Windows.UnitTests\Clients.Windows.UnitTests.csproj", "{AE453A5E-FFF5-4934-B753-E44D17B05613}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clients.Windows.Protocol", "Clients.Windows.Protocol\Clients.Windows.Protocol.csproj", "{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,12 +39,15 @@ Global
 		{CB3C98F1-3BDC-4B98-92EC-A80691B01AD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB3C98F1-3BDC-4B98-92EC-A80691B01AD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB3C98F1-3BDC-4B98-92EC-A80691B01AD8}.Release|Any CPU.Build.0 = Release|Any CPU
-		{AE453A5E-FFF5-4934-B753-E44D17B05613}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{AE453A5E-FFF5-4934-B753-E44D17B05613}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{AE453A5E-FFF5-4934-B753-E44D17B05613}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{AE453A5E-FFF5-4934-B753-E44D17B05613}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NDepend) = preSolution
+		Project = ".\DesktopGap.ndproj"
 	EndGlobalSection
 EndGlobal
