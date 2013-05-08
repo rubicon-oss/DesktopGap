@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Windows;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.StartOptions;
@@ -54,6 +55,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       Top = _browserHost.WebBrowser.Top;
       _browserHost.WebBrowser.WindowSetTop += (s, t) => Top = t;
 
+      ResizeMode = _browserHost.WebBrowser.IsResizable ? ResizeMode.CanResize : ResizeMode.NoResize;
+      _browserHost.WebBrowser.WindowSetResizable += (s, r) => ResizeMode = r ? ResizeMode.CanResize : ResizeMode.NoResize;
+
       _browserHost.WebBrowser.DocumentTitleChanged += (s, e) => Title = _browserHost.WebBrowser.Title;
     }
 
@@ -75,8 +79,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       switch (startMode)
       {
         case BrowserWindowStartMode.Modal:
-          //((TridentWebBrowser) WebBrowser).DocumentsFinished += OnDocumentsFinished;
-          //break;
+          ((TridentWebBrowser) WebBrowser).DocumentsFinished += OnDocumentsFinished;
+          break;
         case BrowserWindowStartMode.Background:
         case BrowserWindowStartMode.Active:
         default:
@@ -87,10 +91,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnDocumentsFinished (object sender, EventArgs e)
     {
-      if (!IsVisible) // TODO find out why this is called more than once
-      {
+      if (!IsVisible)
         ShowDialog();
-      }
+
       ((TridentWebBrowser) WebBrowser).DocumentsFinished -= OnDocumentsFinished;
     }
   }

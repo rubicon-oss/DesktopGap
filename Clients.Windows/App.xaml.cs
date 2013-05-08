@@ -56,7 +56,7 @@ namespace DesktopGap.Clients.Windows
       var compositionContainer = new CompositionContainer (catalog);
 
 
-      //FilterUtils.RegisterFilter();
+      FilterUtils.RegisterFilter();
 
       var addInProvider = new HtmlDocumentHandleRegistry (
           new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, new AddInFilter(addInRules))),

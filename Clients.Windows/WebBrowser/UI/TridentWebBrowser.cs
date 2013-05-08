@@ -80,6 +80,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private readonly ISubscriptionHandler _subscriptionHandler;
 
     private WindowPreparations _windowPreparations;
+    private bool _resizable = true;
 
     public TridentWebBrowser (IHtmlDocumentHandleRegistry documentHandleRegistry, ISubscriptionHandler subscriptionHandler, IUrlFilter urlFilter)
     {
@@ -145,7 +146,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
-    public bool Resizable { get; private set; }
+    public bool IsResizable
+    {
+      get { return _resizable; }
+      private set { _resizable = value; }
+    }
 
     private new ApiFacade ObjectForScripting
     {
@@ -195,7 +200,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (WindowSetResizable != null)
         WindowSetResizable (this, resizable);
 
-      Resizable = resizable;
+      IsResizable = resizable;
     }
 
     //
