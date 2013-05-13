@@ -30,8 +30,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Remotion.Dms.Shared">
-      <HintPath>..\..\Remotion\trunk\Dms\Shared\bin\Debug\Remotion.Dms.Shared.dll</HintPath>
+    <Reference Include="Remotion.Dms.Shared, Version=1.13.188.1, Culture=neutral, PublicKeyToken=fcd26521a9d01a9d, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\libraries\Remotion.Dms.Shared.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
@@ -129,7 +130,6 @@
     <None Include="..\GPL.licenseheader">
       <Link>GPL.licenseheader</Link>
     </None>
-    <None Include="ClassDiagram1.cd" />
     <None Include="desktopgap-security-manifest.xsd">
       <SubType>Designer</SubType>
     </None>

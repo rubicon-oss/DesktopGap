@@ -44,6 +44,7 @@ namespace DesktopGap.Clients.Windows
     private const string c_addInDirectory = @".";
     private IWebBrowserFactory _browserFactory;
 
+    [STAThread]
     private void Application_Startup (object sender, StartupEventArgs e)
     {
       var security = SecurityProvider.Create (@"C:\Development", "desktopgap-default.conf").GetConfiguration();
