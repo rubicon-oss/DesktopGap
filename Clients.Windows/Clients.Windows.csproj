@@ -163,9 +163,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Clients.Windows.Protocol\Clients.Windows.Protocol.csproj">
+    <ProjectReference Include="..\Clients.Windows.Protocol.Wrapper\Clients.Windows.Protocol.Wrapper.csproj">
       <Project>{ccfcb3e3-9bd2-4317-8cc2-6a52532a1aaf}</Project>
-      <Name>Clients.Windows.Protocol</Name>
+      <Name>Clients.Windows.Protocol.Wrapper</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core.AddIns\Core.AddIns.csproj">
       <Project>{025b2c20-3622-474c-898b-ac1ff42fb837}</Project>

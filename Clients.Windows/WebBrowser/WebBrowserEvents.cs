@@ -46,12 +46,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public override void BeforeNavigate2 (
         object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
     {
-      if (!_urlFilter.IsAllowed (URL.ToString()))
-      {
-        Cancel = true;
-        return;
-      }
-
       var target = String.Empty;
       if (TargetFrameName != null)
         target = TargetFrameName.ToString();

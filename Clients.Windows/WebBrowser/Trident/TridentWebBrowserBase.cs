@@ -71,6 +71,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     {
       IsWebBrowserContextMenuEnabled = _enableWebBrowserContextMenu;
       _features = new TridentFeatures();
+      IsGPUAccelerated = true;
     }
 
     public bool IsGPUAccelerated

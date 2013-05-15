@@ -67,8 +67,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       public Uri Url { get; private set; }
 
+      public event EventHandler<EventArgs> Self;
       public event EventHandler<NewTabEventArgs> NewTab;
-
       public event EventHandler<NewPopupEventArgs> NewPopup;
 
       public WindowPreparer (IExtendedWebBrowser browser, string url)
@@ -136,7 +136,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnWindowOpen (object sender, WindowOpenEventArgs eventArgs)
     {
-      var webBrowser = _browserFactory.CreateBrowser();
+      IExtendedWebBrowser webBrowser;
+      if (eventArgs.BrowserWindowTarget != BrowserWindowTarget.Self)
+        webBrowser = _browserFactory.CreateBrowser();
+      else
+        webBrowser = ((BrowserTab) _tabControl.Items[_tabControl.SelectedIndex]).WebBrowser;
       eventArgs.TargetView = webBrowser;
       _preparer = new WindowPreparer (webBrowser, eventArgs.Url);
       webBrowser.BeforeNavigate += OnBeforeNavigate;
@@ -144,26 +148,40 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnBeforeNavigate (object sender, NavigationEventArgs e)
     {
-      if (_preparer == null || !_preparer.Url.Equals(e.URL))
+      if (_preparer == null || !_preparer.Url.Equals (e.URL))
         return;
 
-      switch (e.BrowserWindowTarget)
+      if (_tabControl.Items.IsEmpty)
+        _preparer.NewTab += OnNewTab;
+      else
       {
-        case BrowserWindowTarget.PopUp:
-          _preparer.NewPopup += OnNewPopup;
-          break;
+        switch (e.BrowserWindowTarget)
+        {
+          case BrowserWindowTarget.PopUp:
+            _preparer.NewPopup += OnNewPopup;
+            break;
 
-        case BrowserWindowTarget.Tab:
-          _preparer.NewTab += OnNewTab;
-          break;
+          case BrowserWindowTarget.Tab:
+            _preparer.NewTab += OnNewTab;
+            break;
 
-        case BrowserWindowTarget.Window:
-          break;
+          case BrowserWindowTarget.Self:
+            _preparer.Self += OnSelf;
+            break;
+
+          case BrowserWindowTarget.Window:
+            break; // TODO ask launcher to do this
+        }
       }
-
 
       var view = _preparer.Create (e.BrowserWindowTarget);
       view.Show (e.StartMode);
+      _preparer = null;
+    }
+
+
+    private void OnSelf (object sender, EventArgs eventArgs)
+    {
     }
 
     private void OnNewTab (object sender, NewTabEventArgs eventArgs)

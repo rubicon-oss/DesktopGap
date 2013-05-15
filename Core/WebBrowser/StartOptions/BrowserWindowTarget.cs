@@ -26,6 +26,7 @@ namespace DesktopGap.WebBrowser.StartOptions
   {
     PopUp,
     Tab,
-    Window
+    Window,
+    Self
   }
 }

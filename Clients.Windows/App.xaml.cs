@@ -21,11 +21,12 @@ using System;
 using System.ComponentModel.Composition.Hosting;
 using System.Windows;
 using System.Windows.Threading;
-using Clients.Windows.Protocol;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Factories;
 using DesktopGap.AddIns.Services;
+using DesktopGap.Clients.Windows.Protocol.Wrapper;
+using DesktopGap.Clients.Windows.Protocol.Wrapper.Factories;
 using DesktopGap.Clients.Windows.WebBrowser;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.Security.AddIns;
@@ -56,15 +57,16 @@ namespace DesktopGap.Clients.Windows
       catalog.Catalogs.Add (dirCatalog);
       var compositionContainer = new CompositionContainer (catalog);
 
+      var baseUri = new Uri ("http://localhost:3936");
 
-      FilterUtils.RegisterFilter();
+      var filter = new ProtocolWrapperManager();
+      filter.RegisterProtocol (new FilteredHttpProtocolFactory (new UrlFilter (baseUri, urlRules)));
 
       var addInProvider = new HtmlDocumentHandleRegistry (
-          new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, new AddInFilter(addInRules))),
-          new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer, new AddInFilter(addInRules))));
+          new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, new AddInFilter (addInRules))),
+          new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer, new AddInFilter (addInRules))));
 
 
-      var baseUri = new Uri ("http://localhost:3936");
       _browserFactory = new TridentWebBrowserFactory (addInProvider, new UrlFilter (baseUri, urlRules));
 
       try

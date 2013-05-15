@@ -19,9 +19,12 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
+using System.Reflection;
+using System.Windows;
 using System.Windows.Forms;
+using System.Windows.Interop;
+using System.Windows.Media;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
@@ -35,6 +38,8 @@ using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
+using DragDropEffects = System.Windows.Forms.DragDropEffects;
+using Point = System.Drawing.Point;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
@@ -100,6 +105,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       DocumentCompleted += TridentWebBrowser_DocumentCompleted;
       _documentHandleRegistry.NewDocumentRegistered += OnNewDocumentRegistered;
+      ScriptErrorsSuppressed = true;
     }
 
     protected override void Dispose (bool disposing)
@@ -126,7 +132,43 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _currentDocuments = null;
 
       base.Dispose (disposing);
+
+    //  _browser.Dispose();
+
+    //  var window = GetWindowElement (_browser);
+
+    //  if (window == null)
+    //    return;
+
+    //  var field = typeof (Window).GetField ("_swh", BindingFlags.NonPublic | BindingFlags.Instance);
+
+    //  var valueSwh = field.GetValue (window);
+    //  var valueSourceWindow = valueSwh.GetType().GetField ("_sourceWindow", BindingFlags.Instance | BindingFlags.NonPublic).GetValue (valueSwh);
+    //  var valuekeyboardInput =
+    //      valueSourceWindow.GetType().GetField ("_keyboardInputSinkChildren", BindingFlags.Instance | BindingFlags.NonPublic).GetValue (
+    //          valueSourceWindow);
+
+    //  var inputSites = valuekeyboardInput as IEnumerable<IKeyboardInputSite>;
+
+    //  if (inputSites == null)
+    //    return;
+
+    //  var currentSite = inputSites.FirstOrDefault (s => ReferenceEquals (s.Sink, _browser));
+
+    //  if (currentSite != null)
+    //    currentSite.Unregister();
+    //}
+
+    //private static Window GetWindowElement (DependencyObject element)
+    //{
+    //  while (element != null && !(element is Window))
+    //  {
+    //    element = VisualTreeHelper.GetParent (element);
+    //  }
+
+    //  return element as Window;
     }
+
 
     public string Title
     {
