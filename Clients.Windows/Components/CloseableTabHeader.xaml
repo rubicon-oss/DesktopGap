@@ -23,6 +23,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <StackPanel Orientation="Horizontal">
         <Label Name="_label"></Label>
-        <Button Name="_closeButton" Background="Transparent" BorderBrush="Transparent" Padding="1 1 1 1" Foreground="Red" FontWeight="Bold"></Button>
+        <Button Name="_closeButton" Background="Transparent" BorderBrush="Transparent" Padding="1 1 1 1" Foreground="Red" FontWeight="Bold">
+            <Image Source="/DesktopGap;component/Resources/close.png" Width="15"/>
+        </Button>
     </StackPanel>
 </UserControl>

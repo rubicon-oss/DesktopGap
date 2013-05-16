@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Windows.Controls;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes;
@@ -54,6 +55,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
 
     public void Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
     {
+      Debug.WriteLine ("HTTPS filter applied to " + szURL);
       var isAllowed = _urlFilter.IsAllowed (szURL);
       if (!isAllowed)
       {

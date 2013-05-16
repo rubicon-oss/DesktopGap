@@ -110,7 +110,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
     public override void DocumentComplete (object pDisp, ref object URL)
     {
-      _browserControl.OnDocumentComplete (URL.ToString());
+      if (URL != null)
+        _browserControl.OnDocumentComplete (URL.ToString());
     }
   }
 }

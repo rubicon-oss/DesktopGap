@@ -37,7 +37,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private readonly bool _isCloseable;
 
-    public BrowserTab (WebBrowserHost webBrowserHost, bool isCloseable = false)
+    public BrowserTab (WebBrowserHost webBrowserHost, bool isCloseable = true)
     {
       ArgumentUtility.CheckNotNull ("webBrowserHost", webBrowserHost);
 
@@ -64,6 +64,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     public void Show (BrowserWindowStartMode startMode)
     {
+      Header = new CloseableTabHeader (_browserHost.WebBrowser.Url.ToString(), _isCloseable);
+
       switch (startMode)
       {
         case BrowserWindowStartMode.Active:
@@ -92,7 +94,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       TabClosing (this, e);
 
-      ((TabControl) Parent).Items.Remove (this);
       CleanUp();
     }
 

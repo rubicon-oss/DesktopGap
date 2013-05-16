@@ -49,7 +49,6 @@
     <Compile Include="DragAndDropAddIn.cs" />
     <Compile Include="GuidService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UploadService.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GPL.licenseheader">

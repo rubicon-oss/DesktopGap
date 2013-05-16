@@ -105,7 +105,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       DocumentCompleted += TridentWebBrowser_DocumentCompleted;
       _documentHandleRegistry.NewDocumentRegistered += OnNewDocumentRegistered;
-      ScriptErrorsSuppressed = true;
+      ScriptErrorsSuppressed = false;
     }
 
     protected override void Dispose (bool disposing)

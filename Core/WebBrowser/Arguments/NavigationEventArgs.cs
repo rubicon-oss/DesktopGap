@@ -45,7 +45,9 @@ namespace DesktopGap.WebBrowser.Arguments
     {
       StartMode = startMode;
       Cancel = cancel;
-      URL = new Uri(targetURL);
+      Uri uri;
+      if (Uri.TryCreate (targetURL, UriKind.RelativeOrAbsolute, out uri))
+        URL = uri;
       TargetName = target;
       BrowserWindowTarget = windowTarget;
     }

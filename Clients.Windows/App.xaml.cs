@@ -61,6 +61,7 @@ namespace DesktopGap.Clients.Windows
 
       var filter = new ProtocolWrapperManager();
       filter.RegisterProtocol (new FilteredHttpProtocolFactory (new UrlFilter (baseUri, urlRules)));
+            //filter.RegisterProtocol (new FilteredHttpsProtocolFactory (new UrlFilter (baseUri, urlRules)));
 
       var addInProvider = new HtmlDocumentHandleRegistry (
           new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, new AddInFilter (addInRules))),

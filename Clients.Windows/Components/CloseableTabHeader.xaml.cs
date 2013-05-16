@@ -29,7 +29,6 @@ namespace DesktopGap.Clients.Windows.Components
   public partial class CloseableTabHeader
   {
     private bool _isCloseable;
-    private const string c_defaultCloseButtonContent = "X";
 
     public event EventHandler TabClose;
 
@@ -56,10 +55,8 @@ namespace DesktopGap.Clients.Windows.Components
       InitializeComponent();
       IsCloseable = isCloseable;
 
-      if (closeButtonContent == null)
-        closeButtonContent = c_defaultCloseButtonContent;
-
-      _closeButton.Content = closeButtonContent;
+      if (closeButtonContent != null)
+        _closeButton.Content = closeButtonContent;
       _closeButton.Click += (s, e) =>
                             {
                               if (IsCloseable && TabClose != null)

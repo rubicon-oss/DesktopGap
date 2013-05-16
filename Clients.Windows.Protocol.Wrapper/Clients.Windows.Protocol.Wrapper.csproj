@@ -59,6 +59,7 @@
     <Compile Include="ComTypes\IInternetSession.cs" />
     <Compile Include="ComTypes\HttpProtocol.cs" />
     <Compile Include="ComTypes\HttpsProtocol.cs" />
+    <Compile Include="Factories\FilteredHttpsProtocolFactory.cs" />
     <Compile Include="FilteredHttpsProtocol.cs" />
     <Compile Include="FilteredHttpProtocol.cs" />
     <Compile Include="Factories\IProtocolFactory.cs" />

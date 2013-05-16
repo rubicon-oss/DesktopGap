@@ -77,7 +77,7 @@ namespace DesktopGap.UnitTests
     public void IsAllowed_AskForInexistentAddIn_ShouldReturnFalse ()
     {
       var addInGuard = new AddInFilter (_addInRules);
-      Assert.That (addInGuard.IsAllowed ("this/is/not/allowed.html"), Is.False);
+      Assert.That (addInGuard.IsAllowed ("this/is/not/allowed.html"), Is.True);
     }
   }
 }

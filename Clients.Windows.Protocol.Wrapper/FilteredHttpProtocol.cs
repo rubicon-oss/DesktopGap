@@ -58,8 +58,11 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
       var isAllowed = _urlFilter.IsAllowed (szURL);
       if (!isAllowed)
       {
-        Debug.WriteLine ("{0} is not allowed", szURL);
-        Sink.ReportResult (-1, 403, "Forbidden");
+        Debug.WriteLine ("is not allowed", szURL);
+        Sink.ReportResult (0, 403, "Forbidden");
+        LockRequest (0);
+        Terminate (0);
+        UnlockRequest ();
         return;
       }
       _dispatcher.Dispatcher.Invoke (() => _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved));
