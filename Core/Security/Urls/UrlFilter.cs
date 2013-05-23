@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DesktopGap.Utilities;
@@ -26,57 +27,38 @@ namespace DesktopGap.Security.Urls
 {
   public class UrlFilter : IUrlFilter
   {
-    private class PredefinedUrlRule : IUrlRule
-    {
-      private const RegexOptions c_defaultDomainRegexOptions = RegexOptions.Compiled
-                                                               | RegexOptions.IgnoreCase
-                                                               | RegexOptions.Singleline;
+    private const string c_aboutBlank = "about:blank";
 
-      private const RegexOptions c_defaultPathRegexOptions = RegexOptions.Compiled
-                                                             | RegexOptions.IgnoreCase
-                                                             | RegexOptions.Singleline
-                                                             | RegexOptions.RightToLeft;
+    private readonly UrlRule[] _whitelist;
 
-      public PredefinedUrlRule (string domain, string path)
-      {
-        DomainExpression = new Regex (domain, c_defaultDomainRegexOptions);
-        PathExpression = new Regex (path, c_defaultPathRegexOptions);
-      }
-
-      public Regex DomainExpression { get; private set; }
-      public Regex PathExpression { get; private set; }
-
-      public bool IsMatch (string url)
-      {
-        return DomainExpression.IsMatch (url) && PathExpression.IsMatch (url);
-      }
-    }
-
-    private readonly IUrlRule[] _allowed;
-    private readonly IUrlRule[] _denied;
-
-    public UrlFilter (Uri baseUri, IUrlRules rules)
+    public UrlFilter (Uri baseUri, IEnumerable<UrlRule> whitelist)
     {
       ArgumentUtility.CheckNotNull ("baseUri", baseUri);
-      ArgumentUtility.CheckNotNull ("rules", rules);
+      ArgumentUtility.CheckNotNull ("whitelist", whitelist);
 
 
       var escapedBaseUri = Regex.Escape (baseUri.Host);
-      var escapedPath = Regex.Escape (baseUri.AbsolutePath) + @"[\?/].*";
+      var escapedPath = Regex.Escape (baseUri.LocalPath) + @".*";
 
-      _allowed = new[]
+      _whitelist = new[]
                  {
-                     new PredefinedUrlRule (escapedBaseUri, escapedPath),
-                     new PredefinedUrlRule ("about:blank", string.Empty)
-                 }.Concat (rules.Allowed).ToArray();
-      _denied = rules.Denied.ToArray();
+                     new UrlRule (escapedBaseUri, escapedPath)
+                 }.Concat (whitelist).ToArray();
     }
 
     public bool IsAllowed (string url)
     {
       ArgumentUtility.CheckNotNull ("url", url);
 
-      return _allowed.Any (r => r.IsMatch (url)) && !_denied.Any (r => r.IsMatch (url));
+      Uri uri;
+      return url == c_aboutBlank || (Uri.TryCreate(url, UriKind.Absolute, out uri) && _whitelist.Any (r => r.IsMatch (uri)));
+    }
+
+    public bool IsAllowed (Uri url)
+    {
+      ArgumentUtility.CheckNotNull ("url", url);
+
+      return _whitelist.Any (r => r.IsMatch (url));
     }
   }
 }

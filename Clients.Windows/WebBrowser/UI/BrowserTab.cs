@@ -32,22 +32,20 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   /// </summary>
   public sealed class BrowserTab : TabItem, IWebBrowserView
   {
-    private readonly WebBrowserHost _browserHost;
     public event EventHandler<EventArgs> TabClosing;
 
-    private readonly bool _isCloseable;
 
-    public BrowserTab (WebBrowserHost webBrowserHost, bool isCloseable = true)
+    private readonly WebBrowserHost _webBrowserHost;
+
+    public BrowserTab (TridentWebBrowser webBrowser, Guid identifier, bool isCloseable = true)
     {
-      ArgumentUtility.CheckNotNull ("webBrowserHost", webBrowserHost);
+      ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
 
-      _browserHost = webBrowserHost;
-      _browserHost.WebBrowser.DocumentTitleChanged += OnDocumentTitleChanged;
-
-      _browserHost = webBrowserHost;
-      _isCloseable = isCloseable;
-
-      Content = _browserHost;
+      Identifier = identifier;
+      webBrowser.DocumentTitleChanged += OnDocumentTitleChanged;
+      IsCloseable = isCloseable;
+      _webBrowserHost = new WebBrowserHost (webBrowser);;
+      Content = _webBrowserHost;
     }
 
 
@@ -56,33 +54,49 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       CleanUp();
     }
 
+    public bool IsCloseable
+    {
+      get { return Header != null && Header.IsCloseable; }
+      set
+      {
+        if (Header != null)
+          Header.IsCloseable = value;
+      }
+    }
+
+    public new CloseableTabHeader Header
+    {
+      get { return (CloseableTabHeader) base.Header; }
+      set { base.Header = value; }
+    }
 
     public IExtendedWebBrowser WebBrowser
     {
-      get { return _browserHost.WebBrowser; }
+      get { return _webBrowserHost.WebBrowser; }
     }
+
+    public Guid Identifier { get; private set; }
 
     public void Show (BrowserWindowStartMode startMode)
     {
-      Header = new CloseableTabHeader (_browserHost.WebBrowser.Url.ToString(), _isCloseable);
+      Header = new CloseableTabHeader (_webBrowserHost.WebBrowser.Url.ToString(), IsCloseable);
 
       switch (startMode)
       {
         case BrowserWindowStartMode.Active:
           Focus();
           break;
-
         case BrowserWindowStartMode.Background:
-        case BrowserWindowStartMode.Modal:
-        default:
           break;
+        default:
+          throw new InvalidOperationException (string.Format ("Start mode '{0}' is not supported for BrowserTab.", startMode));
       }
     }
 
     private void OnDocumentTitleChanged (object sender, EventArgs e)
     {
-      var header = new CloseableTabHeader (_browserHost.WebBrowser.Title, _isCloseable);
-      if (_isCloseable)
+      var header = new CloseableTabHeader (_webBrowserHost.WebBrowser.Title, IsCloseable);
+      if (IsCloseable)
         header.TabClose += OnTabClose;
       Header = header;
     }
@@ -99,7 +113,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void CleanUp ()
     {
-      _browserHost.Dispose();
+      _webBrowserHost.Dispose();
     }
   }
 }

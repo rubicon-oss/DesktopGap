@@ -48,18 +48,18 @@ namespace DesktopGap.UnitTests
     private HtmlElementData _droppableElementData;
     private HtmlElementData _nonDroppableElementData;
 
-    private DragAndDropAddIn _dragAndDropAddIn;
+    private DragAndDropEvent _dragAndDropEvent;
 
 
     [SetUp]
     public void SetUp ()
     {
-      _dragAndDropAddIn = new DragAndDropAddIn (new ResourceManager());
+      _dragAndDropEvent = new DragAndDropEvent (new ResourceManager());
 
       var attributesDictionary = new Dictionary<string, string>
                                  {
-                                     { DragAndDropAddIn.DropConditionAttributeName, "1" },
-                                     { DragAndDropAddIn.DroppableAttributeName, "true" }
+                                     { DragAndDropEvent.DropConditionAttributeName, "1" },
+                                     { DragAndDropEvent.DroppableAttributeName, "true" }
                                  };
 
 
@@ -71,16 +71,16 @@ namespace DesktopGap.UnitTests
     public void RemoveDragDropSource_RemoveSource_ShouldSucceed ()
     {
       var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
+      _dragAndDropEvent.AddDragDropSource (browserStub);
 
-      Assert.That (() => _dragAndDropAddIn.RemoveDragDropSource (browserStub), Throws.Nothing);
+      Assert.That (() => _dragAndDropEvent.RemoveDragDropSource (browserStub), Throws.Nothing);
     }
 
     [Test]
     public void ShouldRaiseEvent_InvalidCondition_ShouldThrowArgumentException ()
     {
       Assert.That (
-          () => _dragAndDropAddIn.CheckRaiseCondition (new Condition (CreateCondition())),
+          () => _dragAndDropEvent.CheckRaiseCondition (new Condition (CreateCondition())),
           Throws.ArgumentException.With.Message.EqualTo ("The provided 'Criteria' object does not have the required property 'elementID'."));
     }
 
@@ -89,15 +89,15 @@ namespace DesktopGap.UnitTests
     {
       var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
 
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
+      _dragAndDropEvent.AddDragDropSource (browserStub);
 
       var eventArgs = new ExtendedDragEventHandlerArgs (null, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
       eventArgs.Current = _droppableElementData;
 
       var wasRaised = false;
-      _dragAndDropAddIn.DragDrop += (source, name, arguments) =>
+      _dragAndDropEvent.DragDrop += (source, name, arguments) =>
                                     {
-                                      Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
+                                      Assert.That (source, Is.InstanceOf<DragAndDropEvent>());
                                       Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
                                       Assert.That (((DragDropEventData) arguments).Names, Is.Empty);
                                       Assert.That (((DragDropEventData) arguments).ResourceHandles, Is.Empty);
@@ -112,7 +112,7 @@ namespace DesktopGap.UnitTests
     public void DragDrop_FilesAttached_ShouldSucceed ()
     {
       var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
+      _dragAndDropEvent.AddDragDropSource (browserStub);
 
       var dataObjectStub = MockRepository.GenerateStub<IDataObject>();
       dataObjectStub.Stub (_ => _.GetData (DataFormats.FileDrop)).Return (_filePaths);
@@ -121,9 +121,9 @@ namespace DesktopGap.UnitTests
       eventArgs.Current = _droppableElementData;
 
       var wasRaised = false;
-      _dragAndDropAddIn.DragDrop += (source, name, arguments) =>
+      _dragAndDropEvent.DragDrop += (source, name, arguments) =>
                                     {
-                                      Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
+                                      Assert.That (source, Is.InstanceOf<DragAndDropEvent>());
                                       Assert.That (arguments, Is.InstanceOf<DragDropEventData>());
                                       Assert.That (((DragDropEventData) arguments).Names, Is.EquivalentTo (_filePaths));
                                       Assert.That (((DragDropEventData) arguments).ResourceHandles, Is.Not.Empty);
@@ -139,7 +139,7 @@ namespace DesktopGap.UnitTests
     public void DragDrop_RequiredAttributesNotFound_ShouldNotBeCalled ()
     {
       var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
+      _dragAndDropEvent.AddDragDropSource (browserStub);
 
       var dataObjectStub = MockRepository.GenerateStub<IDataObject>();
       dataObjectStub.Stub (_ => _.GetData (DataFormats.FileDrop)).Return (_filePaths);
@@ -148,7 +148,7 @@ namespace DesktopGap.UnitTests
       eventArgs.Current = _nonDroppableElementData;
 
       var wasRaised = false;
-      _dragAndDropAddIn.DragDrop += (source, name, arguments) => wasRaised = true;
+      _dragAndDropEvent.DragDrop += (source, name, arguments) => wasRaised = true;
 
 
       browserStub.Raise (_ => _.DragDrop += null, browserStub, eventArgs);
@@ -160,7 +160,7 @@ namespace DesktopGap.UnitTests
     {
       var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
 
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
+      _dragAndDropEvent.AddDragDropSource (browserStub);
 
       var dataObjectStub = MockRepository.GenerateStub<IDataObject>();
 
@@ -168,9 +168,9 @@ namespace DesktopGap.UnitTests
       var eventArgs = new ExtendedDragEventHandlerArgs (dataObjectStub, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
 
       var wasRaised = false;
-      _dragAndDropAddIn.DragEnter += (source, name, arguments) =>
+      _dragAndDropEvent.DragEnter += (source, name, arguments) =>
                                      {
-                                       Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
+                                       Assert.That (source, Is.InstanceOf<DragAndDropEvent>());
                                        Assert.That (arguments, Is.InstanceOf<DragEventData>());
                                        Assert.That (((DragEventData) arguments).Names, Is.EquivalentTo (_filePaths));
 
@@ -185,16 +185,16 @@ namespace DesktopGap.UnitTests
     public void DragOver_FilesAttached_ShouldSucceed ()
     {
       var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
+      _dragAndDropEvent.AddDragDropSource (browserStub);
 
       var dataObjectStub = MockRepository.GenerateStub<IDataObject>();
       dataObjectStub.Stub (_ => _.GetData (DataFormats.FileDrop)).Return (_filePaths);
       var eventArgs = new ExtendedDragEventHandlerArgs (dataObjectStub, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
 
       var wasRaised = false;
-      _dragAndDropAddIn.DragOver += (source, name, arguments) =>
+      _dragAndDropEvent.DragOver += (source, name, arguments) =>
                                     {
-                                      Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
+                                      Assert.That (source, Is.InstanceOf<DragAndDropEvent>());
                                       Assert.That (arguments, Is.InstanceOf<DragEventData>());
                                       Assert.That (((DragEventData) arguments).Names, Is.EquivalentTo (_filePaths));
 
@@ -210,16 +210,16 @@ namespace DesktopGap.UnitTests
     public void DragLeave_FilesAttached_ShouldSucceed ()
     {
       var browserStub = MockRepository.GenerateStub<IExtendedWebBrowser>();
-      _dragAndDropAddIn.AddDragDropSource (browserStub);
+      _dragAndDropEvent.AddDragDropSource (browserStub);
 
       var dataObjectStub = MockRepository.GenerateStub<IDataObject>();
       dataObjectStub.Stub (_ => _.GetData (DataFormats.FileDrop)).Return (_filePaths);
       var eventArgs = new ExtendedDragEventHandlerArgs (dataObjectStub, 0, 1, 1, DragDropEffects.All, DragDropEffects.None, _documentHandle);
 
       var wasRaised = false;
-      _dragAndDropAddIn.DragLeave += (source, name, arguments) =>
+      _dragAndDropEvent.DragLeave += (source, name, arguments) =>
                                      {
-                                       Assert.That (source, Is.InstanceOf<DragAndDropAddIn>());
+                                       Assert.That (source, Is.InstanceOf<DragAndDropEvent>());
                                        Assert.That (arguments, Is.InstanceOf<DragEventData>());
 
                                        wasRaised = true;

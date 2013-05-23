@@ -18,12 +18,17 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
+using System.Configuration;
 
-namespace DesktopGap.AddIns.Events
+namespace DesktopGap.Configuration.Application
 {
-  public interface ISubscriptionHandler
+  public class FaviconConfigurationElement : ConfigurationElement
   {
-    IEnumerable<TSubscription> GetSubscribers<TSubscription> (HtmlDocumentHandle handle) where TSubscription: ISubscriber;
+    [ConfigurationProperty ("location", IsRequired = true)]
+    public string Location
+    {
+      get { return (string) this["location"]; }
+    }
   }
+
 }

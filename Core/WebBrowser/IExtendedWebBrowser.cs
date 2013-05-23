@@ -32,7 +32,6 @@ namespace DesktopGap.WebBrowser
     event EventHandler<NavigationEventArgs> AfterNavigate;
     event EventHandler<WindowOpenEventArgs> WindowOpen;
     event EventHandler<NavigationEventArgs> BeforeNavigate;
-    event EventHandler<NavigationEventArgs> PrepareNavigation;
 
     event EventHandler<ExtendedDragEventHandlerArgs> DragEnter;
     event EventHandler<ExtendedDragEventHandlerArgs> DragDrop;

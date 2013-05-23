@@ -44,9 +44,8 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
-    <Compile Include="SleepService.cs" />
     <Compile Include="WindowManagerService.cs" />
-    <Compile Include="DragAndDropAddIn.cs" />
+    <Compile Include="DragAndDropEvent.cs" />
     <Compile Include="GuidService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

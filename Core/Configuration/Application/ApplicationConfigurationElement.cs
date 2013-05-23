@@ -18,13 +18,28 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
+using System.Configuration;
 
-namespace DesktopGap.Security.AddIns
+namespace DesktopGap.Configuration.Application
 {
-  public interface IAddInRules
+  public class ApplicationConfigurationElement : ConfigurationElement
   {
-    IEnumerable<IAddInRule> Allowed { get; }
-    IEnumerable<IAddInRule> Denied { get; }
+    [ConfigurationProperty ("name")]
+    public string Name
+    {
+      get { return (string) this["name"]; }
+    }
+
+    [ConfigurationProperty ("Favicon")]
+    public FaviconConfigurationElement ThirdPartyUrls
+    {
+      get { return (FaviconConfigurationElement) this["Favicon"]; }
+    }
+
+    [ConfigurationProperty ("frameNestingDepth")]
+    public uint FrameNestingDepth
+    {
+      get { return (uint) this["frameNestingDepth"]; }
+    }
   }
 }

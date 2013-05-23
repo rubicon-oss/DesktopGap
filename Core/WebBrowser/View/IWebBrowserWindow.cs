@@ -18,13 +18,13 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.WebBrowser.Session;
+using DesktopGap.WebBrowser.StartOptions;
 
 namespace DesktopGap.WebBrowser.View
 {
   public interface IWebBrowserWindow : IDisposable
   {
-    ISession CurrentSession { get; }
-    void NewTab (string url);
+    void NewTab (string url, BrowserWindowStartMode mode);
+    void NewPopUp (string url, BrowserWindowStartMode mode);
   }
 }

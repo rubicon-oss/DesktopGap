@@ -24,7 +24,7 @@ using DesktopGap.Security.AddIns;
 
 namespace DesktopGap.Configuration.Security
 {
-  public class AddInConfigurationElementCollection : ConfigurationElementCollection, IEnumerable<IAddInRule>
+  public class AddInConfigurationElementCollection : ConfigurationElementCollection, IEnumerable<AddInRule>
   {
     public AddInConfigurationElement this [int index]
     {
@@ -48,13 +48,13 @@ namespace DesktopGap.Configuration.Security
 
     protected override object GetElementKey (ConfigurationElement element)
     {
-      return ((IRuleIdentification) element).Key;
+      return ((AddInConfigurationElement) element).Key;
     }
 
-    public new IEnumerator<IAddInRule> GetEnumerator ()
+    public new IEnumerator<AddInRule> GetEnumerator ()
     {
       for (var i = 0; i < Count; i++)
-        yield return (IAddInRule) BaseGet (i);
+        yield return (AddInRule) this[i].GetRule();
     }
   }
 }

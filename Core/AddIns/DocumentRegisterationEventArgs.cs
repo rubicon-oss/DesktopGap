@@ -17,12 +17,20 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
 
-namespace DesktopGap.Security.AddIns
+using System;
+using DesktopGap.Utilities;
+
+namespace DesktopGap.AddIns
 {
-  public interface IAddInRule
+  public class DocumentRegisterationEventArgs : EventArgs
   {
-    string Name { get; }
+    public DocumentRegisterationEventArgs (HtmlDocumentHandle documentHandle)
+    {
+      ArgumentUtility.CheckNotNull ("documentHandle", documentHandle);
+      DocumentHandle = documentHandle;
+    }
+
+    public HtmlDocumentHandle DocumentHandle { get; private set; }
   }
 }

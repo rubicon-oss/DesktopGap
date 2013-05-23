@@ -24,32 +24,30 @@ using DesktopGap.Security.Urls;
 
 namespace DesktopGap.Configuration.Security
 {
-  public class UrlConfigurationElement : ConfigurationElement, IUrlRule, IRuleIdentification
+  public class UrlConfigurationElement : ConfigurationElement
   {
-    private Regex _pathExpression;
-    private Regex _domainExpression;
-
-    private const RegexOptions c_defaultDomainRegexOptions = RegexOptions.Compiled
-                                                             | RegexOptions.IgnoreCase
-                                                             | RegexOptions.Singleline;
-
-    private const RegexOptions c_defaultPathRegexOptions = RegexOptions.Compiled
-                                                           | RegexOptions.IgnoreCase
-                                                           | RegexOptions.Singleline
-                                                           | RegexOptions.RightToLeft;
-
-
     [ConfigurationProperty ("domain", IsRequired = true)]
     public string Domain
     {
       get { return (string) this["domain"]; }
     }
-
-
+    
     [ConfigurationProperty ("path")]
     public string Path
     {
-      get { return this["path"] as string; }
+      get { return (string) this["path"]; }
+    }
+
+    [ConfigurationProperty ("requireSSL", DefaultValue = false)]
+    public bool RequireSsl
+    {
+      get { return (bool) this["requireSSL"]; }
+    }
+
+    [ConfigurationProperty ("pattern", DefaultValue = false)]
+    public bool Pattern
+    {
+      get { return (bool) this["pattern"]; }
     }
 
     public string Key
@@ -57,19 +55,10 @@ namespace DesktopGap.Configuration.Security
       get { return string.Format ("({0}) ({1})", Domain, Path); }
     }
 
-    public Regex DomainExpression
-    {
-      get { return _domainExpression ?? (_domainExpression = new Regex (Domain, c_defaultDomainRegexOptions)); }
-    }
 
-    public Regex PathExpression
+    public UrlRule GetRule ()
     {
-      get { return _pathExpression ?? (_pathExpression = new Regex (Path, c_defaultPathRegexOptions)); }
-    }
-
-    public bool IsMatch (string url)
-    {
-      return DomainExpression.IsMatch (url) && PathExpression.IsMatch (url);
+      return Pattern ? new UrlRule (Domain, Path) : new UrlRule ("^" + Regex.Escape(Domain), Regex.Escape(Path) + "$");
     }
   }
 }

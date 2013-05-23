@@ -18,11 +18,12 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 
-namespace DesktopGap.Configuration.Security
+namespace DesktopGap.AddIns.Events
 {
-  public interface IRuleIdentification
+  public interface ISubscriptionProvider
   {
-    string Key { get; }
+    IEnumerable<TSubscription> GetSubscribers<TSubscription> (HtmlDocumentHandle handle) where TSubscription: ISubscriber;
   }
 }

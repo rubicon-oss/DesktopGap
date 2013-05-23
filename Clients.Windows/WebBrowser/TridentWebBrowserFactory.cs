@@ -29,22 +29,35 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 {
   public class TridentWebBrowserFactory : IWebBrowserFactory
   {
-    private readonly UrlFilter _urlFilter;
-
-    public TridentWebBrowserFactory (IHtmlDocumentHandleRegistry htmlDocumentHandleRegistry, UrlFilter urlFilter)
+    public TridentWebBrowserFactory (
+        IHtmlDocumentHandleRegistry htmlDocumentHandleRegistry,
+        ISubscriptionProvider subscriptionProvider,
+        IUrlFilter pageFilter,
+        IUrlFilter addInAllowedFilter)
     {
       ArgumentUtility.CheckNotNull ("htmlDocumentHandleRegistry", htmlDocumentHandleRegistry);
-      ArgumentUtility.CheckNotNull ("urlFilter", urlFilter);
+      ArgumentUtility.CheckNotNull ("subscriptionProvider", subscriptionProvider);
+      ArgumentUtility.CheckNotNull ("pageFilter", pageFilter);
+      ArgumentUtility.CheckNotNull ("addInAllowedFilter", addInAllowedFilter);
 
+      PageFilter = pageFilter;
+      AddInAllowedFilter = addInAllowedFilter;
+
+      SubscriptionProvider = subscriptionProvider;
       HtmlDocumentHandleRegistry = htmlDocumentHandleRegistry;
-      _urlFilter = urlFilter;
     }
 
+    public IUrlFilter PageFilter { get; private set; }
+    public IUrlFilter AddInAllowedFilter { get; private set; }
     public IHtmlDocumentHandleRegistry HtmlDocumentHandleRegistry { get; private set; }
+    public ISubscriptionProvider SubscriptionProvider { get; private set; }
 
     public IExtendedWebBrowser CreateBrowser ()
     {
-      return new TridentWebBrowser (HtmlDocumentHandleRegistry, HtmlDocumentHandleRegistry as ISubscriptionHandler, _urlFilter);
+      var browser = new TridentWebBrowser (HtmlDocumentHandleRegistry, SubscriptionProvider, PageFilter, AddInAllowedFilter);
+
+
+      return browser;
     }
   }
 }

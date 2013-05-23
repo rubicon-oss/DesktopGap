@@ -35,7 +35,7 @@ using Microsoft.CSharp.RuntimeBinder;
 namespace DesktopGap.AddIns
 {
   [PartCreationPolicy (CreationPolicy.Shared)]
-  public class DragAndDropAddIn : ExternalEventBase, IBrowserEventSubscriber
+  public class DragAndDropEvent : ExternalEventBase, IBrowserEventSubscriber
   {
     private const string c_name = "DragAndDrop";
     private const string c_dragEnterEventName = "DragEnter";
@@ -56,11 +56,11 @@ namespace DesktopGap.AddIns
     private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _elementUnderCursor = new KeyValuePair<HtmlDocumentHandle, HtmlElementData>();
     private KeyValuePair<HtmlDocumentHandle, HtmlElementData> _enterElement = new KeyValuePair<HtmlDocumentHandle, HtmlElementData>();
 
-    public DragAndDropAddIn ()
+    public DragAndDropEvent ()
     {
     }
 
-    public DragAndDropAddIn (IResourceManager resourceManager)
+    public DragAndDropEvent (IResourceManager resourceManager)
     {
       ArgumentUtility.CheckNotNull ("resourceManager", resourceManager);
 

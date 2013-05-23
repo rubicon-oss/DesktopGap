@@ -19,6 +19,7 @@
 // 
 using System;
 using System.ComponentModel.Composition.Hosting;
+using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
 using DesktopGap.AddIns;
@@ -28,12 +29,13 @@ using DesktopGap.AddIns.Services;
 using DesktopGap.Clients.Windows.Protocol.Wrapper;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.Factories;
 using DesktopGap.Clients.Windows.WebBrowser;
+using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
+using DesktopGap.Configuration;
 using DesktopGap.Security.AddIns;
-using DesktopGap.Security.Providers;
 using DesktopGap.Security.Urls;
 using DesktopGap.WebBrowser;
-using DesktopGap.WebBrowser.View;
+using DesktopGap.WebBrowser.StartOptions;
 
 namespace DesktopGap.Clients.Windows
 {
@@ -42,39 +44,63 @@ namespace DesktopGap.Clients.Windows
   /// </summary>
   public partial class App
   {
+    private const int c_startUrlArgumentPosition = 0;
     private const string c_addInDirectory = @".";
     private IWebBrowserFactory _browserFactory;
 
     [STAThread]
     private void Application_Startup (object sender, StartupEventArgs e)
     {
-      var security = SecurityProvider.Create (@"C:\Development", "desktopgap-default.conf").GetConfiguration();
-      IUrlRules urlRules = security.Urls;
-      IAddInRules addInRules = security.AddIns;
+      // TODO replace soon
+      var configuration = DesktopGapConfigurationProvider.Create (@"C:\Development", "desktopgap-defaul-newt.conf").GetConfiguration();
+
+      var thirdPartyUrlRules = configuration.Security.ThirdPartyUrlRules;
+      var applicationUrlRules = configuration.Security.ApplicationUrlRules;
+      var startUpUrlRules = configuration.Security.StartupUrlRules;
+
+      var resourceUrls = thirdPartyUrlRules.Union (applicationUrlRules);
+
+      var addInRules = configuration.Security.AddInRules;
+      var baseUri = new Uri ("http://localhost:3936");
+
+      var resourceFilter = new UrlFilter (baseUri, resourceUrls);
+      var pageFilter = new UrlFilter (baseUri, thirdPartyUrlRules);
+      var addInAllowedFilter = new UrlFilter (baseUri, applicationUrlRules);
+
 
       var catalog = new AggregateCatalog();
       var dirCatalog = new DirectoryCatalog (c_addInDirectory);
       catalog.Catalogs.Add (dirCatalog);
       var compositionContainer = new CompositionContainer (catalog);
 
-      var baseUri = new Uri ("http://localhost:3936");
+      var tridentFeatures = new TridentFeatures();
+      tridentFeatures.BrowserEmulationMode = TridentWebBrowserMode.ForcedIE10;
+      tridentFeatures.GpuAcceleration = true;
 
       var filter = new ProtocolWrapperManager();
-      filter.RegisterProtocol (new FilteredHttpProtocolFactory (new UrlFilter (baseUri, urlRules)));
-            //filter.RegisterProtocol (new FilteredHttpsProtocolFactory (new UrlFilter (baseUri, urlRules)));
+      filter.RegisterProtocol (new FilteredHttpProtocolFactory (resourceFilter));
+      //filter.RegisterProtocol (new FilteredHttpsProtocolFactory (new UrlFilter (baseUri, urlRules)));
 
-      var addInProvider = new HtmlDocumentHandleRegistry (
-          new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, new AddInFilter (addInRules))),
-          new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer, new AddInFilter (addInRules))));
+      var addInFilter = new AddInFilter (addInRules);
 
+      var htmlDocumentHandleRegistry = new HtmlDocumentHandleRegistry (
+          new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, addInFilter)),
+          new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer, addInFilter)));
 
-      _browserFactory = new TridentWebBrowserFactory (addInProvider, new UrlFilter (baseUri, urlRules));
+      var subscriptionHandler = (ISubscriptionProvider) htmlDocumentHandleRegistry;
+      _browserFactory = new TridentWebBrowserFactory (htmlDocumentHandleRegistry, subscriptionHandler, pageFilter, addInAllowedFilter);
+
+      var viewDispatcher = new TridentViewDispatcher (_browserFactory, subscriptionHandler);
+
+      htmlDocumentHandleRegistry.DocumentRegistered += viewDispatcher.OnDocumentRegistered;
+      htmlDocumentHandleRegistry.BeforeDocumentUnregister += viewDispatcher.OnBeforeDocumentUnregister;
 
       try
       {
-        var mainWindow = new BrowserWindow (_browserFactory);
-        foreach (var arg in e.Args)
-          ((IWebBrowserWindow) mainWindow).NewTab (arg);
+        var mainWindow = new BrowserWindow (viewDispatcher);
+        if (e.Args.Length > 1 && !string.IsNullOrEmpty (e.Args[c_startUrlArgumentPosition]))
+          mainWindow.NewTab (e.Args[c_startUrlArgumentPosition], BrowserWindowStartMode.Active);
+
         mainWindow.Show();
       }
       catch (Exception ex)

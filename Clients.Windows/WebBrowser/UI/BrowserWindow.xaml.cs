@@ -21,9 +21,7 @@ using System;
 using System.Linq;
 using System.Windows;
 using DesktopGap.Utilities;
-using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Arguments;
-using DesktopGap.WebBrowser.Session;
 using DesktopGap.WebBrowser.StartOptions;
 using DesktopGap.WebBrowser.View;
 
@@ -34,179 +32,51 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   /// </summary>
   public partial class BrowserWindow : IWebBrowserWindow
   {
-    private class NewTabEventArgs : EventArgs
+    private readonly ViewDispatcherBase _viewDispatcher;
+
+    public BrowserWindow (ViewDispatcherBase viewDispatcher)
     {
-      public BrowserTab BrowserTab { get; private set; }
-
-      public NewTabEventArgs (BrowserTab browserTab)
-      {
-        ArgumentUtility.CheckNotNull ("browserTab", browserTab);
-
-        BrowserTab = browserTab;
-      }
-    }
-
-    private class NewPopupEventArgs : EventArgs
-    {
-      public PopUpWindow PopUpWindow { get; private set; }
-
-      public NewPopupEventArgs (PopUpWindow popUpWindow)
-      {
-        ArgumentUtility.CheckNotNull ("popUpWindow", popUpWindow);
-
-        PopUpWindow = popUpWindow;
-      }
-    }
-
-    private class WindowPreparer
-    {
-      private const string c_protocolSeparator = "://";
-      private const string c_httpProtocolHandler = "http";
-
-      private IExtendedWebBrowser Browser { get; set; }
-
-      public Uri Url { get; private set; }
-
-      public event EventHandler<EventArgs> Self;
-      public event EventHandler<NewTabEventArgs> NewTab;
-      public event EventHandler<NewPopupEventArgs> NewPopup;
-
-      public WindowPreparer (IExtendedWebBrowser browser, string url)
-      {
-        ArgumentUtility.CheckNotNull ("browser", browser);
-        ArgumentUtility.CheckNotNull ("url", url);
-
-        Browser = browser;
-        Url = new Uri (!url.Contains (c_protocolSeparator) ? string.Join (c_protocolSeparator, c_httpProtocolHandler, url) : url);
-      }
-
-      public IWebBrowserView Create (BrowserWindowTarget target)
-      {
-        IWebBrowserView view;
-        switch (target)
-        {
-          case BrowserWindowTarget.PopUp:
-            var newPopUp = new PopUpWindow (new WebBrowserHost ((TridentWebBrowser) Browser));
-            if (NewPopup != null)
-              NewPopup (this, new NewPopupEventArgs (newPopUp));
-            view = newPopUp;
-            break;
-
-          default:
-            var newTab = new BrowserTab (new WebBrowserHost ((TridentWebBrowser) Browser));
-            if (NewTab != null)
-              NewTab (this, new NewTabEventArgs (newTab));
-            view = newTab;
-            break;
-        }
-        return view;
-      }
-    }
-
-    private readonly IWebBrowserFactory _browserFactory;
-
-    private WindowPreparer _preparer;
-
-    public BrowserWindow (IWebBrowserFactory browserFactory)
-    {
-      ArgumentUtility.CheckNotNull ("browserFactory", browserFactory);
+      ArgumentUtility.CheckNotNull ("viewDispatcher", viewDispatcher);
       InitializeComponent();
 
-      _browserFactory = browserFactory;
+      _viewDispatcher = viewDispatcher;
+
+      _viewDispatcher.ViewCreated += OnSubViewCreated;
     }
 
     public void Dispose ()
     {
-      foreach (var browserTab in _tabControl.Items.Cast<BrowserTab>())
-        browserTab.Dispose();
-    }
-
-    public ISession CurrentSession { get; private set; }
-
-    public void NewTab (string url)
-    {
-      var browser = _browserFactory.CreateBrowser();
-      _preparer = new WindowPreparer (browser, url);
-      browser.BeforeNavigate += OnBeforeNavigate;
-
-      browser.Navigate (url);
-
-      var view = _preparer.Create (BrowserWindowTarget.Tab);
-    }
-
-    private void OnWindowOpen (object sender, WindowOpenEventArgs eventArgs)
-    {
-      IExtendedWebBrowser webBrowser;
-      if (eventArgs.BrowserWindowTarget != BrowserWindowTarget.Self)
-        webBrowser = _browserFactory.CreateBrowser();
-      else
-        webBrowser = ((BrowserTab) _tabControl.Items[_tabControl.SelectedIndex]).WebBrowser;
-      eventArgs.TargetView = webBrowser;
-      _preparer = new WindowPreparer (webBrowser, eventArgs.Url);
-      webBrowser.BeforeNavigate += OnBeforeNavigate;
-    }
-
-    private void OnBeforeNavigate (object sender, NavigationEventArgs e)
-    {
-      if (_preparer == null || !_preparer.Url.Equals (e.URL))
-        return;
-
-      if (_tabControl.Items.IsEmpty)
-        _preparer.NewTab += OnNewTab;
-      else
-      {
-        switch (e.BrowserWindowTarget)
-        {
-          case BrowserWindowTarget.PopUp:
-            _preparer.NewPopup += OnNewPopup;
-            break;
-
-          case BrowserWindowTarget.Tab:
-            _preparer.NewTab += OnNewTab;
-            break;
-
-          case BrowserWindowTarget.Self:
-            _preparer.Self += OnSelf;
-            break;
-
-          case BrowserWindowTarget.Window:
-            break; // TODO ask launcher to do this
-        }
-      }
-
-      var view = _preparer.Create (e.BrowserWindowTarget);
-      view.Show (e.StartMode);
-      _preparer = null;
-    }
-
-
-    private void OnSelf (object sender, EventArgs eventArgs)
-    {
-    }
-
-    private void OnNewTab (object sender, NewTabEventArgs eventArgs)
-    {
-      var browserTab = eventArgs.BrowserTab;
-      var browser = browserTab.WebBrowser;
-
-      browser.WindowOpen += OnWindowOpen; // TODO avoid stackoverflow?
-      //browser.AfterNavigate += browserTab.OnAfterNavigate;
-      browserTab.TabClosing += (s, e) => _tabControl.Items.Remove (s);
-      _tabControl.Items.Add (browserTab);
-      _preparer.NewTab -= OnNewTab;
-    }
-
-    private void OnNewPopup (object sender, NewPopupEventArgs eventArgs)
-    {
-      var popUp = eventArgs.PopUpWindow;
-      var browser = popUp.WebBrowser;
-      browser.WindowOpen += OnWindowOpen; // TODO what?!
-      _preparer.NewPopup -= OnNewPopup;
+      foreach (var disposable in _tabControl.Items.OfType<IDisposable>())
+        disposable.Dispose();
     }
 
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
     {
-      NewTab (_urlTextBox.Text);
+      NewTab (_urlTextBox.Text, BrowserWindowStartMode.Active);
+    }
+
+    public void NewTab (string url, BrowserWindowStartMode mode)
+    {
+      ArgumentUtility.CheckNotNull ("url", url);
+
+      _viewDispatcher.NewView (BrowserWindowTarget.Tab, url, mode);
+    }
+
+    public void NewPopUp (string url, BrowserWindowStartMode mode)
+    {
+      ArgumentUtility.CheckNotNull ("url", url);
+
+      _viewDispatcher.NewView (BrowserWindowTarget.PopUp, url, mode);
+    }
+
+    private void OnSubViewCreated (object sender, NewViewEventArgs e)
+    {
+      if (e.StartMode != BrowserWindowStartMode.Modal)
+      {
+        if (e.View is BrowserTab)
+          _tabControl.Items.Add (e.View);
+        e.View.Show (e.StartMode);
+      }
     }
   }
 }

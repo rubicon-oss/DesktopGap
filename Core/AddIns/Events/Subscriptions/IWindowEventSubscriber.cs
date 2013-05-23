@@ -25,5 +25,7 @@ namespace DesktopGap.AddIns.Events.Subscriptions
   public interface IWindowEventSubscriber : ISubscriber
   {
     void OnPrepareNavigation (object sender, NavigationEventArgs args);
+
+    void OnViewCreated (object sender, NewViewEventArgs e);
   }
 }

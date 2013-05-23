@@ -21,7 +21,7 @@
 <Window x:Class="DesktopGap.Clients.Windows.WebBrowser.UI.PopUpWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="PopUpWindow" Height="300" Width="300">
+        Title="PopUpWindow" MinHeight="100" MinWidth="200">
     <Grid>
         
     </Grid>

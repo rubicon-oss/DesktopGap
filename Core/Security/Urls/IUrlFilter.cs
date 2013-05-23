@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 
 namespace DesktopGap.Security.Urls
@@ -25,5 +24,6 @@ namespace DesktopGap.Security.Urls
   public interface IUrlFilter
   {
     bool IsAllowed (string url);
+    bool IsAllowed (Uri url);
   }
 }

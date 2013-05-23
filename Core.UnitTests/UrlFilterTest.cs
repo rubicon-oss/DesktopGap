@@ -18,7 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.Security.Providers;
+using DesktopGap.Configuration;
 using DesktopGap.Security.Urls;
 using DesktopGap.UnitTests.Utilities;
 using NUnit.Framework;
@@ -57,7 +57,7 @@ namespace DesktopGap.UnitTests
       using (var tmp = new TempFile())
       {
         tmp.WriteAllText (c_manifest);
-        var securityConfiguration = SecurityProvider.Create ("", tmp.FileName).GetConfiguration();
+        var securityConfiguration = DesktopGapConfigurationProvider.Create ("", tmp.FileName).GetConfiguration();
         _urlRules = securityConfiguration.Urls;
       }
     }

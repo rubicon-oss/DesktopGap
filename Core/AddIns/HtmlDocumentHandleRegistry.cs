@@ -29,7 +29,7 @@ using DesktopGap.WebBrowser;
 
 namespace DesktopGap.AddIns
 {
-  public sealed class HtmlDocumentHandleRegistry : IHtmlDocumentHandleRegistry, ISubscriptionHandler
+  public sealed class HtmlDocumentHandleRegistry : IHtmlDocumentHandleRegistry, ISubscriptionProvider
   {
     private readonly IAddInManagerFactory<ServiceAddInBase> _serviceManagerFactory;
     private readonly IAddInManagerFactory<EventAddInBase> _eventManagerFactory;
@@ -74,7 +74,8 @@ namespace DesktopGap.AddIns
       get { return _eventDispatchers.Count; }
     }
 
-    public event EventHandler<DocumentRegisteredEventArgs> NewDocumentRegistered;
+    public event EventHandler<DocumentRegisterationEventArgs> DocumentRegistered;
+    public event EventHandler<DocumentRegisterationEventArgs> BeforeDocumentUnregister;
 
     public void RegisterDocumentHandle (HtmlDocumentHandle handle, IScriptingHost scriptingHost)
     {
@@ -90,13 +91,20 @@ namespace DesktopGap.AddIns
 
       _eventDispatchers.Add (handle, eventDispatcher);
       _serviceManagers.Add (handle, serviceManager);
-      if (NewDocumentRegistered != null)
-        NewDocumentRegistered (this, new DocumentRegisteredEventArgs (handle));
+      if (DocumentRegistered != null)
+        DocumentRegistered (this, new DocumentRegisterationEventArgs (handle));
     }
 
 
     public void UnregisterDocumentHandle (HtmlDocumentHandle handle)
     {
+      if (!HasDocumentHandle (handle))
+        throw new InvalidOperationException (string.Format (c_documentNotRegisteredFormatString, handle));
+      
+
+        if(BeforeDocumentUnregister != null)
+        BeforeDocumentUnregister (this, new DocumentRegisterationEventArgs (handle));
+
       var eventDispatcher = GetEventDispatcher (handle);
       var serviceManager = GetServiceManager (handle);
 

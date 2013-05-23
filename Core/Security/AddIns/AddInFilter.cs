@@ -27,20 +27,18 @@ namespace DesktopGap.Security.AddIns
   public class AddInFilter : IAddInFilter
   {
     private readonly ISet<string> _allowed = new HashSet<string>();
-    private readonly ISet<string> _denied = new HashSet<string>();
 
 
-    public AddInFilter (IAddInRules rules)
+    public AddInFilter (IEnumerable<AddInRule> whitelist)
     {
-      ArgumentUtility.CheckNotNull ("rules", rules);
+      ArgumentUtility.CheckNotNull ("whitelist", whitelist);
 
-      _allowed.UnionWith (rules.Allowed.Select (r => r.Name));
-      _denied.UnionWith (rules.Denied.Select (r => r.Name));
+      _allowed.UnionWith (whitelist.Select (r => r.Name));
     }
 
     public bool IsAllowed (string name)
     {
-      return (_allowed.Contains (name) && !_denied.Contains (name)) || !_denied.Contains (name);
+      return _allowed.Contains (name);
     }
   }
 }

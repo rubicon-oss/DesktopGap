@@ -19,16 +19,33 @@
 // 
 
 using System;
-using System.Text.RegularExpressions;
+using System.ComponentModel.Composition;
+using System.Runtime.InteropServices;
+using System.Threading;
+using DesktopGap.AddIns.Services;
 
-namespace DesktopGap.Security.Urls
+namespace DesktopGap.AddIns.Contrib
 {
-  public interface IUrlRule
+  [ComVisible (true)]
+  [PartCreationPolicy (CreationPolicy.NonShared)]
+  public class SleepService : ExternalServiceBase
   {
-    Regex DomainExpression { get; }
+    public SleepService ()
+    {
+    }
 
-    Regex PathExpression { get; }
+    public override string Name
+    {
+      get { return "SleepService"; }
+    }
 
-    bool IsMatch (string url);
+    public override void Dispose ()
+    {
+    }
+
+    public void Sleep (int milliseconds)
+    {
+      Thread.Sleep (milliseconds);
+    }
   }
 }

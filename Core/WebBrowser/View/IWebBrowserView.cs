@@ -26,6 +26,8 @@ namespace DesktopGap.WebBrowser.View
   {
     IExtendedWebBrowser WebBrowser { get; }
 
+    Guid Identifier { get; }
+
     void Show (BrowserWindowStartMode startMode);
   }
 }

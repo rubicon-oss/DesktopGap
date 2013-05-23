@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,14 +18,24 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
+using System.Configuration;
+using DesktopGap.Configuration.Application;
+using DesktopGap.Configuration.Security;
 
-namespace DesktopGap.Security.Urls
+namespace DesktopGap.Configuration
 {
-  public interface IUrlRules
+  public class DesktopGapConfiguration : ConfigurationSection
   {
-    IEnumerable<IUrlRule> Allowed { get; }
+    [ConfigurationProperty ("Application")]
+    public ApplicationConfigurationElement Application
+    {
+      get { return (ApplicationConfigurationElement) this["Application"]; }
+    }
 
-    IEnumerable<IUrlRule> Denied { get; }
+    [ConfigurationProperty ("Security")]
+    public SecurityConfigurationElement Security
+    {
+      get { return (SecurityConfigurationElement) this["Security"]; }
+    }
   }
 }

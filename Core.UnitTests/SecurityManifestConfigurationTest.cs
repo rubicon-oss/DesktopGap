@@ -23,8 +23,8 @@ using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using DesktopGap.Configuration;
 using DesktopGap.Security.AddIns;
-using DesktopGap.Security.Providers;
 using DesktopGap.Security.Urls;
 using DesktopGap.UnitTests.Utilities;
 using NUnit.Framework;
@@ -85,7 +85,7 @@ namespace DesktopGap.UnitTests
     public void DesktopGapSecurityProviderCreate_InvalidFile_ShouldThrowArgumentExceptionn ()
     {
         Assert.That (
-            () => SecurityProvider.Create ("", "hello").GetConfiguration(), Throws.InstanceOf<ArgumentException>());
+            () => DesktopGapConfigurationProvider.Create ("", "hello").GetConfiguration(), Throws.InstanceOf<ArgumentException>());
      }
 
     [Test]
@@ -111,7 +111,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
         Assert.That (
-            () => SecurityProvider.Create ("", tempFile.FileName).GetConfiguration(), Throws.InstanceOf<ConfigurationErrorsException>());
+            () => DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration(), Throws.InstanceOf<ConfigurationErrorsException>());
       }
     }
 
@@ -146,7 +146,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IUrlRules rules = SecurityProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
+        IUrlRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
         var actualDomainExpression = rules.Allowed.First().DomainExpression;
         var actualPathExpression = rules.Allowed.First().PathExpression;
 
@@ -188,7 +188,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IUrlRules rules = SecurityProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
+        IUrlRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
         var actualDomainExpression = rules.Denied.First().DomainExpression;
         var actualPathExpression = rules.Denied.First().PathExpression;
 
@@ -224,7 +224,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IUrlRules rules = SecurityProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
+        IUrlRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
         var actualDomainExpression = rules.Denied.First().DomainExpression;
 
         Assert.That (
@@ -254,7 +254,7 @@ namespace DesktopGap.UnitTests
         stringBuilder.Append (c_manifestTail);
 
         tempFile.WriteAllText (stringBuilder.ToString());
-        var rules = SecurityProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
         Assert.That (
             () => rules.Denied.First().DomainExpression,
             Throws.ArgumentException);
@@ -285,7 +285,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IAddInRules rules = SecurityProvider.Create ("", tempFile.FileName).GetConfiguration().AddIns;
+        IAddInRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().AddIns;
         var actual = rules.Denied.First().Name;
 
         Assert.That (actual == name, Is.True);
@@ -316,7 +316,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IAddInRules rules = SecurityProvider.Create ("", tempFile.FileName).GetConfiguration().AddIns;
+        IAddInRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().AddIns;
         var actual = rules.Allowed.First().Name;
 
         Assert.That (actual == name, Is.True);

@@ -26,7 +26,10 @@ namespace DesktopGap.AddIns
 {
   public interface IHtmlDocumentHandleRegistry : IDisposable
   {
-    event EventHandler<DocumentRegisteredEventArgs> NewDocumentRegistered; 
+    event EventHandler<DocumentRegisterationEventArgs> DocumentRegistered; 
+
+    event EventHandler<DocumentRegisterationEventArgs> BeforeDocumentUnregister; 
+
 
     void RegisterDocumentHandle (HtmlDocumentHandle handle, IScriptingHost scriptingHost);
 

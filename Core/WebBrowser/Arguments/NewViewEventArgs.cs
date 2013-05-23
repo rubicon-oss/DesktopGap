@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,27 +18,22 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Configuration;
-namespace DesktopGap.Configuration.Security
+using DesktopGap.Utilities;
+using DesktopGap.WebBrowser.StartOptions;
+using DesktopGap.WebBrowser.View;
+
+namespace DesktopGap.WebBrowser.Arguments
 {
-  public class SecurityManifestConfiguration : ConfigurationSection
+  public class NewViewEventArgs : EventArgs
   {
-    [ConfigurationProperty ("Startup")]
-    public UrlPermissionConfigurationElement Startup
-    {
-      get { return (UrlPermissionConfigurationElement) this["Startup"]; }
-    }
+    public BrowserWindowStartMode StartMode { get; private set; }
+    public IWebBrowserView View { get; private set; }
 
-    [ConfigurationProperty ("Urls")]
-    public UrlPermissionConfigurationElement Urls
+    public NewViewEventArgs (IWebBrowserView view, BrowserWindowStartMode startMode)
     {
-      get { return (UrlPermissionConfigurationElement) this["Urls"]; }
-    }
-
-    [ConfigurationProperty ("AddIns")]
-    public AddInPermissionConfigurationElement AddIns
-    {
-      get { return (AddInPermissionConfigurationElement) this["AddIns"]; }
+      ArgumentUtility.CheckNotNull ("view", view);
+      StartMode = startMode;
+      View = view;
     }
   }
 }

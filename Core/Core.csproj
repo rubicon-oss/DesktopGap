@@ -51,10 +51,10 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="AddIns\AddInManagerBase.cs" />
-    <Compile Include="AddIns\DocumentRegisteredEventArgs.cs" />
+    <Compile Include="AddIns\DocumentRegisterationEventArgs.cs" />
     <Compile Include="AddIns\Events\Subscriptions\IBrowserEventSubscriber.cs" />
     <Compile Include="AddIns\Events\Subscriptions\ISubscriber.cs" />
-    <Compile Include="AddIns\Events\ISubscriptionHandler.cs" />
+    <Compile Include="AddIns\Events\ISubscriptionProvider.cs" />
     <Compile Include="AddIns\Events\Subscriptions\IWindowEventSubscriber.cs" />
     <Compile Include="AddIns\Factories\CompositionBasedAddInFactory.cs" />
     <Compile Include="AddIns\Factories\EventManagerFactory.cs" />
@@ -67,21 +67,19 @@
     <Compile Include="AddIns\Factories\IAddInManagerFactory.cs" />
     <Compile Include="AddIns\Factories\ServiceManagerFactory.cs" />
     <Compile Include="AddIns\Services\ServiceAddInBase.cs" />
+    <Compile Include="Configuration\Application\ApplicationConfigurationElement.cs" />
+    <Compile Include="Configuration\Application\FaviconConfigurationElement.cs" />
     <Compile Include="Configuration\IDesktopGapConfigurationProvider.cs" />
     <Compile Include="Configuration\DesktopGapConfigurationProviderBase.cs" />
-    <Compile Include="Security\AddIns\IAddInRule.cs" />
-    <Compile Include="Security\AddIns\IAddInRules.cs" />
-    <Compile Include="Security\Urls\IUrlRule.cs" />
-    <Compile Include="Security\Providers\DesktopGapSecurityProvider.cs" />
+    <Compile Include="Configuration\DesktopGapConfigurationManifest.cs" />
+    <Compile Include="Security\AddIns\AddInRule.cs" />
+    <Compile Include="Configuration\DesktopGapConfigurationProvider.cs" />
     <Compile Include="Configuration\LocalDesktopGapConfigurationProvider.cs" />
     <Compile Include="Configuration\Security\AddInConfigurationElement.cs" />
     <Compile Include="Configuration\Security\AddInConfigurationElementCollection.cs" />
-    <Compile Include="Configuration\Security\AddInPermissionConfigurationElement.cs" />
-    <Compile Include="Configuration\Security\SecurityManifestConfiguration.cs" />
+    <Compile Include="Configuration\Security\SecurityConfigurationElement.cs" />
     <Compile Include="Configuration\RemoteDesktopGapConfigurationProvider.cs" />
-    <Compile Include="Configuration\Security\UrlPermissionConfigurationElement.cs" />
     <Compile Include="Configuration\Security\UrlConfigurationElementCollection.cs" />
-    <Compile Include="Configuration\Security\IRuleIdentification.cs" />
     <Compile Include="Configuration\Security\UrlConfigurationElement.cs" />
     <Compile Include="Handles.cs" />
     <Compile Include="AddIns\Events\Arguments\Condition.cs" />
@@ -96,8 +94,8 @@
     <Compile Include="Security\AddIns\AddInFilter.cs" />
     <Compile Include="Security\AddIns\IAddInFilter.cs" />
     <Compile Include="Security\Urls\IUrlFilter.cs" />
-    <Compile Include="Security\Urls\IUrlRules.cs" />
     <Compile Include="Security\Urls\UrlFilter.cs" />
+    <Compile Include="Security\Urls\UrlRule.cs" />
     <Compile Include="Utilities\ArgumentEmptyException.cs" />
     <Compile Include="Utilities\ArgumentUtility.cs" />
     <Compile Include="Utilities\Web\WebClientWrapper.cs" />
@@ -107,12 +105,12 @@
     <Compile Include="Utilities\ReSharperAnnotations\AssertionMethodAttribute.cs" />
     <Compile Include="Utilities\ReSharperAnnotations\InvokerParameterNameAttribute.cs" />
     <Compile Include="Utilities\ReSharperAnnotations\NoEnumerationAttribute.cs" />
+    <Compile Include="WebBrowser\Arguments\NewViewEventArgs.cs" />
     <Compile Include="WebBrowser\HtmlElementData.cs" />
     <Compile Include="WebBrowser\IScriptingHost.cs" />
     <Compile Include="WebBrowser\StartOptions\BrowserWindowStartMode.cs" />
     <Compile Include="WebBrowser\StartOptions\BrowserWindowTarget.cs" />
     <Compile Include="WebBrowser\Arguments\NavigationEventArgs.cs" />
-    <Compile Include="WebBrowser\Session\ISession.cs" />
     <Compile Include="AddIns\Events\IEventDispatcher.cs" />
     <Compile Include="AddIns\Services\IServiceManager.cs" />
     <Compile Include="AddIns\Services\ServiceManager.cs" />
@@ -123,8 +121,8 @@
     <Compile Include="WebBrowser\IWebBrowserFactory.cs" />
     <Compile Include="WebBrowser\View\IWebBrowserView.cs" />
     <Compile Include="WebBrowser\View\IWebBrowserWindow.cs" />
-    <Compile Include="WebBrowser\Session\Session.cs" />
     <Compile Include="WebBrowser\Arguments\WindowOpenEventArgs.cs" />
+    <Compile Include="WebBrowser\View\ViewDispatcherBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\GPL.licenseheader">

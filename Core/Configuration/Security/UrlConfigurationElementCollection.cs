@@ -24,11 +24,11 @@ using DesktopGap.Security.Urls;
 
 namespace DesktopGap.Configuration.Security
 {
-  public class UrlConfigurationElementCollection : ConfigurationElementCollection, IEnumerable<IUrlRule>
+  public class UrlConfigurationElementCollection : ConfigurationElementCollection, IEnumerable<UrlRule>
   {
     public UrlConfigurationElement this [int index]
     {
-      get { return BaseGet (index) as UrlConfigurationElement; }
+      get { return (UrlConfigurationElement) BaseGet (index); }
     }
 
     protected override ConfigurationElement CreateNewElement ()
@@ -49,13 +49,13 @@ namespace DesktopGap.Configuration.Security
 
     protected override object GetElementKey (ConfigurationElement element)
     {
-      return ((IRuleIdentification) element).Key;
+      return ((UrlConfigurationElement) element).Key;
     }
 
-    public new IEnumerator<IUrlRule> GetEnumerator ()
+    public new IEnumerator<UrlRule> GetEnumerator ()
     {
       for (var i = 0; i < Count; i++)
-        yield return BaseGet (i) as IUrlRule;
+        yield return this[i].GetRule();
     }
   }
 }

@@ -34,13 +34,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private readonly WebBrowserHost _browserHost;
 
 
-    public PopUpWindow (WebBrowserHost browserHost)
+    public PopUpWindow (TridentWebBrowser webBrowser, Guid identifier)
     {
-      ArgumentUtility.CheckNotNull ("browserHost", browserHost);
+      ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
 
       InitializeComponent();
 
-      _browserHost = browserHost;
+      _browserHost = new WebBrowserHost (webBrowser);
       Content = _browserHost;
 
       Width = _browserHost.WebBrowser.Width;
@@ -59,6 +59,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserHost.WebBrowser.WindowSetResizable += (s, r) => ResizeMode = r ? ResizeMode.CanResize : ResizeMode.NoResize;
 
       _browserHost.WebBrowser.DocumentTitleChanged += (s, e) => Title = _browserHost.WebBrowser.Title;
+
+      Visibility = Visibility.Hidden;
+      Identifier = identifier;
     }
 
 
@@ -73,28 +76,22 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       get { return _browserHost.WebBrowser; }
     }
 
+    public Guid Identifier { get; private set; }
+
 
     public void Show (BrowserWindowStartMode startMode)
     {
       switch (startMode)
       {
-        case BrowserWindowStartMode.Modal:
-          ((TridentWebBrowser) WebBrowser).DocumentsFinished += OnDocumentsFinished;
-          break;
-        case BrowserWindowStartMode.Background:
         case BrowserWindowStartMode.Active:
-        default:
           Show();
           break;
+        case BrowserWindowStartMode.Modal:
+          ShowDialog();
+          break;
+        default:
+          throw new InvalidOperationException (string.Format ("Start mode '{0}' is not supported for PopUpWindow.", startMode));
       }
-    }
-
-    private void OnDocumentsFinished (object sender, EventArgs e)
-    {
-      if (!IsVisible)
-        ShowDialog();
-
-      ((TridentWebBrowser) WebBrowser).DocumentsFinished -= OnDocumentsFinished;
     }
   }
 }

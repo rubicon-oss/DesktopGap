@@ -23,7 +23,7 @@ using System.Configuration;
 
 namespace DesktopGap.Configuration.Security
 {
-  public class AddInConfigurationElement : ConfigurationElement, IRuleIdentification, IAddInRule
+  public class AddInConfigurationElement : ConfigurationElement
   {
     [ConfigurationProperty ("name", IsRequired = true)]
     public string Name
@@ -34,6 +34,11 @@ namespace DesktopGap.Configuration.Security
     public string Key
     {
       get { return Name; }
+    }
+
+    public AddInRule GetRule ()
+    {
+      return new AddInRule (Name);
     }
   }
 }

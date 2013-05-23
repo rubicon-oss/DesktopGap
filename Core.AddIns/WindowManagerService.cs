@@ -26,6 +26,7 @@ using DesktopGap.AddIns.Services;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
+using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.AddIns
 {
@@ -40,15 +41,33 @@ namespace DesktopGap.AddIns
       public BrowserWindowStartMode StartMode;
     }
 
+          private const string c_idPrefix = "_";
+
+
     private readonly IDictionary<string, WindowPreparations> _registeredPreparations = new Dictionary<string, WindowPreparations>();
+    private readonly Dictionary<Guid, IWebBrowserView> _modalWindows = new Dictionary<Guid, IWebBrowserView>();
+
+    
+    public override void Dispose ()
+    {
+    }
 
     public override string Name
     {
       get { return "WindowManagerService"; }
     }
 
-    public override void Dispose ()
+
+    public void ShowModal (string id)
     {
+      ArgumentUtility.CheckNotNull ("id", id);
+
+      var identifier = MakeGuid (id);
+
+      if (_modalWindows.ContainsKey (identifier))
+        _modalWindows[identifier].Show (BrowserWindowStartMode.Modal);
+      else
+        throw new InvalidOperationException (string.Format ("Window with id {0} has not been prepared 'modal'", identifier));
     }
 
     public string PrepareNewWindow (string url, string type, string option)
@@ -56,8 +75,7 @@ namespace DesktopGap.AddIns
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNull ("url", url);
 
-      var id = "_" + Guid.NewGuid().ToString();
-
+      var id = MakeId (Guid.NewGuid());
       BrowserWindowTarget parsedType;
       if (!BrowserWindowTarget.TryParse (type, true, out parsedType))
         parsedType = BrowserWindowTarget.Tab;
@@ -79,7 +97,7 @@ namespace DesktopGap.AddIns
       ArgumentUtility.CheckNotNull ("args", args);
       ArgumentUtility.CheckNotNull ("sender", sender);
 
-      if(args.URL.ToString() == "about:blank")
+      if (args.URL.ToString() == "about:blank")
         return;
 
       WindowPreparations preparations;
@@ -92,6 +110,22 @@ namespace DesktopGap.AddIns
       args.BrowserWindowTarget = preparations.Type;
       args.StartMode = preparations.StartMode;
       _registeredPreparations.Remove (args.TargetName);
+    }
+
+    public void OnViewCreated (object sender, NewViewEventArgs e)
+    {
+      if (e.StartMode == BrowserWindowStartMode.Modal)
+        _modalWindows[e.View.Identifier] = e.View;
+    }
+
+    private string MakeId (Guid guid)
+    {
+      return c_idPrefix + guid.ToString();
+    }
+    private Guid MakeGuid (string id)
+    {
+      var guidstr = id.Remove(id.IndexOf(c_idPrefix, System.StringComparison.Ordinal), c_idPrefix.Length);
+      return Guid.Parse (guidstr);
     }
   }
 }

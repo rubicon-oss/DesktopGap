@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.UnitTests", "Core.Unit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Clients.Windows.Protocol.Wrapper", "Clients.Windows.Protocol.Wrapper\Clients.Windows.Protocol.Wrapper.csproj", "{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.AddIns.Contrib", "Core.AddIns.Contrib\Core.AddIns.Contrib.csproj", "{632B705B-989F-4D0B-BE67-BEECBAEF6751}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -43,6 +45,10 @@ Global
 		{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CCFCB3E3-9BD2-4317-8CC2-6A52532A1AAF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{632B705B-989F-4D0B-BE67-BEECBAEF6751}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{632B705B-989F-4D0B-BE67-BEECBAEF6751}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{632B705B-989F-4D0B-BE67-BEECBAEF6751}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{632B705B-989F-4D0B-BE67-BEECBAEF6751}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
