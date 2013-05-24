@@ -30,7 +30,7 @@ namespace DesktopGap.WebBrowser.Arguments
 
     public bool Cancel { get; set; }
 
-    public Uri URL { get; private set; }
+    public Uri Url { get; private set; }
 
     public string TargetName { get; private set; }
 
@@ -47,7 +47,7 @@ namespace DesktopGap.WebBrowser.Arguments
       Cancel = cancel;
       Uri uri;
       if (Uri.TryCreate (targetURL, UriKind.RelativeOrAbsolute, out uri))
-        URL = uri;
+        Url = uri;
       TargetName = target;
       BrowserWindowTarget = windowTarget;
     }

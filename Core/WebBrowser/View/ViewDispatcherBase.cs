@@ -42,14 +42,14 @@ namespace DesktopGap.WebBrowser.View
       {
         ArgumentUtility.CheckNotNull ("browser", browser);
         ArgumentUtility.CheckNotNull ("url", url);
-
+        var protocolUrl = !url.Contains (c_protocolSeparator) ? string.Join (c_protocolSeparator, c_httpProtocolHandler, url) : url;
         Browser = browser;
         Uri uri;
-        if (Uri.TryCreate (url, UriKind.RelativeOrAbsolute, out uri))
+        if (Uri.TryCreate (protocolUrl, UriKind.RelativeOrAbsolute, out uri))
           Url = uri;
         else
           throw new ArgumentException ("Invalid URL");
-        //Url = new Uri (!url.Contains (c_protocolSeparator) ? string.Join (c_protocolSeparator, c_httpProtocolHandler, url) : url);
+        //Url = new Uri ();
       }
     }
 
@@ -158,7 +158,7 @@ namespace DesktopGap.WebBrowser.View
       if (PrepareNavigation != null)
         PrepareNavigation (this, e);
 
-      if (_preparations == null || !_preparations.Url.Equals (e.URL))
+      if (_preparations == null || !_preparations.Url.Equals (e.Url))
         return;
       if (_preparations is FullWindowPreparations)
       {

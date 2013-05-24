@@ -42,6 +42,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   {
     private const BrowserWindowStartMode c_defaultStartMode = BrowserWindowStartMode.Active;
     private const BrowserWindowTarget c_defaultWindowTarget = BrowserWindowTarget.Tab;
+    private const string c_registrationDoneCallback = "DesktopGap_DocumentRegistered";
 
     private const DragDropEffects c_defaulEffect = DragDropEffects.Move;
     private const string c_blankSite = "about:blank";
@@ -73,6 +74,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private readonly IUrlFilter _addInAllowedFilter;
 
     private bool _resizable = true;
+    private bool _allowCalls = false;
 
     public TridentWebBrowser (
         IHtmlDocumentHandleRegistry documentHandleRegistry,
@@ -219,11 +221,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       ArgumentUtility.CheckNotNull ("navigationEventArgs", navigationEventArgs);
 
-      if (navigationEventArgs.URL.ToString() == c_blankSite)
+      if (navigationEventArgs.Url.ToString() == c_blankSite)
         return;
 
-
-      if (_addInAllowedFilter.IsAllowed (navigationEventArgs.URL))
+      _allowCalls = _addInAllowedFilter.IsAllowed (navigationEventArgs.Url);
+      if (_allowCalls)
         ObjectForScripting = new ApiFacade (_documentHandleRegistry);
 
 
@@ -337,7 +339,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
 
       HtmlDocument document;
-      if (_currentDocuments.TryGetValue (args.DocumentHandle, out document))
+      if (_allowCalls && _currentDocuments.TryGetValue (args.DocumentHandle, out document))
         document.InvokeScript (args.Function, new object[] { args.Serialize() });
     }
 
@@ -349,8 +351,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private void OnDocumentRegistered (object sender, DocumentRegisterationEventArgs e)
     {
       HtmlDocument document;
-      if (_currentDocuments.TryGetValue (e.DocumentHandle, out document))
-        document.InvokeScript ("DesktopGap_DocumentRegistered");
+      if (_currentDocuments != null && _currentDocuments.TryGetValue (e.DocumentHandle, out document))
+        document.InvokeScript (c_registrationDoneCallback);
     }
 
     private HtmlElement ElementAt (int x, int y)

@@ -27,12 +27,20 @@
         <Grid.RowDefinitions>
             <RowDefinition />
             <RowDefinition Height="20px"/>
-
         </Grid.RowDefinitions>
-        <TabControl Name="_tabControl" Grid.Row="0">
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="30px" />
+        </Grid.ColumnDefinitions>
+        
+        <TabControl Name="_tabControl" Grid.Row="0"  Grid.ColumnSpan="2" >
 
         </TabControl>
-       <StackPanel Grid.Row="1" Orientation="Horizontal">
+
+        <Button Grid.Row="0" Grid.Column="1" Height="30px" Panel.ZIndex="5" HorizontalAlignment="Right" VerticalAlignment="Top"  >Hello</Button>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal">
             <TextBox Name="_urlTextBox" MinWidth="400" Text="http://localhost:3936/Default.aspx"/>
             <Button  Name="btnAddNew" Click="btnAddNew_Click_1" MinWidth="50" >Go!</Button>
         </StackPanel>

@@ -1,23 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
-// Copyright (c) rubicon IT GmbH, Vienna, and contributors
-// 
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-//
-// Additional permissions are listed in the file DesktopGap_exceptions.txt.
-// 
-using System;
+﻿using System;
 using System.Linq;
 using System.Windows;
 using DesktopGap.Utilities;
@@ -69,14 +50,31 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _viewDispatcher.NewView (BrowserWindowTarget.PopUp, url, mode);
     }
 
-    private void OnSubViewCreated (object sender, NewViewEventArgs e)
+    private void OnSubViewCreated (object sender, NewViewEventArgs args)
     {
-      if (e.StartMode != BrowserWindowStartMode.Modal)
+      if (args.StartMode == BrowserWindowStartMode.Modal)
+        return;
+
+      var tab = args.View as BrowserTab;
+      if (tab != null)
       {
-        if (e.View is BrowserTab)
-          _tabControl.Items.Add (e.View);
-        e.View.Show (e.StartMode);
+        _tabControl.Items.Add (tab);
+        args.View.Closing += (s, e) => RemoveTab (tab);
+        SetCloseable();
       }
+      args.View.Show (args.StartMode);
+    }
+
+    private void RemoveTab (BrowserTab browserTab)
+    {
+      _tabControl.Items.Remove (browserTab);
+      SetCloseable();
+    }
+
+    private void SetCloseable ()
+    {
+      if (_tabControl.Items.Count > 0)
+        ((BrowserTab) _tabControl.Items[0]).IsCloseable = false;
     }
   }
 }
