@@ -1,4 +1,23 @@
-﻿using System;
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
+// 
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+//
+// Additional permissions are listed in the file DesktopGap_exceptions.txt.
+// 
+using System;
 using System.Linq;
 using System.Windows;
 using DesktopGap.Utilities;
@@ -8,20 +27,25 @@ using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
-  /// <summary>
-  /// Interaction logic for Browser.xaml
-  /// </summary>
+
   public partial class BrowserWindow : IWebBrowserWindow
   {
+    private readonly Uri _baseUrl;
     private readonly ViewDispatcherBase _viewDispatcher;
 
-    public BrowserWindow (ViewDispatcherBase viewDispatcher)
+    private const string c_protocolSeparator = "://";
+    private const string c_httpProtocolHandler = "http";
+
+    public BrowserWindow (string title, Uri baseUri, ViewDispatcherBase viewDispatcher)
     {
+      ArgumentUtility.CheckNotNull ("title", title);
+      ArgumentUtility.CheckNotNull ("baseUri", baseUri);
       ArgumentUtility.CheckNotNull ("viewDispatcher", viewDispatcher);
+
       InitializeComponent();
-
+      Title = title;
+      _baseUrl = baseUri;
       _viewDispatcher = viewDispatcher;
-
       _viewDispatcher.ViewCreated += OnSubViewCreated;
     }
 
@@ -33,21 +57,21 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
     {
-      NewTab (_urlTextBox.Text, BrowserWindowStartMode.Active);
+      NewTab (CreateUri (_urlTextBox.Text), BrowserWindowStartMode.Active);
     }
 
-    public void NewTab (string url, BrowserWindowStartMode mode)
+    public void NewTab (Uri uri, BrowserWindowStartMode mode)
     {
-      ArgumentUtility.CheckNotNull ("url", url);
+      ArgumentUtility.CheckNotNull ("uri", uri);
 
-      _viewDispatcher.NewView (BrowserWindowTarget.Tab, url, mode);
+      _viewDispatcher.NewView (BrowserWindowTarget.Tab, uri, mode);
     }
 
-    public void NewPopUp (string url, BrowserWindowStartMode mode)
+    public void NewPopUp (Uri uri, BrowserWindowStartMode mode)
     {
-      ArgumentUtility.CheckNotNull ("url", url);
+      ArgumentUtility.CheckNotNull ("uri", uri);
 
-      _viewDispatcher.NewView (BrowserWindowTarget.PopUp, url, mode);
+      _viewDispatcher.NewView (BrowserWindowTarget.PopUp, uri, mode);
     }
 
     private void OnSubViewCreated (object sender, NewViewEventArgs args)
@@ -73,8 +97,41 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void SetCloseable ()
     {
-      if (_tabControl.Items.Count > 0)
-        ((BrowserTab) _tabControl.Items[0]).IsCloseable = false;
+      foreach (var tab in _tabControl.Items)
+        ((BrowserTab) tab).IsCloseable = _tabControl.Items.Count > 1;
+    }
+
+    private void OnGotoHome (object sender, RoutedEventArgs e)
+    {
+      NewTab (_baseUrl, BrowserWindowStartMode.Active);
+    }
+
+    private void OnZoomIn (object sender, RoutedEventArgs e)
+    {
+      
+      var currentBrowser = ((BrowserTab) _tabControl.Items[_tabControl.SelectedIndex]).WebBrowser;
+      currentBrowser.Zoom (100);
+    }
+
+    private void OnPrint (object sender, RoutedEventArgs e)
+    {
+      var currentBrowser = ((BrowserTab) _tabControl.Items[_tabControl.SelectedIndex]).WebBrowser;
+      currentBrowser.Print();
+    }
+
+    private void OnPrintPreview (object sender, RoutedEventArgs e)
+    {
+      var currentBrowser = ((BrowserTab) _tabControl.Items[_tabControl.SelectedIndex]).WebBrowser;
+      currentBrowser.PrintPreview();
+    }
+
+    private Uri CreateUri (string url)
+    {
+      var protocolUrl = !url.Contains (c_protocolSeparator) ? string.Join (c_protocolSeparator, c_httpProtocolHandler, url) : url;
+      Uri uri;
+      if (!Uri.TryCreate (protocolUrl, UriKind.RelativeOrAbsolute, out uri))
+        throw new Exception ("Invalid URL");
+      return uri;
     }
   }
 }

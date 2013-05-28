@@ -29,6 +29,13 @@ namespace DesktopGap.Configuration.Application
     {
       get { return (string) this["location"]; }
     }
-  }
 
+    public Uri GetUri ()
+    {
+      Uri uri;
+      if (!Uri.TryCreate (Location, UriKind.RelativeOrAbsolute, out uri))
+        throw new InvalidOperationException (string.Format ("Location '{0}' is not a valid URI", Location));
+      return uri;
+    }
+  }
 }

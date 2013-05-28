@@ -48,7 +48,7 @@ namespace DesktopGap.UnitTests.Fakes
       return true;
     }
 
-    public IEnumerable<TSubscription> GetSubscribers<TSubscription> ()
+    public new IEnumerable<TSubscription> GetSubscribers<TSubscription> ()
     {
       return Enumerable.Empty<TSubscription>();
     }

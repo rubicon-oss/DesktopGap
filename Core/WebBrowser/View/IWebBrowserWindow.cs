@@ -24,7 +24,7 @@ namespace DesktopGap.WebBrowser.View
 {
   public interface IWebBrowserWindow : IDisposable
   {
-    void NewTab (string url, BrowserWindowStartMode mode);
-    void NewPopUp (string url, BrowserWindowStartMode mode);
+    void NewTab (Uri uri, BrowserWindowStartMode mode);
+    void NewPopUp (Uri uri, BrowserWindowStartMode mode);
   }
 }

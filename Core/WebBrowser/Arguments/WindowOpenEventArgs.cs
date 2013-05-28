@@ -17,14 +17,13 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
+using DesktopGap.Utilities;
 using DesktopGap.WebBrowser.StartOptions;
-using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.WebBrowser.Arguments
 {
-  public class WindowOpenEventArgs
+  public class WindowOpenEventArgs : EventArgs
   {
     public BrowserWindowTarget BrowserWindowTarget { get; set; }
 
@@ -32,7 +31,7 @@ namespace DesktopGap.WebBrowser.Arguments
 
     public IExtendedWebBrowser TargetView { get; set; }
 
-    public string Url { get; private set; }
+    public Uri Url { get; private set; }
 
     /// <summary>
     /// C'tor for the WindowOpen event arguments.
@@ -43,8 +42,11 @@ namespace DesktopGap.WebBrowser.Arguments
     public WindowOpenEventArgs (
         BrowserWindowTarget targetControl,
         bool cancel,
-        string targetURL)
+        Uri targetURL)
     {
+      ArgumentUtility.CheckNotNull ("targetURL", targetURL);
+
+
       Cancel = cancel;
       Url = targetURL;
       BrowserWindowTarget = targetControl;

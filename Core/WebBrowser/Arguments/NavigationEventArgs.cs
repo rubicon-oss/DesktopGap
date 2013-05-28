@@ -22,7 +22,7 @@ using DesktopGap.WebBrowser.StartOptions;
 
 namespace DesktopGap.WebBrowser.Arguments
 {
-  public class NavigationEventArgs
+  public class NavigationEventArgs : EventArgs
   {
     public BrowserWindowStartMode StartMode { get; set; }
 

@@ -24,38 +24,42 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DesktopGap.Configuration;
-using DesktopGap.Security.AddIns;
-using DesktopGap.Security.Urls;
 using DesktopGap.UnitTests.Utilities;
 using NUnit.Framework;
 
 namespace DesktopGap.UnitTests
 {
   [TestFixture]
-  public class SecurityManifestConfigurationTest
+  public class DesktopGapManifestConfigurationTest
   {
     private const string c_manifestHead = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <configuration>
+  
     <configSections>
-    <section name=""SecurityManifest"" type=""DesktopGap.Configuration.Security.SecurityManifestConfiguration, DesktopGap.Core"" />
+    <section name=""DesktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
   </configSections>
-  <SecurityManifest>";
+  
+  <DesktopGapConfiguration>";
 
-    private const string c_manifestTail = @"</SecurityManifest></configuration>";
+    private const string c_manifestTail = @"</DesktopGapConfiguration></configuration>";
 
-    private const string c_urlsTagName = "Urls";
+    private const string c_securityTagName = "Security";
+    private const string c_thirdPartyUrlsTagName = "ThirdPartyUrls";
+    private const string c_applicationUrlsTagName = "ApplicationUrls";
+    private const string c_startUpTagName = "StartupURLs";
+
     private const string c_addInsTagName = "AddIns";
-    private const string c_startUpTagName = "Startup";
 
     private const string c_urlTagName = "Url";
     private const string c_addInTagName = "AddIn";
 
-    private const string c_allowTagName = "Allow";
-    private const string c_denyTagName = "Deny";
-
     private const string c_domainAttribute = "domain";
     private const string c_pathAttribute = "path";
     private const string c_nameAttribute = "name";
+
+    private const string c_patternAttribute = "pattern";
+    private const string c_sslAttribute = "requireSSL";
+
 
     private string OpenTag (string name, IEnumerable<KeyValuePair<string, string>> attributes = null)
     {
@@ -81,12 +85,28 @@ namespace DesktopGap.UnitTests
       return string.Format ("</{0}>", name);
     }
 
-      [Test]
-    public void DesktopGapSecurityProviderCreate_InvalidFile_ShouldThrowArgumentExceptionn ()
+    [Test]
+    public void DesktopGapConfigurationProviderCreate_InvalidFile_ShouldThrowArgumentException ()
     {
+      Assert.That (
+          () => DesktopGapConfigurationProvider.Create ("", "hello").GetConfiguration(), Throws.InstanceOf<ArgumentException>());
+    }
+
+
+    [Test]
+    public void DesktopGapConfigurationProviderCreate_EmptyFile_ShouldSucceed ()
+    {
+      using (var tempFile = new TempFile())
+      {
+        var stringBuilder = new StringBuilder (c_manifestHead);
+
+        stringBuilder.Append (c_manifestTail);
+
+        tempFile.WriteAllText (stringBuilder.ToString());
         Assert.That (
-            () => DesktopGapConfigurationProvider.Create ("", "hello").GetConfiguration(), Throws.InstanceOf<ArgumentException>());
-     }
+            () => DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration(), Throws.Nothing);
+      }
+    }
 
     [Test]
     public void Xml_UseInvalidTagNames_ShouldThrowConfigurationErrorsException ()
@@ -97,13 +117,9 @@ namespace DesktopGap.UnitTests
 
         stringBuilder.Append (OpenTag ("invalid"));
 
-        stringBuilder.Append (OpenTag (c_allowTagName));
-
         var attributes = new Dictionary<string, string> { { c_domainAttribute, ".*" }, { c_pathAttribute, ".*" } };
 
         stringBuilder.Append (InlineTag (c_urlTagName, attributes));
-
-        stringBuilder.Append (CloseTag (c_allowTagName));
 
         stringBuilder.Append (CloseTag ("invalid"));
 
@@ -116,85 +132,85 @@ namespace DesktopGap.UnitTests
     }
 
     [Test]
-    public void Xml_ValidUrlsTagAllowOnly_ShouldSucceed ()
+    public void Xml_ValidThirdPartyUrlsPatternTag_ShouldSucceed ()
     {
-      var domainExpression = new Regex (".*");
-      var pathExpression = new Regex (".*");
-
+      var domain = ".*";
+      var path = ".*";
 
       using (var tempFile = new TempFile())
       {
         var stringBuilder = new StringBuilder (c_manifestHead);
+        stringBuilder.Append (OpenTag (c_securityTagName));
 
-        stringBuilder.Append (OpenTag (c_urlsTagName));
-
-        stringBuilder.Append (OpenTag (c_allowTagName));
+        stringBuilder.Append (OpenTag (c_thirdPartyUrlsTagName));
 
         var attributes = new Dictionary<string, string>
                          {
-                             { c_domainAttribute, domainExpression.ToString() },
-                             { c_pathAttribute, pathExpression.ToString() }
+                             { c_domainAttribute, domain },
+                             { c_pathAttribute, path },
+                             { c_patternAttribute, true.ToString() }
                          };
 
         stringBuilder.Append (InlineTag (c_urlTagName, attributes));
 
-        stringBuilder.Append (CloseTag (c_allowTagName));
+        stringBuilder.Append (CloseTag (c_thirdPartyUrlsTagName));
+        stringBuilder.Append (CloseTag (c_securityTagName));
 
-        stringBuilder.Append (CloseTag (c_urlsTagName));
 
         stringBuilder.Append (c_manifestTail);
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IUrlRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
-        var actualDomainExpression = rules.Allowed.First().DomainExpression;
-        var actualPathExpression = rules.Allowed.First().PathExpression;
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.ThirdPartyUrlRules.ToArray();
+        var actualDomainExpression = rules.First().DomainExpression;
+        var actualPathExpression = rules.First().PathExpression;
 
         Assert.That (
-            (actualDomainExpression.ToString() == domainExpression.ToString()) &&
-            (actualPathExpression.ToString() == pathExpression.ToString()),
+            (actualDomainExpression.ToString() == domain) &&
+            (actualPathExpression.ToString() == path),
             Is.True);
       }
     }
 
-    [Test]
-    public void Xml_ValidUrlsTagDenyOnly_ShouldSucceed ()
+      [Test]
+    public void Xml_ValidThirdPartyUrlsNameTag_ShouldSucceed ()
     {
-      var domainExpression = new Regex (".*");
-      var pathExpression = new Regex (".*");
-
+      var domain = "example.domain.com";
+      var path = "/path";
 
       using (var tempFile = new TempFile())
       {
         var stringBuilder = new StringBuilder (c_manifestHead);
+        stringBuilder.Append (OpenTag (c_securityTagName));
 
-        stringBuilder.Append (OpenTag (c_urlsTagName));
-
-        stringBuilder.Append (OpenTag (c_denyTagName));
+        stringBuilder.Append (OpenTag (c_thirdPartyUrlsTagName));
 
         var attributes = new Dictionary<string, string>
                          {
-                             { c_domainAttribute, domainExpression.ToString() },
-                             { c_pathAttribute, pathExpression.ToString() }
+                             { c_domainAttribute, domain },
+                             { c_pathAttribute, path }
                          };
 
         stringBuilder.Append (InlineTag (c_urlTagName, attributes));
 
-        stringBuilder.Append (CloseTag (c_denyTagName));
+        stringBuilder.Append (CloseTag (c_thirdPartyUrlsTagName));
+        stringBuilder.Append (CloseTag (c_securityTagName));
 
-        stringBuilder.Append (CloseTag (c_urlsTagName));
 
         stringBuilder.Append (c_manifestTail);
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IUrlRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
-        var actualDomainExpression = rules.Denied.First().DomainExpression;
-        var actualPathExpression = rules.Denied.First().PathExpression;
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.ThirdPartyUrlRules.ToArray();
+        var actualDomainExpression = rules.First().DomainExpression;
+        var actualPathExpression = rules.First().PathExpression;
+
+        var escapedDomain = "^" + Regex.Escape (domain);
+        var escapedPath = Regex.Escape (path) + "$";
 
         Assert.That (
-            (actualDomainExpression.ToString() == domainExpression.ToString()) &&
-            (actualPathExpression.ToString() == pathExpression.ToString()),
+            (actualDomainExpression.ToString() == escapedDomain) &&
+            (actualPathExpression.ToString() == escapedPath),
             Is.True);
       }
     }
@@ -208,24 +224,22 @@ namespace DesktopGap.UnitTests
       {
         var stringBuilder = new StringBuilder (c_manifestHead);
 
-        stringBuilder.Append (OpenTag (c_urlsTagName));
+        stringBuilder.Append (OpenTag (c_thirdPartyUrlsTagName));
 
-        stringBuilder.Append (OpenTag (c_denyTagName));
 
         var attributes = new Dictionary<string, string> { { c_domainAttribute, domainExpression.ToString() } };
 
         stringBuilder.Append (InlineTag (c_urlTagName, attributes));
 
-        stringBuilder.Append (CloseTag (c_denyTagName));
 
-        stringBuilder.Append (CloseTag (c_urlsTagName));
+        stringBuilder.Append (CloseTag (c_thirdPartyUrlsTagName));
 
         stringBuilder.Append (c_manifestTail);
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IUrlRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
-        var actualDomainExpression = rules.Denied.First().DomainExpression;
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.ThirdPartyUrlRules.ToArray();
+        var actualDomainExpression = rules.First().DomainExpression;
 
         Assert.That (
             actualDomainExpression.ToString() == domainExpression.ToString(), Is.True);
@@ -239,56 +253,21 @@ namespace DesktopGap.UnitTests
       {
         var stringBuilder = new StringBuilder (c_manifestHead);
 
-        stringBuilder.Append (OpenTag (c_urlsTagName));
-
-        stringBuilder.Append (OpenTag (c_denyTagName));
+        stringBuilder.Append (OpenTag (c_thirdPartyUrlsTagName));
 
         var attributes = new Dictionary<string, string> { { c_domainAttribute, ")" } };
 
         stringBuilder.Append (InlineTag (c_urlTagName, attributes));
 
-        stringBuilder.Append (CloseTag (c_denyTagName));
-
-        stringBuilder.Append (CloseTag (c_urlsTagName));
+        stringBuilder.Append (CloseTag (c_thirdPartyUrlsTagName));
 
         stringBuilder.Append (c_manifestTail);
 
         tempFile.WriteAllText (stringBuilder.ToString());
-        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Urls;
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.ThirdPartyUrlRules.ToArray();
         Assert.That (
-            () => rules.Denied.First().DomainExpression,
+            () => rules.First().DomainExpression,
             Throws.ArgumentException);
-      }
-    }
-
-    [Test]
-    public void Xml_ValidAddInTagDeny_ShouldSucceed ()
-    {
-      var name = "valid.module.name";
-      using (var tempFile = new TempFile())
-      {
-        var stringBuilder = new StringBuilder (c_manifestHead);
-
-        stringBuilder.Append (OpenTag (c_addInsTagName));
-
-        stringBuilder.Append (OpenTag (c_denyTagName));
-
-        var attributes = new Dictionary<string, string> { { c_nameAttribute, name } };
-
-        stringBuilder.Append (InlineTag (c_addInTagName, attributes));
-
-        stringBuilder.Append (CloseTag (c_denyTagName));
-
-        stringBuilder.Append (CloseTag (c_addInsTagName));
-
-        stringBuilder.Append (c_manifestTail);
-
-        tempFile.WriteAllText (stringBuilder.ToString());
-
-        IAddInRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().AddIns;
-        var actual = rules.Denied.First().Name;
-
-        Assert.That (actual == name, Is.True);
       }
     }
 
@@ -302,13 +281,9 @@ namespace DesktopGap.UnitTests
 
         stringBuilder.Append (OpenTag (c_addInsTagName));
 
-        stringBuilder.Append (OpenTag (c_allowTagName));
-
         var attributes = new Dictionary<string, string> { { c_nameAttribute, name } };
 
         stringBuilder.Append (InlineTag (c_addInTagName, attributes));
-
-        stringBuilder.Append (CloseTag (c_allowTagName));
 
         stringBuilder.Append (CloseTag (c_addInsTagName));
 
@@ -316,8 +291,8 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        IAddInRules rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().AddIns;
-        var actual = rules.Allowed.First().Name;
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.AddInRules.ToArray();
+        var actual = rules.First().Name;
 
         Assert.That (actual == name, Is.True);
       }

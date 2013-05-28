@@ -30,7 +30,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     {
       if (!_thirdPartyUrlFilter.IsAllowed (URL.ToString()))
       {
-        Process.Start (URL.ToString());
+        Uri uri;
+        if(Uri.TryCreate(URL.ToString(), UriKind.RelativeOrAbsolute, out uri))
+          Process.Start (uri.ToString());
+        Cancel = true;
         return;
       }
 
@@ -80,7 +83,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public override void NewWindow3 (ref object ppDisp, ref bool Cancel, uint dwFlags, string bstrUrlContext, string bstrUrl)
     {
       var ppDispOriginal = ppDisp;
-      var eventArgs = new WindowOpenEventArgs (BrowserWindowTarget.PopUp, Cancel, bstrUrl);
+      var eventArgs = new WindowOpenEventArgs (BrowserWindowTarget.PopUp, Cancel, new Uri(bstrUrl, UriKind.Absolute));
 
       _browserControl.OnNewWindow (eventArgs);
 

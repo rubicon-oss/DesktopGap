@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using DesktopGap.Configuration;
 using DesktopGap.Security.AddIns;
 using DesktopGap.UnitTests.Utilities;
@@ -28,25 +29,34 @@ namespace DesktopGap.UnitTests
   [TestFixture]
   public class AddInFilterTest
   {
+    private IEnumerable<AddInRule> _addInRules;
     private const string c_manifest = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <configuration>
+  
     <configSections>
-    <section name=""SecurityManifest"" type=""DesktopGap.Configuration.Security.SecurityManifestConfiguration, DesktopGap.Core"" />
+    <section name=""DesktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
   </configSections>
-  <SecurityManifest>
-	
-		<AddIns>
-			<Allow>
-				<AddIn name=""Test.AddIn.Allowed"" />
-			</Allow>
-			<Deny>
-				<AddIn name=""Test.AddIn.Denied"" />
-			</Deny>
-		</AddIns>
-	</SecurityManifest>
+  
+  <DesktopGapConfiguration>
+    <Application name=""TestApp"" frameNestingDepth=""5"" baseUrl=""http://localhost:3936"">
+      <Favicon location=""C:\Development\DesktopGap.Sandbox\WebHostWebApplication\rainbow-dash.png""/>
+    </Application>
+    
+    <Security>
+      <StartupUrls>			
+      </StartupUrls>
+      <ThirdPartyUrls>
+      </ThirdPartyUrls>
+      <ApplicationUrls>
+      </ApplicationUrls>
+      <AddIns>			
+        <AddIn name=""Test.AddIn.Allowed"" />
+      </AddIns>
+    </Security>	
+
+  </DesktopGapConfiguration>
 </configuration>";
 
-    private IAddInRules _addInRules;
 
     [SetUp]
     public void SetUp ()
@@ -55,7 +65,7 @@ namespace DesktopGap.UnitTests
       {
         tmp.WriteAllText (c_manifest);
         var securityConfiguration = DesktopGapConfigurationProvider.Create ("", tmp.FileName).GetConfiguration();
-        _addInRules = securityConfiguration.AddIns;
+        _addInRules = securityConfiguration.Security.AddInRules;
       }
     }
 

@@ -58,9 +58,7 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="AddInFilterTest.cs" />
-    <Compile Include="SecurityManifestConfigurationTest.cs" />
-    <Compile Include="Fakes\FakeAddInRule.cs" />
-    <Compile Include="Fakes\FakeAddInRules.cs" />
+    <Compile Include="DesktopGapManifestConfigurationTest.cs" />
     <Compile Include="HtmlDocumentHandleRegistryTest.cs" />
     <Compile Include="DragAndDropAddinTest.cs" />
     <Compile Include="EventManagerTest.cs" />

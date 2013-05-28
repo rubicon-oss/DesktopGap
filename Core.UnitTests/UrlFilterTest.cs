@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using DesktopGap.Configuration;
 using DesktopGap.Security.Urls;
 using DesktopGap.UnitTests.Utilities;
@@ -30,26 +31,33 @@ namespace DesktopGap.UnitTests
   {
     private const string c_manifest = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <configuration>
+  
     <configSections>
-    <section name=""SecurityManifest"" type=""DesktopGap.Configuration.Security.SecurityManifestConfiguration, DesktopGap.Core"" />
+    <section name=""DesktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
   </configSections>
-  <SecurityManifest>
-    <Urls>
-      <Allow>
-        <Url domain=""http://this/"" path=""is/allowed.html"" />
-        <Url domain=""(ht|f)tp://[\w]+\.test\.at"" path=""app"" />
-        <Url domain=""(ht|f)tp://[\w]+\.domain\.com"" />
-      </Allow>
-      <Deny>
-        <Url domain=""[\s]+"" path=""[\s]+"" />
-        <Url domain=""(ht|f)tp://[\w]+\.test\.com"" />
-        <Url domain=""(ht|f)tp://another\.test\.de"" />
-      </Deny>
-    </Urls>
-  </SecurityManifest>
+  
+  <DesktopGapConfiguration>
+    <Application name=""TestApp"" frameNestingDepth=""5"" baseUrl=""http://localhost:3936"">
+      <Favicon location=""C:\Development\DesktopGap.Sandbox\WebHostWebApplication\rainbow-dash.png""/>
+    </Application>
+    
+    <Security>
+      <StartupUrls>			
+      </StartupUrls>
+      <ThirdPartyUrls>
+        <Url domain=""this/is/"" path=""allowed.html"" />
+      </ThirdPartyUrls>
+      <ApplicationUrls>
+      </ApplicationUrls>
+      <AddIns>			
+      </AddIns>
+    </Security>	
+
+  </DesktopGapConfiguration>
 </configuration>";
 
-    private IUrlRules _urlRules;
+
+    private IEnumerable<UrlRule> _urlRules;
 
     [SetUp]
     public void SetUp ()
@@ -58,7 +66,7 @@ namespace DesktopGap.UnitTests
       {
         tmp.WriteAllText (c_manifest);
         var securityConfiguration = DesktopGapConfigurationProvider.Create ("", tmp.FileName).GetConfiguration();
-        _urlRules = securityConfiguration.Urls;
+        _urlRules = securityConfiguration.Security.ThirdPartyUrlRules;
       }
     }
 
@@ -68,13 +76,15 @@ namespace DesktopGap.UnitTests
       var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
       Assert.That (urlGuard.IsAllowed ("http://not/allowed.html"), Is.False);
     }
-        [Test]
+
+    [Test]
     public void IsAllowed_AskForProhibitedUrl2_ShouldReturnFalse ()
     {
       var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
       Assert.That (urlGuard.IsAllowed ("http://some.stuff.test.com/badapp"), Is.False);
     }
-        [Test]
+
+    [Test]
     public void IsAllowed_AskForProhibitedUrl3_ShouldReturnFalse ()
     {
       var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
@@ -84,43 +94,43 @@ namespace DesktopGap.UnitTests
     [Test]
     public void IsAllowed_AskForPermittedUrl_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter(new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
       Assert.That (urlGuard.IsAllowed ("http://this/is/allowed.html"), Is.True);
-    }  
+    }
 
     [Test]
     public void IsAllowed_AskForPermittedUrl2_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter(new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
       Assert.That (urlGuard.IsAllowed ("ftp://this.domain.com/is/allowed.html"), Is.True);
     }
 
-    
+
     [Test]
     public void IsAllowed_AskForPermittedUrl3_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter(new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
       Assert.That (urlGuard.IsAllowed ("http://my.test.at/app?key=value"), Is.True);
     }
 
-        [Test]
+    [Test]
     public void IsAllowed_AskForPermittedUrlWithAdditionalContent_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter(new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
       Assert.That (urlGuard.IsAllowed ("http://my.test.at/asdasdasdsadasdasdsdasd/app?key=value"), Is.True);
     }
-    
+
     [Test]
     public void IsAllowed_AskForBaseUrlDescendent_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter(new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
       Assert.That (urlGuard.IsAllowed ("http://base.domain.com/a/short/path/and/stuff/index.html"), Is.True);
     }
 
     [Test]
     public void IsAllowed_AskForInexistentRule_ShouldReturnFalse ()
     {
-      var urlGuard = new UrlFilter(new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
       Assert.That (urlGuard.IsAllowed ("http://this/is/not/allowed.html"), Is.False);
     }
   }

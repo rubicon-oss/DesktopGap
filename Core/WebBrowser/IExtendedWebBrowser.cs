@@ -27,6 +27,7 @@ namespace DesktopGap.WebBrowser
   {
     string Title { get; }
     string Name { get; }
+    Uri Url { get; }
 
     event EventHandler GotFocus;
     event EventHandler<NavigationEventArgs> AfterNavigate;
@@ -42,5 +43,9 @@ namespace DesktopGap.WebBrowser
 
     void Navigate (string to);
     void Navigate (string to, string target);
+
+    void Zoom (int percent);
+    void PrintPreview ();
+    void Print ();
   }
 }

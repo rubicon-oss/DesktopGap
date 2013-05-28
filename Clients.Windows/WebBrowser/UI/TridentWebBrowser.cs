@@ -19,13 +19,18 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using System.Windows.Media.Imaging;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.AddIns.Events.Subscriptions;
+using DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web;
 using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.Util;
@@ -43,11 +48,24 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private const BrowserWindowStartMode c_defaultStartMode = BrowserWindowStartMode.Active;
     private const BrowserWindowTarget c_defaultWindowTarget = BrowserWindowTarget.Tab;
     private const string c_registrationDoneCallback = "DesktopGap_DocumentRegistered";
+    private const string c_defaultFaviconPath = "/favicon.ico";
 
     private const DragDropEffects c_defaulEffect = DragDropEffects.Move;
     private const string c_blankSite = "about:blank";
 
     private static readonly string[] s_attributes = new[] { "dg_droptarget", "dg_dropcondition" };
+
+    private static readonly Regex _linkExpression = new Regex (
+        @"<link.*rel=\""[ \w]*icon\"".*/>",
+        RegexOptions.CultureInvariant
+        | RegexOptions.IgnoreCase
+        | RegexOptions.Compiled);
+
+    private static readonly Regex _faviconExpression = new Regex (
+        @"<.*href=\""(.*)\"".*/>",
+        RegexOptions.CultureInvariant
+        | RegexOptions.IgnoreCase
+        | RegexOptions.Compiled);
 
     public event EventHandler<EventArgs> DocumentsFinished;
 
@@ -74,7 +92,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private readonly IUrlFilter _addInAllowedFilter;
 
     private bool _resizable = true;
-    private bool _allowCalls = false;
+    private bool _allowCalls;
+
+    private static int count = 0;
 
     public TridentWebBrowser (
         IHtmlDocumentHandleRegistry documentHandleRegistry,
@@ -86,9 +106,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       ArgumentUtility.CheckNotNull ("subscriptionProvider", subscriptionProvider);
       ArgumentUtility.CheckNotNull ("pageFilter", pageFilter);
       ArgumentUtility.CheckNotNull ("addInAllowedFilter", addInAllowedFilter);
+      count++;
 
-
-      _BrowserEvents = new WebBrowserEvents (this, pageFilter);
+      Debug.WriteLine ("######### instance of webbrowser created. current number of instances:" + count);
+      BrowserEvents = new WebBrowserEvents (this, pageFilter);
 
       Navigate (c_blankSite); // bootstrap
 
@@ -126,6 +147,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (_currentDocuments != null)
         _currentDocuments.Clear();
       _currentDocuments = null;
+
+      count--;
+
+      Debug.WriteLine("######### instance of webbrowser disposing. current number of instances:" + count);
+
 
       base.Dispose (disposing);
     }
@@ -196,7 +222,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       Width = width;
     }
-
 
     public void OnWindowSetResizable (bool resizable)
     {
@@ -314,6 +339,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       var keyCode = keyEventArgs.KeyCode | ModifierKeys;
 
+      if (keyCode == (Keys.Control | Keys.NumPad0)) // TODO improve
+        Zoom (100);
+
+
       if (ModifierKeys == 0 || !Enum.IsDefined (typeof (Shortcut), (Shortcut) keyCode))
         return;
 
@@ -323,11 +352,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         case Keys.Control | Keys.C: // Copy
         case Keys.Control | Keys.V: // Paste
         case Keys.Control | Keys.X: // Cut
+        case Keys.Control | Keys.F: // Find
+        case Keys.Control | Keys.NumPad0: // reset zoom
         case Keys.Delete: // Delete
-          keyEventArgs.Handled = !_enableWebBrowserEditingShortcuts;
+          keyEventArgs.Handled = !EnableWebBrowserEditingShortcuts;
           break;
         default:
-          keyEventArgs.Handled = !_enableWebBrowserShortcuts;
+          keyEventArgs.Handled = !EnableWebBrowserShortcuts;
           break;
       }
     }
@@ -347,6 +378,57 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     //
     // OTHER METHODS & EVENTS
     // 
+
+
+    public BitmapImage GetFavicon (Uri defaultUri)
+    {
+      var linkElements = _linkExpression.Matches (DocumentText);
+      String faviconPath = null;
+      foreach (Match match in linkElements)
+      {
+        var favicon = _faviconExpression.Match (match.ToString());
+        if (favicon.Success)
+          faviconPath = favicon.Groups[1].Value;
+      }
+      if (string.IsNullOrEmpty (faviconPath) || Uri.IsWellFormedUriString (faviconPath, UriKind.Relative))
+        faviconPath = c_defaultFaviconPath;
+
+      try
+      {
+        var uri = new Uri (Url.GetLeftPart (UriPartial.Authority) + faviconPath);
+        // Probe if icon exists
+        var requ = WebRequest.Create (uri);
+        requ.Method = "HEAD";
+        requ.Timeout = 1000;
+
+        var resp = requ.GetResponse();
+        return new BitmapImage (uri);
+      }
+      catch (Exception ex)
+      {
+        return new BitmapImage (defaultUri);
+      }
+    }
+
+    public void Zoom (int factor)
+    {
+      object pvaIn = factor;
+      AxIWebBrowser2.ExecWB (
+          OLECMDID.OLECMDID_OPTICAL_ZOOM,
+          OLECMDEXECOPT.OLECMDEXECOPT_DONTPROMPTUSER,
+          ref pvaIn,
+          IntPtr.Zero);
+    }
+
+    public void PrintPreview ()
+    {
+      ShowPrintPreviewDialog();
+    }
+
+    public new void Print ()
+    {
+      ShowPrintDialog();
+    }
 
     private void OnDocumentRegistered (object sender, DocumentRegisterationEventArgs e)
     {
@@ -480,37 +562,4 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         DocumentsFinished (this, new EventArgs());
     }
   }
-
-  #region keep for later 
-
-  //TODO restructure
-  //private bool MayDrop (IExtendedWebBrowser browser, DragEventArgs e)
-  //{
-  //  var browserControl = (Control) browser;
-  //  var extendedBrowser = (TridentWebBrowser) browser;
-  //  var doc = extendedBrowser.Document;
-  //  var locationOnScreen = browserControl.PointToScreen (browserControl.Location);
-  //  var elementAtPoint = doc.GetElementFromPoint (new Point (e.X - locationOnScreen.X, e.Y - locationOnScreen.Y));
-
-  //  var currentElement = elementAtPoint;
-  //  var isDropTarget = false;
-  //  while (currentElement != null && ! Boolean.TryParse (currentElement.GetAttribute ("droptarget"), out isDropTarget))
-  //    currentElement = currentElement.Parent;
-
-  //  return isDropTarget;
-  //} 
-
-  //  public void OnDragDrop (ExtendedDragEventHandlerArgs e)
-  //{
-  //  e.Current = ElementAt (e.X, e.Y);
-  //  var ok = MayDrop (this, e);
-  //  e.Effect = ok ? DragDropEffects.Copy : DragDropEffects.None;
-  //  Output ("DragDrop: " + ok.ToString());
-  //  if (DragDrop != null)
-  //    DragDrop (this, e);
-
-  //  e.Handled = true;
-  //}
-
-  #endregion
 }

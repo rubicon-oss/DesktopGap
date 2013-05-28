@@ -30,8 +30,14 @@ namespace DesktopGap.Configuration.Application
       get { return (string) this["name"]; }
     }
 
+    [ConfigurationProperty ("baseUrl")]
+    public string BaseUrl
+    {
+      get { return (string) this["baseUrl"]; }
+    }
+
     [ConfigurationProperty ("Favicon")]
-    public FaviconConfigurationElement ThirdPartyUrls
+    public FaviconConfigurationElement Favicon
     {
       get { return (FaviconConfigurationElement) this["Favicon"]; }
     }

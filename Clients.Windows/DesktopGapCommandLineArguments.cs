@@ -1,5 +1,4 @@
-﻿using DesktopGap.Security.AddIns;
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -19,21 +18,28 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using PowerArgs;
 
-namespace DesktopGap.UnitTests.Fakes
+namespace DesktopGap.Clients.Windows
 {
-  public class FakeAddInRules: IAddInRules
+  public class DesktopGapCommandLineArguments
   {
-    public FakeAddInRules ()
-    {
-      
-    }
+    [ArgPosition (0)]
+    [ArgRequired]
+    public Uri ManifestUri { get; set; }
 
-    public IEnumerable<IAddInRule> Allowed { get; private set; }
-    public IEnumerable<IAddInRule> Denied { get; private set; }
+    [ArgPosition (1)]
+    [ArgShortcut ("s")]
+    public Uri StartupUri { get; set; }
+
+    [ArgReviver]
+    public static Uri Revive (string key, string val)
+    {
+      Uri uri;
+      if (!Uri.TryCreate (val, UriKind.Absolute, out uri))
+        throw new ArgException (string.Format ("'{0}' is not a valid absolute URI.", val));
+
+      return uri;
+    }
   }
 }

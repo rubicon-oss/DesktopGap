@@ -33,11 +33,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     }
 
 
-    public override void NewView (BrowserWindowTarget target, string url, BrowserWindowStartMode startMode)
+    public override void NewView (BrowserWindowTarget target, Uri uri, BrowserWindowStartMode startMode)
     {
       var browser = CreateBrowser();
-      Prepare (browser, url, startMode, target);
-      browser.Navigate (url); // starts event chain (handled in base class)
+      Prepare (browser, uri, startMode, target);
+      browser.Navigate (uri.ToString()); // starts event chain (handled in base class)
     }
 
     protected override void Dispatch (IExtendedWebBrowser browser, BrowserWindowTarget target, BrowserWindowStartMode startMode, string targetName)

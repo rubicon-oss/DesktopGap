@@ -52,6 +52,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PowerArgs">
+      <HintPath>..\packages\PowerArgs.1.6.0.0\lib\net40\PowerArgs.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Configuration" />
@@ -69,7 +73,6 @@
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
     <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
@@ -81,6 +84,7 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="DesktopGapCommandLineArguments.cs" />
     <Compile Include="WebBrowser\Scripting\ApiFacade.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -143,6 +147,7 @@
       <Link>GPL.licenseheader</Link>
     </None>
     <AppDesigner Include="Properties\" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config">
@@ -202,9 +207,25 @@
     <Resource Include="Resources\logo.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\close.png">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    <Resource Include="Resources\gear.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\close.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\home.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\print.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\zoom.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\print-preview.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\new.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

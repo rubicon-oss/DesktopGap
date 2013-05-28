@@ -37,17 +37,17 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <summary>
     /// Avoid default registration as IDropTarget by the WebBrowser.
     /// </summary>
-    protected bool _automaticallyRegisterAsDropTarget = false;
+    protected bool AutomaticallyRegisterAsDropTarget = false;
 
-    protected bool _enableWebBrowserContextMenu = false;
+    protected bool EnableWebBrowserContextMenu = false;
 
-    protected bool _enableWebBrowserShortcuts = false;
+    protected bool EnableWebBrowserShortcuts = false;
 
 
     /// <summary>
     /// Enables/disables shortcuts for editing (ctrl-A, ctrl-X, ctrl-C, ...)
     /// </summary>
-    protected bool _enableWebBrowserEditingShortcuts = true;
+    protected bool EnableWebBrowserEditingShortcuts = true;
 
     /// <summary>
     /// Object for returning the basic scripting interface when the .NET Framework demands it (Application property)
@@ -63,27 +63,27 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <summary>
     /// Customized events
     /// </summary>
-    protected DWebBrowserEvents2 _BrowserEvents { get; set; }
+    protected DWebBrowserEvents2 BrowserEvents { get; set; }
 
-    protected readonly TridentFeatures _features;
+    protected readonly TridentFeatures Features;
 
     protected TridentWebBrowserBase ()
     {
-      IsWebBrowserContextMenuEnabled = _enableWebBrowserContextMenu;
-      _features = new TridentFeatures();
+      IsWebBrowserContextMenuEnabled = EnableWebBrowserContextMenu;
+      Features = new TridentFeatures();
       IsGPUAccelerated = true;
     }
 
     public bool IsGPUAccelerated
     {
-      get { return _features.GpuAcceleration; }
-      set { _features.GpuAcceleration = value; }
+      get { return Features.GpuAcceleration; }
+      set { Features.GpuAcceleration = value; }
     }
 
     public TridentWebBrowserMode BrowserMode
     {
-      get { return _features.BrowserEmulationMode; }
-      set { _features.BrowserEmulationMode = value; }
+      get { return Features.BrowserEmulationMode; }
+      set { Features.BrowserEmulationMode = value; }
     }
 
     /// <summary>
@@ -93,9 +93,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void AttachInterfaces (object nativeActiveXObject)
     {
-      //var wrapper = WebBrowserWrapper.CreateInstance (
-      //    (IWebBrowser2) nativeActiveXObject, nativeActiveXObject.GetType());
-      //      _axIWebBrowser2 = wrapper as IWebBrowser2;
       AxIWebBrowser2 = (IWebBrowser2) nativeActiveXObject;
 
       base.AttachInterfaces (AxIWebBrowser2);
@@ -128,10 +125,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     {
       // Make sure to call the base class or the normal events won't fire
       base.CreateSink();
-      if (_BrowserEvents == null)
+      if (BrowserEvents == null)
         return;
 
-      _cookie = new AxHost.ConnectionPointCookie (ActiveXInstance, _BrowserEvents, typeof (DWebBrowserEvents2));
+      _cookie = new AxHost.ConnectionPointCookie (ActiveXInstance, BrowserEvents, typeof (DWebBrowserEvents2));
     }
 
     /// <summary>

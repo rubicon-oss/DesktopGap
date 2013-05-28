@@ -31,25 +31,16 @@ namespace DesktopGap.WebBrowser.View
   {
     private class WindowPreparations
     {
-      private const string c_protocolSeparator = "://";
-      private const string c_httpProtocolHandler = "http";
-
       public IExtendedWebBrowser Browser { get; private set; }
 
       public Uri Url { get; private set; }
 
-      public WindowPreparations (IExtendedWebBrowser browser, string url)
+      public WindowPreparations (IExtendedWebBrowser browser, Uri uri)
       {
         ArgumentUtility.CheckNotNull ("browser", browser);
-        ArgumentUtility.CheckNotNull ("url", url);
-        var protocolUrl = !url.Contains (c_protocolSeparator) ? string.Join (c_protocolSeparator, c_httpProtocolHandler, url) : url;
+        ArgumentUtility.CheckNotNull ("uri", uri);
+        Url = uri;
         Browser = browser;
-        Uri uri;
-        if (Uri.TryCreate (protocolUrl, UriKind.RelativeOrAbsolute, out uri))
-          Url = uri;
-        else
-          throw new ArgumentException ("Invalid URL");
-        //Url = new Uri ();
       }
     }
 
@@ -58,8 +49,8 @@ namespace DesktopGap.WebBrowser.View
       public BrowserWindowStartMode StartMode { get; private set; }
       public BrowserWindowTarget Target { get; private set; }
 
-      public FullWindowPreparations (IExtendedWebBrowser browser, string url, BrowserWindowStartMode startMode, BrowserWindowTarget target)
-          : base (browser, url)
+      public FullWindowPreparations (IExtendedWebBrowser browser, Uri uri, BrowserWindowStartMode startMode, BrowserWindowTarget target)
+          : base (browser, uri)
       {
         StartMode = startMode;
         Target = target;
@@ -108,7 +99,7 @@ namespace DesktopGap.WebBrowser.View
       }
     }
 
-    public abstract void NewView (BrowserWindowTarget target, string url, BrowserWindowStartMode startMode);
+    public abstract void NewView (BrowserWindowTarget target, Uri uri, BrowserWindowStartMode startMode);
 
 
     protected abstract void Dispatch (IExtendedWebBrowser browser, BrowserWindowTarget target, BrowserWindowStartMode startMode, string targetName);
@@ -127,18 +118,18 @@ namespace DesktopGap.WebBrowser.View
       return browser;
     }
 
-    protected void Prepare (IExtendedWebBrowser webBrowser, string url)
+    protected void Prepare (IExtendedWebBrowser webBrowser, Uri uri)
     {
       ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
 
-      _preparations = new WindowPreparations (webBrowser, url);
+      _preparations = new WindowPreparations (webBrowser, uri);
     }
 
-    protected void Prepare (IExtendedWebBrowser webBrowser, string url, BrowserWindowStartMode startMode, BrowserWindowTarget target)
+    protected void Prepare (IExtendedWebBrowser webBrowser, Uri uri, BrowserWindowStartMode startMode, BrowserWindowTarget target)
     {
       ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
 
-      _preparations = new FullWindowPreparations (webBrowser, url, startMode, target);
+      _preparations = new FullWindowPreparations (webBrowser, uri, startMode, target);
     }
 
 

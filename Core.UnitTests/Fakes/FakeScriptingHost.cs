@@ -18,20 +18,15 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DesktopGap.AddIns.Events.Arguments;
 using DesktopGap.WebBrowser;
 
 namespace DesktopGap.UnitTests.Fakes
 {
-  public class FakeScriptingHost :IScriptingHost
+  public class FakeScriptingHost : IScriptingHost
   {
     public void OnExecute (object sender, ScriptEventArgs args)
     {
-
     }
   }
 }
