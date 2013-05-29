@@ -109,7 +109,7 @@ namespace DesktopGap.Clients.Windows
         var mainWindow = new BrowserWindow (configuration.Application.Name, baseUri, viewDispatcher);
         mainWindow.NewTab (baseUri, BrowserWindowStartMode.Active);
 
-        if (startupUri != null && startupFilter.IsAllowed (startupUri))
+        if (startupUri != null && (startupFilter.IsAllowed (startupUri) || pageFilter.IsAllowed(startupUri)))
           mainWindow.NewTab (startupUri, BrowserWindowStartMode.Active);
         mainWindow.Icon = new BitmapImage (configuration.Application.Favicon.GetUri());
         mainWindow.Show();

@@ -14,6 +14,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   {
     private readonly WebBrowserHost _browserHost;
 
+    private static readonly Uri s_defaultImageUri = new Uri("/DesktopGap;component/Resources/new.png", UriKind.RelativeOrAbsolute);
 
     public PopUpWindow (TridentWebBrowser webBrowser, Guid identifier)
     {
@@ -47,6 +48,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
                         if (Closing != null)
                           Closing (s, e);
                       };
+      webBrowser.DocumentsFinished += (s, e) => Icon = webBrowser.GetFavicon(s_defaultImageUri);
     }
 
 

@@ -28,7 +28,7 @@
     
     <StackPanel Orientation="Horizontal">
         <Image Width="16" Height="16" Margin="0 -2 0 0" Source="{Binding Path=Icon}" HorizontalAlignment="left" /> 
-        <Label Margin="0 -4 0 0" Content="{Binding Path=Text, FallbackValue='Loading ...'}" />
+        <Label Margin="0 -4 0 0" Content="{Binding Path=Text, FallbackValue='Loading ...'}" MaxWidth="150"/>
         <Button Visibility="{Binding Path=CloseButtonVisibility}" 
                 Background="Transparent" 
                 BorderBrush="Transparent" 
