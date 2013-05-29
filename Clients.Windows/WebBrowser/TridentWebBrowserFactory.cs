@@ -32,29 +32,38 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public TridentWebBrowserFactory (
         IHtmlDocumentHandleRegistry htmlDocumentHandleRegistry,
         ISubscriptionProvider subscriptionProvider,
-        IUrlFilter pageFilter,
-        IUrlFilter addInAllowedFilter)
+        IUrlFilter nonApplicationUrlFilter,
+        IUrlFilter entryPointFilter,
+        IUrlFilter applicationUrlFilter)
     {
       ArgumentUtility.CheckNotNull ("htmlDocumentHandleRegistry", htmlDocumentHandleRegistry);
       ArgumentUtility.CheckNotNull ("subscriptionProvider", subscriptionProvider);
-      ArgumentUtility.CheckNotNull ("pageFilter", pageFilter);
-      ArgumentUtility.CheckNotNull ("addInAllowedFilter", addInAllowedFilter);
+      ArgumentUtility.CheckNotNull ("nonApplicationUrlFilter", nonApplicationUrlFilter);
+      ArgumentUtility.CheckNotNull ("entryPointFilter", entryPointFilter);
+      ArgumentUtility.CheckNotNull ("applicationUrlFilter", applicationUrlFilter);
 
-      PageFilter = pageFilter;
-      AddInAllowedFilter = addInAllowedFilter;
+      NonApplicationUrlFilter = nonApplicationUrlFilter;
+      EntryPointFilter = entryPointFilter;
+      ApplicationUrlFilter = applicationUrlFilter;
 
       SubscriptionProvider = subscriptionProvider;
       HtmlDocumentHandleRegistry = htmlDocumentHandleRegistry;
     }
 
-    public IUrlFilter PageFilter { get; private set; }
-    public IUrlFilter AddInAllowedFilter { get; private set; }
+    public IUrlFilter NonApplicationUrlFilter { get; private set; }
+    public IUrlFilter EntryPointFilter { get; set; }
+    public IUrlFilter ApplicationUrlFilter { get; set; }
     public IHtmlDocumentHandleRegistry HtmlDocumentHandleRegistry { get; private set; }
     public ISubscriptionProvider SubscriptionProvider { get; private set; }
 
     public IExtendedWebBrowser CreateBrowser ()
     {
-      var browser = new TridentWebBrowser (HtmlDocumentHandleRegistry, SubscriptionProvider, PageFilter, AddInAllowedFilter);
+      var browser = new TridentWebBrowser (
+          HtmlDocumentHandleRegistry,
+          SubscriptionProvider,
+          NonApplicationUrlFilter,
+          ApplicationUrlFilter,
+          EntryPointFilter);
 
 
       return browser;

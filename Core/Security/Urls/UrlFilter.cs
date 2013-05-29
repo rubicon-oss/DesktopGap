@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.Security.Urls
@@ -31,19 +30,11 @@ namespace DesktopGap.Security.Urls
 
     private readonly UrlRule[] _whitelist;
 
-    public UrlFilter (Uri baseUri, IEnumerable<UrlRule> whitelist)
+    public UrlFilter (IEnumerable<UrlRule> whitelist)
     {
-      ArgumentUtility.CheckNotNull ("baseUri", baseUri);
       ArgumentUtility.CheckNotNull ("whitelist", whitelist);
 
-
-      var escapedBaseUri = Regex.Escape (baseUri.Host);
-      var escapedPath = Regex.Escape (baseUri.LocalPath) + @".*";
-
-      _whitelist = new[]
-                 {
-                     new UrlRule (escapedBaseUri, escapedPath)
-                 }.Concat (whitelist).ToArray();
+      _whitelist = whitelist.ToArray();
     }
 
     public bool IsAllowed (string url)
@@ -51,7 +42,7 @@ namespace DesktopGap.Security.Urls
       ArgumentUtility.CheckNotNull ("url", url);
 
       Uri uri;
-      return url == c_aboutBlank || (Uri.TryCreate(url, UriKind.Absolute, out uri) && _whitelist.Any (r => r.IsMatch (uri)));
+      return url == c_aboutBlank || (Uri.TryCreate (url, UriKind.Absolute, out uri) && _whitelist.Any (r => r.IsMatch (uri)));
     }
 
     public bool IsAllowed (Uri url)

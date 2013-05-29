@@ -36,16 +36,59 @@ namespace DesktopGap.Configuration.Application
       get { return (string) this["baseUrl"]; }
     }
 
-    [ConfigurationProperty ("Favicon")]
-    public FaviconConfigurationElement Favicon
+      public Uri GetBaseUri ()
     {
-      get { return (FaviconConfigurationElement) this["Favicon"]; }
+      Uri uri;
+      if (!Uri.TryCreate (BaseUrl, UriKind.RelativeOrAbsolute, out uri))
+        throw new InvalidOperationException (string.Format ("Location '{0}' is not a valid URI", Icon));
+      return uri;
     }
 
-    [ConfigurationProperty ("frameNestingDepth")]
-    public uint FrameNestingDepth
+    [ConfigurationProperty ("homeUrl")]
+    public string HomeUrl
     {
-      get { return (uint) this["frameNestingDepth"]; }
+      get { return (string) this["homeUrl"]; }
     }
+
+    [ConfigurationProperty ("icon")]
+    public string Icon
+    {
+      get { return (string) this["icon"]; }
+    }
+
+    public Uri GetIconUri ()
+    {
+      Uri uri;
+      if (!Uri.TryCreate (Icon, UriKind.RelativeOrAbsolute, out uri))
+        throw new InvalidOperationException (string.Format ("Location '{0}' is not a valid URI", Icon));
+      return uri;
+    }
+
+    [ConfigurationProperty ("alwaysShowUrl")]
+    public bool AlwaysShowUrl
+    {
+      get { return (bool) this["alwaysShowUrl"]; }
+    }
+
+
+    [ConfigurationProperty ("alwaysOpenHomeUrl")]
+    public bool AlwaysOpenHomeUrl
+    {
+      get { return (bool) this["alwaysOpenHomeUrl"]; }
+    }
+
+    [ConfigurationProperty ("allowCloseHomeTab")]
+    public bool AllowCloseHomeTab
+    {
+      get { return (bool) this["allowCloseHomeTab"]; }
+    }
+
+
+    [ConfigurationProperty ("maxFrameNestingDepth", DefaultValue = (uint)10)]
+    public uint MaxFrameNestingDepth
+    {
+      get { return (uint) this["maxFrameNestingDepth"]; }
+    }
+
   }
 }

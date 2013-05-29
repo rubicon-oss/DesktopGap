@@ -66,7 +66,7 @@ namespace DesktopGap.UnitTests
       {
         tmp.WriteAllText (c_manifest);
         var securityConfiguration = DesktopGapConfigurationProvider.Create ("", tmp.FileName).GetConfiguration();
-        _urlRules = securityConfiguration.Security.ThirdPartyUrlRules;
+        _urlRules = securityConfiguration.Security.NonApplicationUrlRules;
       }
     }
 

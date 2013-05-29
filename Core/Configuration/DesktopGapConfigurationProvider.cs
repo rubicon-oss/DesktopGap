@@ -30,7 +30,7 @@ namespace DesktopGap.Configuration
 {
   public static class DesktopGapConfigurationProvider
   {
-    private const string c_sectionName = "DesktopGapConfiguration";
+    private const string c_sectionName = "desktopGapConfiguration";
 
     public static IDesktopGapConfigurationProvider<DesktopGapConfiguration> Create (string configurationBase, string source)
     {

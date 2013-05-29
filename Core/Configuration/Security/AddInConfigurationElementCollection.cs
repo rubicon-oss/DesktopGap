@@ -38,7 +38,7 @@ namespace DesktopGap.Configuration.Security
 
     protected override string ElementName
     {
-      get { return "AddIn"; }
+      get { return "add"; }
     }
 
     public override ConfigurationElementCollectionType CollectionType
@@ -54,7 +54,7 @@ namespace DesktopGap.Configuration.Security
     public new IEnumerator<AddInRule> GetEnumerator ()
     {
       for (var i = 0; i < Count; i++)
-        yield return (AddInRule) this[i].GetRule();
+        yield return this[i].GetRule();
     }
   }
 }

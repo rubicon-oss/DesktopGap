@@ -37,22 +37,30 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private readonly WebBrowserHost _webBrowserHost;
 
-    private static readonly Uri s_defaultImageUri =  new Uri ("/DesktopGap;component/Resources/new.png", UriKind.RelativeOrAbsolute);
+    private static readonly Uri s_defaultImageUri = new Uri ("/DesktopGap;component/Resources/new.png", UriKind.RelativeOrAbsolute);
 
 
-    public BrowserTab (TridentWebBrowser webBrowser, Guid identifier, bool isCloseable = true)
+    public BrowserTab (TridentWebBrowser webBrowser, Guid identifier, bool isCloseable = true, bool isHomeTab = false)
     {
       ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
       Identifier = identifier;
+      IsHomeTab = isHomeTab;
 
       webBrowser.DocumentTitleChanged += OnDocumentTitleChanged;
-      webBrowser.DocumentsFinished += (s, e) => Header.Icon = webBrowser.GetFavicon(s_defaultImageUri);
+      webBrowser.DocumentsFinished += (s, e) => Header.Icon = webBrowser.GetFavicon (s_defaultImageUri);
+
 
       _webBrowserHost = new WebBrowserHost (webBrowser);
       Content = _webBrowserHost;
 
       Header = new CloseableTabHeader (string.Empty, new BitmapImage (s_defaultImageUri), isCloseable);
       Header.TabClose += OnTabClose;
+
+      if (IsHomeTab)
+        return;
+
+      LostFocus += (s, e) => IsCloseable = false;
+      GotFocus += (s, e) => IsCloseable = true;
     }
 
 
@@ -64,7 +72,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public bool IsCloseable
     {
       get { return Header.IsCloseable; }
-      set { Header.IsCloseable = value; }
+      set { Header.IsCloseable = !IsHomeTab && value; }
     }
 
     public new CloseableTabHeader Header
@@ -79,6 +87,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     }
 
     public Guid Identifier { get; private set; }
+    public bool IsHomeTab { get; set; }
 
     public void Show (BrowserWindowStartMode startMode)
     {
@@ -96,7 +105,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnDocumentTitleChanged (object sender, EventArgs e)
     {
-      Header.Text = string.IsNullOrEmpty(WebBrowser.Title) ? WebBrowser.Url.ToString() : WebBrowser.Title;
+      Header.Text = string.IsNullOrEmpty (WebBrowser.Title) ? WebBrowser.Url.ToString() : WebBrowser.Title;
     }
 
     private void OnTabClose (object sender, EventArgs e)

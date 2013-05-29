@@ -89,7 +89,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private readonly IHtmlDocumentHandleRegistry _documentHandleRegistry;
     private readonly ISubscriptionProvider _subscriptionProvider;
-    private readonly IUrlFilter _addInAllowedFilter;
+    private readonly IUrlFilter _applicationUrlFiler;
 
     private bool _resizable = true;
     private bool _allowCalls;
@@ -99,24 +99,25 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public TridentWebBrowser (
         IHtmlDocumentHandleRegistry documentHandleRegistry,
         ISubscriptionProvider subscriptionProvider,
-        IUrlFilter pageFilter,
-        IUrlFilter addInAllowedFilter)
+        IUrlFilter nonApplicationUrlFilter,
+        IUrlFilter entryPointFilter,
+        IUrlFilter applicationUrlFilter)
     {
       ArgumentUtility.CheckNotNull ("documentHandleRegistry", documentHandleRegistry);
       ArgumentUtility.CheckNotNull ("subscriptionProvider", subscriptionProvider);
-      ArgumentUtility.CheckNotNull ("pageFilter", pageFilter);
-      ArgumentUtility.CheckNotNull ("addInAllowedFilter", addInAllowedFilter);
-      count++;
+      ArgumentUtility.CheckNotNull ("nonApplicationUrlFilter", nonApplicationUrlFilter);
+      ArgumentUtility.CheckNotNull ("entryPointFilter", entryPointFilter);
+      ArgumentUtility.CheckNotNull ("applicationUrlFilter", applicationUrlFilter);
 
+      count++;
       Debug.WriteLine ("######### instance of webbrowser created. current number of instances:" + count);
-      BrowserEvents = new WebBrowserEvents (this, pageFilter);
+      BrowserEvents = new WebBrowserEvents (this, nonApplicationUrlFilter, applicationUrlFilter, entryPointFilter);
 
       Navigate (c_blankSite); // bootstrap
-
-
+      
       _documentHandleRegistry = documentHandleRegistry;
       _subscriptionProvider = subscriptionProvider;
-      _addInAllowedFilter = addInAllowedFilter;
+      _applicationUrlFiler = applicationUrlFilter;
 
       InstallCustomUIHandler (new DocumentHostUIHandler (this));
 
@@ -150,7 +151,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       count--;
 
-      Debug.WriteLine("######### instance of webbrowser disposing. current number of instances:" + count);
+      Debug.WriteLine ("######### instance of webbrowser disposing. current number of instances:" + count);
 
 
       base.Dispose (disposing);
@@ -249,7 +250,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (navigationEventArgs.Url.ToString() == c_blankSite)
         return;
 
-      _allowCalls = _addInAllowedFilter.IsAllowed (navigationEventArgs.Url);
+      _allowCalls = _applicationUrlFiler.IsAllowed (navigationEventArgs.Url);
       if (_allowCalls)
         ObjectForScripting = new ApiFacade (_documentHandleRegistry);
 
@@ -538,7 +539,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         var targetName = String.Empty;
 
         if (AfterNavigate != null)
-          AfterNavigate (this, new NavigationEventArgs (startMode, false, e.Url.AbsolutePath, targetName, windowTarget));
+          AfterNavigate (this, new NavigationEventArgs (startMode, false, e.Url, targetName, windowTarget));
       }
     }
 

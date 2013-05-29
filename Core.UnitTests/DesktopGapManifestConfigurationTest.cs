@@ -161,7 +161,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.ThirdPartyUrlRules.ToArray();
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.NonApplicationUrlRules.ToArray();
         var actualDomainExpression = rules.First().DomainExpression;
         var actualPathExpression = rules.First().PathExpression;
 
@@ -201,7 +201,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.ThirdPartyUrlRules.ToArray();
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.NonApplicationUrlRules.ToArray();
         var actualDomainExpression = rules.First().DomainExpression;
         var actualPathExpression = rules.First().PathExpression;
 
@@ -238,7 +238,7 @@ namespace DesktopGap.UnitTests
 
         tempFile.WriteAllText (stringBuilder.ToString());
 
-        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.ThirdPartyUrlRules.ToArray();
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.NonApplicationUrlRules.ToArray();
         var actualDomainExpression = rules.First().DomainExpression;
 
         Assert.That (
@@ -264,7 +264,7 @@ namespace DesktopGap.UnitTests
         stringBuilder.Append (c_manifestTail);
 
         tempFile.WriteAllText (stringBuilder.ToString());
-        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.ThirdPartyUrlRules.ToArray();
+        var rules = DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration().Security.NonApplicationUrlRules.ToArray();
         Assert.That (
             () => rules.First().DomainExpression,
             Throws.ArgumentException);

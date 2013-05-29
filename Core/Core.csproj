@@ -72,6 +72,8 @@
     <Compile Include="Configuration\IDesktopGapConfigurationProvider.cs" />
     <Compile Include="Configuration\DesktopGapConfigurationProviderBase.cs" />
     <Compile Include="Configuration\DesktopGapConfigurationManifest.cs" />
+    <Compile Include="Configuration\Security\AddUrlConfigurationElement.cs" />
+    <Compile Include="Configuration\Security\RemoveUrlConfigurationElement.cs" />
     <Compile Include="Security\AddIns\AddInRule.cs" />
     <Compile Include="Configuration\DesktopGapConfigurationProvider.cs" />
     <Compile Include="Configuration\LocalDesktopGapConfigurationProvider.cs" />
@@ -93,6 +95,7 @@
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Security\AddIns\AddInFilter.cs" />
     <Compile Include="Security\AddIns\IAddInFilter.cs" />
+    <Compile Include="Security\Urls\InvertedUrlRule.cs" />
     <Compile Include="Security\Urls\IUrlFilter.cs" />
     <Compile Include="Security\Urls\UrlFilter.cs" />
     <Compile Include="Security\Urls\UrlRule.cs" />

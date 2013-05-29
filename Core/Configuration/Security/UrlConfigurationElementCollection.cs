@@ -26,6 +26,9 @@ namespace DesktopGap.Configuration.Security
 {
   public class UrlConfigurationElementCollection : ConfigurationElementCollection, IEnumerable<UrlRule>
   {
+    private const string c_addElementName = "add";
+    private const string c_removeElementName = "remove";
+
     public UrlConfigurationElement this [int index]
     {
       get { return (UrlConfigurationElement) BaseGet (index); }
@@ -33,12 +36,26 @@ namespace DesktopGap.Configuration.Security
 
     protected override ConfigurationElement CreateNewElement ()
     {
-      return new UrlConfigurationElement();
+      throw new NotSupportedException ("Elements of this collection can only be created from an element name.");
     }
 
-    protected override string ElementName
+    protected override ConfigurationElement CreateNewElement (string elementName)
     {
-      get { return "Url"; }
+      switch (elementName)
+      {
+        case c_addElementName:
+          return new AddUrlConfigurationElement();
+        case c_removeElementName:
+          return new RemoveUrlConfigurationElement();
+        default:
+          throw new NotSupportedException (
+              string.Format ("Only elements called '{0}' or '{1}' are supported.", c_addElementName, c_removeElementName));
+      }
+    }
+
+    protected override bool IsElementName (string elementName)
+    {
+      return elementName == c_addElementName || elementName == c_removeElementName;
     }
 
     public override ConfigurationElementCollectionType CollectionType

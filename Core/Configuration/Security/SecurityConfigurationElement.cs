@@ -27,10 +27,10 @@ namespace DesktopGap.Configuration.Security
 {
   public class SecurityConfigurationElement : ConfigurationElement
   {
-    [ConfigurationProperty ("StartupUrls")]
+    [ConfigurationProperty ("startupUrls")]
     public UrlConfigurationElementCollection StartupUrls
     {
-      get { return (UrlConfigurationElementCollection) this["StartupUrls"]; }
+      get { return (UrlConfigurationElementCollection) this["startupUrls"]; }
     }
 
     public IEnumerable<UrlRule> StartupUrlRules
@@ -38,21 +38,21 @@ namespace DesktopGap.Configuration.Security
       get { return StartupUrls; }
     }
 
-    [ConfigurationProperty ("ThirdPartyUrls")]
-    public UrlConfigurationElementCollection ThirdPartyUrls
+    [ConfigurationProperty ("allowedNonApplicationUrls")]
+    public UrlConfigurationElementCollection AllowedNonApplicationUrls
     {
-      get { return (UrlConfigurationElementCollection) this["ThirdPartyUrls"]; }
+      get { return (UrlConfigurationElementCollection) this["allowedNonApplicationUrls"]; }
     }
 
-    public IEnumerable<UrlRule> ThirdPartyUrlRules
+    public IEnumerable<UrlRule> NonApplicationUrlRules
     {
-      get { return ThirdPartyUrls; }
+      get { return AllowedNonApplicationUrls; }
     }
 
-    [ConfigurationProperty ("ApplicationUrls")]
+    [ConfigurationProperty ("applicationUrls")]
     public UrlConfigurationElementCollection ApplicationUrls
     {
-      get { return (UrlConfigurationElementCollection) this["ApplicationUrls"]; }
+      get { return (UrlConfigurationElementCollection) this["applicationUrls"]; }
     }
 
     public IEnumerable<UrlRule> ApplicationUrlRules
@@ -60,10 +60,10 @@ namespace DesktopGap.Configuration.Security
       get { return ApplicationUrls; }
     }
 
-    [ConfigurationProperty ("AddIns")]
+    [ConfigurationProperty ("addIns")]
     public AddInConfigurationElementCollection AddIns
     {
-      get { return (AddInConfigurationElementCollection) this["AddIns"]; }
+      get { return (AddInConfigurationElementCollection) this["addIns"]; }
     }
 
     public IEnumerable<AddInRule> AddInRules

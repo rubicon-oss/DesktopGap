@@ -35,6 +35,7 @@ using DesktopGap.Clients.Windows.WebBrowser.UI;
 using DesktopGap.Configuration;
 using DesktopGap.Security.AddIns;
 using DesktopGap.Security.Urls;
+using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.StartOptions;
 using PowerArgs;
@@ -53,18 +54,34 @@ namespace DesktopGap.Clients.Windows
     {
     }
 
+    //public class DesktopGapConfigurator
+    //{
+
+    //  public DesktopGapConfigurator (Uri manifestLocation)
+    //  {
+    //    ArgumentUtility.CheckNotNull ("manifestLocation", manifestLocation);
+        
+    //    ManifestLocation = manifestLocation;
+    //  }
+
+    //  public IUrlFilter 
+
+    //        public Uri ManifestLocation { get; set; }
+
+    //}
+
     [STAThread]
     private void Application_Startup (object sender, StartupEventArgs e)
     {
       var args = Args.Parse<DesktopGapCommandLineArguments> (e.Args);
 
-      try
-      {
+      //try
+      //{
         var configuration = DesktopGapConfigurationProvider.Create (String.Empty, args.ManifestUri.ToString()).GetConfiguration();
         var baseUri = new Uri (configuration.Application.BaseUrl);
         var startupUri = args.StartupUri;
 
-        var thirdPartyUrlRules = configuration.Security.ThirdPartyUrlRules;
+        var thirdPartyUrlRules = configuration.Security.NonApplicationUrlRules;
         var applicationUrlRules = configuration.Security.ApplicationUrlRules;
         var startUpUrlRules = configuration.Security.StartupUrlRules;
 
@@ -72,10 +89,10 @@ namespace DesktopGap.Clients.Windows
 
         var addInRules = configuration.Security.AddInRules;
 
-        var resourceFilter = new UrlFilter (baseUri, resourceUrls);
-        var pageFilter = new UrlFilter (baseUri, thirdPartyUrlRules);
-        var addInAllowedFilter = new UrlFilter (baseUri, applicationUrlRules);
-        var startupFilter = new UrlFilter (baseUri, startUpUrlRules);
+        var resourceFilter = new UrlFilter (resourceUrls);
+        var nonApplicationUrlFilter = new UrlFilter (thirdPartyUrlRules);
+        var addInAllowedFilter = new UrlFilter (applicationUrlRules);
+        var startupFilter = new UrlFilter (startUpUrlRules);
 
 
         var catalog = new AggregateCatalog();
@@ -98,7 +115,7 @@ namespace DesktopGap.Clients.Windows
             new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer, addInFilter)));
 
         var subscriptionHandler = (ISubscriptionProvider) htmlDocumentHandleRegistry;
-        _browserFactory = new TridentWebBrowserFactory (htmlDocumentHandleRegistry, subscriptionHandler, pageFilter, addInAllowedFilter);
+        _browserFactory = new TridentWebBrowserFactory (htmlDocumentHandleRegistry, subscriptionHandler, nonApplicationUrlFilter, startupFilter, addInAllowedFilter);
 
         var viewDispatcher = new TridentViewDispatcher (_browserFactory, subscriptionHandler);
 
@@ -109,16 +126,16 @@ namespace DesktopGap.Clients.Windows
         var mainWindow = new BrowserWindow (configuration.Application.Name, baseUri, viewDispatcher);
         mainWindow.NewTab (baseUri, BrowserWindowStartMode.Active);
 
-        if (startupUri != null && (startupFilter.IsAllowed (startupUri) || pageFilter.IsAllowed(startupUri)))
+        if (startupUri != null && (startupFilter.IsAllowed (startupUri) || nonApplicationUrlFilter.IsAllowed(startupUri)))
           mainWindow.NewTab (startupUri, BrowserWindowStartMode.Active);
-        mainWindow.Icon = new BitmapImage (configuration.Application.Favicon.GetUri());
+        mainWindow.Icon = new BitmapImage (configuration.Application.GetIconUri());
         mainWindow.Show();
-      }
-      catch (Exception ex)
-      {
-        MessageBox.Show (ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-        Shutdown();
-      }
+      //}
+      //catch (Exception ex)
+      //{
+      //  MessageBox.Show (ex.ToString(), "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+      //  Shutdown();
+      //}
     }
 
     private void Application_DispatcherUnhandledException (object sender, DispatcherUnhandledExceptionEventArgs e)

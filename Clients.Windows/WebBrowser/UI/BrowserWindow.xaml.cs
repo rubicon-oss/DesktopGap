@@ -84,7 +84,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       {
         _tabControl.Items.Add (tab);
         args.View.Closing += (s, e) => RemoveTab (tab);
-        SetCloseable();
       }
       args.View.Show (args.StartMode);
     }
@@ -92,13 +91,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private void RemoveTab (BrowserTab browserTab)
     {
       _tabControl.Items.Remove (browserTab);
-      SetCloseable();
-    }
-
-    private void SetCloseable ()
-    {
-      foreach (var tab in _tabControl.Items)
-        ((BrowserTab) tab).IsCloseable = _tabControl.Items.Count > 1;
     }
 
     private void OnGotoHome (object sender, RoutedEventArgs e)

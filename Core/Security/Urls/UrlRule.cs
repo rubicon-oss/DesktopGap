@@ -22,7 +22,7 @@ using System.Text.RegularExpressions;
 
 namespace DesktopGap.Security.Urls
 {
-  public class UrlRule 
+  public class UrlRule
   {
     private const RegexOptions c_defaultDomainRegexOptions = RegexOptions.Compiled
                                                              | RegexOptions.IgnoreCase
@@ -42,9 +42,9 @@ namespace DesktopGap.Security.Urls
     public Regex DomainExpression { get; private set; }
     public Regex PathExpression { get; private set; }
 
-    public bool IsMatch (Uri url)
-    {
-      return DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath + url.Query);
+    public virtual bool IsMatch (Uri url)
+    { 
+      return DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath);
     }
   }
 }
