@@ -54,7 +54,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       Content = _webBrowserHost;
 
       Header = new CloseableTabHeader (string.Empty, new BitmapImage (s_defaultImageUri), isCloseable);
-      Header.TabClose += OnTabClose;
+      Header.TabClose += (s, e) =>
+                         {
+                           bool cancel;
+                           Close (out cancel);
+                         };
+
 
       if (IsHomeTab)
         return;
@@ -103,16 +108,20 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
+    public void Close (out bool cancel)
+    {
+      cancel = !_webBrowserHost.WebBrowser.ShouldClose();
+      if (cancel)
+        return;
+
+      if (Closing != null)
+        Closing (this, EventArgs.Empty);
+      Dispose();
+    }
+
     private void OnDocumentTitleChanged (object sender, EventArgs e)
     {
       Header.Text = string.IsNullOrEmpty (WebBrowser.Title) ? WebBrowser.Url.ToString() : WebBrowser.Title;
-    }
-
-    private void OnTabClose (object sender, EventArgs e)
-    {
-      if (Closing != null)
-        Closing (this, e);
-      CleanUp();
     }
 
     private void CleanUp ()

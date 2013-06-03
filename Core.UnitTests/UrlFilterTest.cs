@@ -57,7 +57,7 @@ namespace DesktopGap.UnitTests
 </configuration>";
 
 
-    private IEnumerable<UrlRule> _urlRules;
+    private IEnumerable<PositiveUrlRule> _urlRules;
 
     [SetUp]
     public void SetUp ()

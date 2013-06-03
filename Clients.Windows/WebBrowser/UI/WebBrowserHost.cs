@@ -34,6 +34,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       WebBrowser = tridentWebBrowser;
 
       Content = new WindowsFormsHost { Child = tridentWebBrowser };
+      
     }
 
     public void Dispose ()

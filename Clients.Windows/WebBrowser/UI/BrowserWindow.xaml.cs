@@ -27,7 +27,6 @@ using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
-
   public partial class BrowserWindow : IWebBrowserWindow
   {
     private readonly Uri _baseUrl;
@@ -47,12 +46,25 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _baseUrl = baseUri;
       _viewDispatcher = viewDispatcher;
       _viewDispatcher.ViewCreated += OnSubViewCreated;
+      Closing += (s, e) => e.Cancel = CloseWindow();
     }
 
     public void Dispose ()
     {
       foreach (var disposable in _tabControl.Items.OfType<IDisposable>())
         disposable.Dispose();
+    }
+
+    private bool CloseWindow ()
+    {
+      var canCloseWindow = true;
+      foreach (var browserTab in _tabControl.Items.OfType<BrowserTab>())
+      {
+        bool cancel;
+        browserTab.Close (out cancel);
+        canCloseWindow = canCloseWindow && !cancel;
+      }
+      return canCloseWindow;
     }
 
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
@@ -100,7 +112,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnZoomIn (object sender, RoutedEventArgs e)
     {
-      
       var currentBrowser = ((BrowserTab) _tabControl.Items[_tabControl.SelectedIndex]).WebBrowser;
       currentBrowser.Zoom (100);
     }

@@ -24,7 +24,7 @@ using DesktopGap.Security.Urls;
 
 namespace DesktopGap.Configuration.Security
 {
-  public class UrlConfigurationElementCollection : ConfigurationElementCollection, IEnumerable<UrlRule>
+  public class UrlConfigurationElementCollection : ConfigurationElementCollection, IEnumerable<PositiveUrlRule>
   {
     private const string c_addElementName = "add";
     private const string c_removeElementName = "remove";
@@ -69,7 +69,7 @@ namespace DesktopGap.Configuration.Security
       return ((UrlConfigurationElement) element).Key;
     }
 
-    public new IEnumerator<UrlRule> GetEnumerator ()
+    public new IEnumerator<PositiveUrlRule> GetEnumerator ()
     {
       for (var i = 0; i < Count; i++)
         yield return this[i].GetRule();

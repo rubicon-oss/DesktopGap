@@ -62,8 +62,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser
           HtmlDocumentHandleRegistry,
           SubscriptionProvider,
           NonApplicationUrlFilter,
-          ApplicationUrlFilter,
-          EntryPointFilter);
+          EntryPointFilter,
+          ApplicationUrlFilter);
 
 
       return browser;

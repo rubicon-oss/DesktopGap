@@ -12,5 +12,7 @@ namespace DesktopGap.WebBrowser.View
     Guid Identifier { get; }
 
     void Show (BrowserWindowStartMode startMode);
+
+    void Close (out bool cancel);
   }
 }

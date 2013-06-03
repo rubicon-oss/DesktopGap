@@ -1,4 +1,23 @@
-﻿using System;
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+// Copyright (c) rubicon IT GmbH, Vienna, and contributors
+// 
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+//
+// Additional permissions are listed in the file DesktopGap_exceptions.txt.
+// 
+using System;
 using System.Windows;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
@@ -14,7 +33,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   {
     private readonly WebBrowserHost _browserHost;
 
-    private static readonly Uri s_defaultImageUri = new Uri("/DesktopGap;component/Resources/new.png", UriKind.RelativeOrAbsolute);
+    private static readonly Uri s_defaultImageUri = new Uri ("/DesktopGap;component/Resources/new.png", UriKind.RelativeOrAbsolute);
 
     public PopUpWindow (TridentWebBrowser webBrowser, Guid identifier)
     {
@@ -45,10 +64,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       Identifier = identifier;
       base.Closing += (s, e) =>
                       {
-                        if (Closing != null)
-                          Closing (s, e);
+                        bool cancel;
+                        Close (out cancel);
+                        e.Cancel = cancel;
                       };
-      webBrowser.DocumentsFinished += (s, e) => Icon = webBrowser.GetFavicon(s_defaultImageUri);
+      webBrowser.DocumentsFinished += (s, e) => Icon = webBrowser.GetFavicon (s_defaultImageUri);
     }
 
 
@@ -81,6 +101,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         default:
           throw new InvalidOperationException (string.Format ("Start mode '{0}' is not supported for PopUpWindow.", startMode));
       }
+    }
+
+    public void Close (out bool cancel)
+    {
+      cancel = !_browserHost.WebBrowser.ShouldClose();
+      if (!cancel && Closing != null)
+        Closing (this, EventArgs.Empty);
+      Dispose();
     }
   }
 }

@@ -21,16 +21,16 @@ using System;
 
 namespace DesktopGap.Security.Urls
 {
-  public class InvertedUrlRule : UrlRule
+  public class NegativePositiveUrlRule : PositiveUrlRule
   {
-    public InvertedUrlRule (string domain, string path)
+    public NegativePositiveUrlRule (string domain, string path)
         : base (domain, path)
     {
     }
 
-    public override bool IsMatch (Uri url)
+    public override bool? IsMatch (Uri url)
     {
-      return ! (DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath));
+      return DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath) ? false : (bool?) null;
     }
   }
 }

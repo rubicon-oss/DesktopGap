@@ -28,9 +28,9 @@ namespace DesktopGap.Security.Urls
   {
     private const string c_aboutBlank = "about:blank";
 
-    private readonly UrlRule[] _whitelist;
+    private readonly PositiveUrlRule[] _whitelist;
 
-    public UrlFilter (IEnumerable<UrlRule> whitelist)
+    public UrlFilter (IEnumerable<PositiveUrlRule> whitelist)
     {
       ArgumentUtility.CheckNotNull ("whitelist", whitelist);
 
@@ -42,14 +42,17 @@ namespace DesktopGap.Security.Urls
       ArgumentUtility.CheckNotNull ("url", url);
 
       Uri uri;
-      return url == c_aboutBlank || (Uri.TryCreate (url, UriKind.Absolute, out uri) && _whitelist.Any (r => r.IsMatch (uri)));
+      return url == c_aboutBlank || (Uri.TryCreate (url, UriKind.Absolute, out uri) && IsAllowed(uri));
     }
 
     public bool IsAllowed (Uri url)
     {
       ArgumentUtility.CheckNotNull ("url", url);
+      var result = _whitelist.Aggregate (false, (current, rule) => (rule.IsMatch (url) ?? false) || current);
 
-      return _whitelist.Any (r => r.IsMatch (url));
+      return result;
+
+
     }
   }
 }

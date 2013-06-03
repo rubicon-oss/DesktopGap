@@ -24,9 +24,9 @@ namespace DesktopGap.Configuration.Security
 {
   public class AddUrlConfigurationElement : UrlConfigurationElement
   {
-    public override UrlRule GetRule ()
+    public override PositiveUrlRule GetRule ()
     {
-      return UseRegex ? new UrlRule (Domain, Path) : new UrlRule (TranslateStartWildcard (Domain), TranslateEndWildcard (Path));
+      return UseRegex ? new PositiveUrlRule (Domain, Path) : new PositiveUrlRule (TranslateStartWildcard (Domain), TranslateEndWildcard (Path));
     }
   }
 }

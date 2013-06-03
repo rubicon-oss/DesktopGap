@@ -24,9 +24,9 @@ namespace DesktopGap.Configuration.Security
 {
   public class RemoveUrlConfigurationElement : UrlConfigurationElement
   {
-    public override UrlRule GetRule ()
+    public override PositiveUrlRule GetRule ()
     {
-      return UseRegex ? new InvertedUrlRule (Domain, Path) : new InvertedUrlRule (TranslateStartWildcard (Domain), TranslateEndWildcard (Path));
+      return UseRegex ? new NegativePositiveUrlRule (Domain, Path) : new NegativePositiveUrlRule (TranslateStartWildcard (Domain), TranslateEndWildcard (Path));
     }
   }
 }

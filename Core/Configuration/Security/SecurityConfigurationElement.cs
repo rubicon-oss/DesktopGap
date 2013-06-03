@@ -33,7 +33,7 @@ namespace DesktopGap.Configuration.Security
       get { return (UrlConfigurationElementCollection) this["startupUrls"]; }
     }
 
-    public IEnumerable<UrlRule> StartupUrlRules
+    public IEnumerable<PositiveUrlRule> StartupUrlRules
     {
       get { return StartupUrls; }
     }
@@ -44,7 +44,7 @@ namespace DesktopGap.Configuration.Security
       get { return (UrlConfigurationElementCollection) this["allowedNonApplicationUrls"]; }
     }
 
-    public IEnumerable<UrlRule> NonApplicationUrlRules
+    public IEnumerable<PositiveUrlRule> NonApplicationUrlRules
     {
       get { return AllowedNonApplicationUrls; }
     }
@@ -55,7 +55,7 @@ namespace DesktopGap.Configuration.Security
       get { return (UrlConfigurationElementCollection) this["applicationUrls"]; }
     }
 
-    public IEnumerable<UrlRule> ApplicationUrlRules
+    public IEnumerable<PositiveUrlRule> ApplicationUrlRules
     {
       get { return ApplicationUrls; }
     }

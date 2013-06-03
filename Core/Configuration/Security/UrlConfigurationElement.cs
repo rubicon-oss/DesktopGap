@@ -60,7 +60,7 @@ namespace DesktopGap.Configuration.Security
     }
 
 
-    public abstract UrlRule GetRule ();
+    public abstract PositiveUrlRule GetRule ();
 
     protected string TranslateEndWildcard (string url)
     {

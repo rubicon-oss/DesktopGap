@@ -19,7 +19,6 @@
 // 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
@@ -109,12 +108,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       ArgumentUtility.CheckNotNull ("entryPointFilter", entryPointFilter);
       ArgumentUtility.CheckNotNull ("applicationUrlFilter", applicationUrlFilter);
 
-      count++;
-      Debug.WriteLine ("######### instance of webbrowser created. current number of instances:" + count);
       BrowserEvents = new WebBrowserEvents (this, nonApplicationUrlFilter, applicationUrlFilter, entryPointFilter);
 
       Navigate (c_blankSite); // bootstrap
-      
+
       _documentHandleRegistry = documentHandleRegistry;
       _subscriptionProvider = subscriptionProvider;
       _applicationUrlFiler = applicationUrlFilter;
@@ -149,14 +146,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         _currentDocuments.Clear();
       _currentDocuments = null;
 
-      count--;
-
-      Debug.WriteLine ("######### instance of webbrowser disposing. current number of instances:" + count);
-
-
       base.Dispose (disposing);
     }
-
 
     public string Title
     {
@@ -561,6 +552,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       if (DocumentsFinished != null)
         DocumentsFinished (this, new EventArgs());
+    }
+
+    public bool ShouldClose ()
+    {
+      // known issue: http://support.microsoft.com/kb/253201/en-us
+      object shouldClose = 0;
+      object dummy = 0;
+      AxIWebBrowser2.ExecWB (
+          OLECMDID.OLECMDID_ONUNLOAD,
+          OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT,
+          ref dummy,
+          ref shouldClose);
+      return (bool)shouldClose;
     }
   }
 }

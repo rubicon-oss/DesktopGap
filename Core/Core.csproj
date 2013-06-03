@@ -95,10 +95,10 @@
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Security\AddIns\AddInFilter.cs" />
     <Compile Include="Security\AddIns\IAddInFilter.cs" />
-    <Compile Include="Security\Urls\InvertedUrlRule.cs" />
+    <Compile Include="Security\Urls\NegativePositiveUrlRule.cs" />
     <Compile Include="Security\Urls\IUrlFilter.cs" />
     <Compile Include="Security\Urls\UrlFilter.cs" />
-    <Compile Include="Security\Urls\UrlRule.cs" />
+    <Compile Include="Security\Urls\PositiveUrlRule.cs" />
     <Compile Include="Utilities\ArgumentEmptyException.cs" />
     <Compile Include="Utilities\ArgumentUtility.cs" />
     <Compile Include="Utilities\Web\WebClientWrapper.cs" />

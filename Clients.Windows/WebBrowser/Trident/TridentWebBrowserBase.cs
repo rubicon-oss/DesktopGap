@@ -103,7 +103,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void DetachInterfaces ()
-    {
+    { 
       AxIWebBrowser2 = null;
       base.DetachInterfaces();
     }
