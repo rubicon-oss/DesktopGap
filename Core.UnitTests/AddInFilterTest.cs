@@ -30,31 +30,32 @@ namespace DesktopGap.UnitTests
   public class AddInFilterTest
   {
     private IEnumerable<AddInRule> _addInRules;
-    private const string c_manifest = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
+  private const string c_manifest = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <configuration>
   
-    <configSections>
-    <section name=""DesktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
+  <configSections>
+    <section name=""desktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
   </configSections>
-  
-  <DesktopGapConfiguration>
-    <Application name=""TestApp"" frameNestingDepth=""5"" baseUrl=""http://localhost:3936"">
-      <Favicon location=""C:\Development\DesktopGap.Sandbox\WebHostWebApplication\rainbow-dash.png""/>
-    </Application>
-    
-    <Security>
-      <StartupUrls>			
-      </StartupUrls>
-      <ThirdPartyUrls>
-      </ThirdPartyUrls>
-      <ApplicationUrls>
-      </ApplicationUrls>
-      <AddIns>			
-        <AddIn name=""Test.AddIn.Allowed"" />
-      </AddIns>
-    </Security>	
 
-  </DesktopGapConfiguration>
+  <desktopGapConfiguration>
+    <application 
+        name=""Test App"" 
+        maxFrameNestingDepth=""5"" 
+        baseUrl=""http://test.rubicon.eu/""
+        homeUrl=""http://myapp.rubicon.eu/folder1/home.asp""
+        alwaysOpenHomeUrl=""true""
+        allowCloseHomeTab=""false""
+        icon=""C:\Development\DesktopGap.Sandbox\WebHostWebApplication\rainbow-dash.png""
+        alwaysShowUrl=""true"" 
+      />
+   
+    <security>   
+      <addIns>
+        <add name=""Test.AddIn.Allowed"" />
+      </addIns>
+    </security>	
+
+  </desktopGapConfiguration>
 </configuration>";
 
 
@@ -69,12 +70,13 @@ namespace DesktopGap.UnitTests
       }
     }
 
-    [Test]
+      [Test]
     public void IsAllowed_AskForProhibitedAddIn_ShouldReturnFalse ()
     {
       var addInGuard = new AddInFilter (_addInRules);
       Assert.That (addInGuard.IsAllowed ("Test.AddIn.Denied"), Is.False);
     }
+
 
     [Test]
     public void IsAllowed_AskForPermittedAddIn_ShouldReturnTrue ()
@@ -87,7 +89,7 @@ namespace DesktopGap.UnitTests
     public void IsAllowed_AskForInexistentAddIn_ShouldReturnFalse ()
     {
       var addInGuard = new AddInFilter (_addInRules);
-      Assert.That (addInGuard.IsAllowed ("this/is/not/allowed.html"), Is.True);
+      Assert.That (addInGuard.IsAllowed ("this/is/not/allowed.html"), Is.False);
     }
   }
 }

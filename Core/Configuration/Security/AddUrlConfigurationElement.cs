@@ -26,7 +26,9 @@ namespace DesktopGap.Configuration.Security
   {
     public override PositiveUrlRule GetRule ()
     {
-      return UseRegex ? new PositiveUrlRule (Domain, Path) : new PositiveUrlRule (TranslateStartWildcard (Domain), TranslateEndWildcard (Path));
+      return UseRegex
+                 ? new PositiveUrlRule (Domain, Path, RequireSsl)
+                 : new PositiveUrlRule (TranslateStartWildcard (Domain), TranslateEndWildcard (Path), RequireSsl);
     }
   }
 }

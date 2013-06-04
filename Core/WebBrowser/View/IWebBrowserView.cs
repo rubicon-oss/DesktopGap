@@ -5,7 +5,7 @@ namespace DesktopGap.WebBrowser.View
 {
   public interface IWebBrowserView : IDisposable
   {
-    event EventHandler<EventArgs> Closing;
+    event EventHandler<EventArgs> BeforeClose;
 
     IExtendedWebBrowser WebBrowser { get; }
 
@@ -13,6 +13,8 @@ namespace DesktopGap.WebBrowser.View
 
     void Show (BrowserWindowStartMode startMode);
 
-    void Close (out bool cancel);
+    bool ShouldClose ();
+
+    void CloseView ();
   }
 }

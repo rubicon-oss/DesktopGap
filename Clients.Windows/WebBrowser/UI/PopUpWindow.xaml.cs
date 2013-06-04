@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.ComponentModel;
 using System.Windows;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
@@ -62,13 +63,16 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserHost.WebBrowser.DocumentTitleChanged += (s, e) => Title = _browserHost.WebBrowser.Title;
 
       Identifier = identifier;
-      base.Closing += (s, e) =>
-                      {
-                        bool cancel;
-                        Close (out cancel);
-                        e.Cancel = cancel;
-                      };
+      base.Closing += OnBeforeClose;
       webBrowser.DocumentsFinished += (s, e) => Icon = webBrowser.GetFavicon (s_defaultImageUri);
+    }
+
+    private void OnBeforeClose (object sender, CancelEventArgs e)
+    {
+      var cancel = !ShouldClose();
+      if (!cancel && BeforeClose != null)
+        BeforeClose (this, EventArgs.Empty);
+      e.Cancel = cancel;
     }
 
 
@@ -78,7 +82,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     }
 
 
-    public new event EventHandler<EventArgs> Closing;
+    public event EventHandler<EventArgs> BeforeClose;
 
     public IExtendedWebBrowser WebBrowser
     {
@@ -103,11 +107,18 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
-    public void Close (out bool cancel)
+    public bool ShouldClose ()
     {
-      cancel = !_browserHost.WebBrowser.ShouldClose();
-      if (!cancel && Closing != null)
-        Closing (this, EventArgs.Empty);
+      return _browserHost.WebBrowser.ShouldClose();
+    }
+
+    public void CloseView ()
+    {
+      if (BeforeClose != null)
+        BeforeClose (this, EventArgs.Empty);
+
+      if (Visibility == Visibility.Visible)
+        Close();
       Dispose();
     }
   }

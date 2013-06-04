@@ -30,7 +30,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Remotion.Dms.Shared, Version=1.13.188.1, Culture=neutral, PublicKeyToken=fcd26521a9d01a9d, processorArchitecture=MSIL">
+    <Reference Include="Remotion.Dms.Shared, Version=1.13.198.0, Culture=neutral, PublicKeyToken=fee00910d6e5f53b, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\libraries\Remotion.Dms.Shared.dll</HintPath>
     </Reference>

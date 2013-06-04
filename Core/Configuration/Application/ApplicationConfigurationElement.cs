@@ -30,7 +30,7 @@ namespace DesktopGap.Configuration.Application
       get { return (string) this["name"]; }
     }
 
-    [ConfigurationProperty ("baseUrl")]
+    [ConfigurationProperty ("baseUrl", IsRequired = true)]
     public string BaseUrl
     {
       get { return (string) this["baseUrl"]; }

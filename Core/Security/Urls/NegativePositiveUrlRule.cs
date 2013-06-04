@@ -23,14 +23,17 @@ namespace DesktopGap.Security.Urls
 {
   public class NegativePositiveUrlRule : PositiveUrlRule
   {
-    public NegativePositiveUrlRule (string domain, string path)
-        : base (domain, path)
+    public NegativePositiveUrlRule (string domain, string path, bool sslOnly)
+        : base (domain, path, sslOnly)
     {
     }
 
     public override bool? IsMatch (Uri url)
     {
-      return DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath) ? false : (bool?) null;
+      return (_sslOnly && url.Scheme == c_sslPrefix || !_sslOnly)
+             && DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath)
+                 ? false
+                 : (bool?) null;
     }
   }
 }

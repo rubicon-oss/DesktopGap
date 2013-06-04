@@ -50,6 +50,7 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="ComTypes\HResult.cs" />
     <Compile Include="ComTypes\IClassFactory.cs" />
     <Compile Include="ComTypes\IInternetBindInfo.cs" />
     <Compile Include="ComTypes\IInternetProtocol.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="ComTypes\IInternetSession.cs" />
     <Compile Include="ComTypes\HttpProtocol.cs" />
     <Compile Include="ComTypes\HttpsProtocol.cs" />
+    <Compile Include="ExtendedHttpProtocol.cs" />
     <Compile Include="Factories\FilteredHttpsProtocolFactory.cs" />
     <Compile Include="FilteredHttpsProtocol.cs" />
     <Compile Include="FilteredHttpProtocol.cs" />

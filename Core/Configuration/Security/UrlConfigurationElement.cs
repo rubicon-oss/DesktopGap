@@ -27,8 +27,11 @@ namespace DesktopGap.Configuration.Security
 {
   public abstract class UrlConfigurationElement : ConfigurationElement
   {
-    private const string c_urlWildcard = "*";
-    private const string c_regexWildCard = ".*";
+    private const string c_urlMultiWildcard = "*";
+    private const string c_urlSingleWildcard = "?";
+    private const string c_regexMultiWildcard = ".*";
+    private const string c_regexSingleWildcard = ".";
+
 
     [ConfigurationProperty ("domain", IsRequired = true)]
     public string Domain
@@ -66,22 +69,47 @@ namespace DesktopGap.Configuration.Security
     {
       ArgumentUtility.CheckNotNull ("url", url);
 
-      if (!url.EndsWith (c_urlWildcard))
-        return Regex.Escape (url);
+      string wildcard;
+      string wildcardReplacement;
 
-      var regexPath = url.Remove (url.LastIndexOf (c_urlWildcard, StringComparison.Ordinal));
-      return Regex.Escape (regexPath) + c_regexWildCard;
+      if (url.EndsWith (c_urlMultiWildcard))
+      {
+        wildcard = c_urlMultiWildcard;
+        wildcardReplacement = c_regexMultiWildcard;
+      }
+      else if (url.EndsWith (c_urlSingleWildcard))
+      {
+        wildcard = c_urlSingleWildcard;
+        wildcardReplacement = c_regexSingleWildcard;
+      }
+      else
+        return Regex.Escape (url);
+      
+      var regexPath = url.Remove (url.LastIndexOf (wildcard, StringComparison.Ordinal));
+      return Regex.Escape (regexPath) + wildcardReplacement;
     }
 
     protected string TranslateStartWildcard (string url)
     {
       ArgumentUtility.CheckNotNull ("url", url);
 
-      if (!url.StartsWith (c_urlWildcard))
+      string wildcard;
+      string wildcardReplacement;
+      if (url.StartsWith (c_urlMultiWildcard))
+      {
+        wildcard = c_urlMultiWildcard;
+        wildcardReplacement = c_regexMultiWildcard;
+      }
+      else if (url.StartsWith (c_urlSingleWildcard))
+      {
+        wildcard = c_urlSingleWildcard;
+        wildcardReplacement = c_regexSingleWildcard;
+      }
+      else
         return Regex.Escape (url);
-
-      var regexPath = url.Remove (url.IndexOf (c_urlWildcard, StringComparison.Ordinal));
-      return c_regexWildCard + Regex.Escape (regexPath);
+      
+      var regexPath = url.Remove (url.IndexOf (wildcard, StringComparison.Ordinal));
+      return wildcardReplacement + Regex.Escape (regexPath);
     }
   }
 }

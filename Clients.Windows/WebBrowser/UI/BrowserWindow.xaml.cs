@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using DesktopGap.Utilities;
@@ -35,6 +36,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private const string c_protocolSeparator = "://";
     private const string c_httpProtocolHandler = "http";
 
+    private readonly List<IWebBrowserView> _subViews = new List<IWebBrowserView>();
+
     public BrowserWindow (string title, Uri baseUri, ViewDispatcherBase viewDispatcher)
     {
       ArgumentUtility.CheckNotNull ("title", title);
@@ -51,20 +54,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     public void Dispose ()
     {
-      foreach (var disposable in _tabControl.Items.OfType<IDisposable>())
+      foreach (var disposable in _subViews)
         disposable.Dispose();
     }
 
     private bool CloseWindow ()
     {
-      var canCloseWindow = true;
-      foreach (var browserTab in _tabControl.Items.OfType<BrowserTab>())
+      foreach (var browserView in _subViews.Where (view => view.ShouldClose()).ToList())
       {
-        bool cancel;
-        browserTab.Close (out cancel);
-        canCloseWindow = canCloseWindow && !cancel;
+        browserView.CloseView();
+        RemoveSubView (browserView);
       }
-      return canCloseWindow;
+
+      return _subViews.Count > 0;
     }
 
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
@@ -95,14 +97,17 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (tab != null)
       {
         _tabControl.Items.Add (tab);
-        args.View.Closing += (s, e) => RemoveTab (tab);
+        args.View.BeforeClose += (s, e) => RemoveSubView (tab);
       }
       args.View.Show (args.StartMode);
+      _subViews.Add (args.View);
     }
 
-    private void RemoveTab (BrowserTab browserTab)
+    private void RemoveSubView (IWebBrowserView view)
     {
-      _tabControl.Items.Remove (browserTab);
+      if (view is BrowserTab)
+        _tabControl.Items.Remove (view);
+      _subViews.Remove (view);
     }
 
     private void OnGotoHome (object sender, RoutedEventArgs e)

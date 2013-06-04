@@ -26,7 +26,7 @@ namespace DesktopGap.Configuration
 {
   public class DesktopGapConfiguration : ConfigurationSection
   {
-    [ConfigurationProperty ("application")]
+    [ConfigurationProperty ("application", IsRequired = true)]
     public ApplicationConfigurationElement Application
     {
       get { return (ApplicationConfigurationElement) this["application"]; }

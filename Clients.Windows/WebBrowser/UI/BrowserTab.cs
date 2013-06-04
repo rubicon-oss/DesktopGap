@@ -33,7 +33,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   /// </summary>
   public sealed class BrowserTab : TabItem, IWebBrowserView
   {
-    public event EventHandler<EventArgs> Closing;
+    public event EventHandler<EventArgs> BeforeClose;
 
     private readonly WebBrowserHost _webBrowserHost;
 
@@ -56,8 +56,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       Header = new CloseableTabHeader (string.Empty, new BitmapImage (s_defaultImageUri), isCloseable);
       Header.TabClose += (s, e) =>
                          {
-                           bool cancel;
-                           Close (out cancel);
+                           if (ShouldClose())
+                             CloseView();
                          };
 
 
@@ -108,16 +108,18 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
-    public void Close (out bool cancel)
+    public bool ShouldClose ()
     {
-      cancel = !_webBrowserHost.WebBrowser.ShouldClose();
-      if (cancel)
-        return;
+      return _webBrowserHost.WebBrowser.ShouldClose();
+    }
 
-      if (Closing != null)
-        Closing (this, EventArgs.Empty);
+    public void CloseView ()
+    {
+      if (BeforeClose != null)
+        BeforeClose (this, EventArgs.Empty);
       Dispose();
     }
+
 
     private void OnDocumentTitleChanged (object sender, EventArgs e)
     {

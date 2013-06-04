@@ -32,28 +32,34 @@ namespace DesktopGap.UnitTests
     private const string c_manifest = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
 <configuration>
   
-    <configSections>
-    <section name=""DesktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
+  <configSections>
+    <section name=""desktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
   </configSections>
-  
-  <DesktopGapConfiguration>
-    <Application name=""TestApp"" frameNestingDepth=""5"" baseUrl=""http://localhost:3936"">
-      <Favicon location=""C:\Development\DesktopGap.Sandbox\WebHostWebApplication\rainbow-dash.png""/>
-    </Application>
-    
-    <Security>
-      <StartupUrls>			
-      </StartupUrls>
-      <ThirdPartyUrls>
-        <Url domain=""this/is/"" path=""allowed.html"" />
-      </ThirdPartyUrls>
-      <ApplicationUrls>
-      </ApplicationUrls>
-      <AddIns>			
-      </AddIns>
-    </Security>	
 
-  </DesktopGapConfiguration>
+  <desktopGapConfiguration>
+    <application 
+        name=""Test App"" 
+        maxFrameNestingDepth=""5"" 
+        baseUrl=""http://test.rubicon.eu/""
+        homeUrl=""http://myapp.rubicon.eu/folder1/home.asp""
+        alwaysOpenHomeUrl=""true""
+        allowCloseHomeTab=""false""
+        icon=""C:\Development\DesktopGap.Sandbox\WebHostWebApplication\rainbow-dash.png""
+        alwaysShowUrl=""true"" 
+      />
+   
+    <security>
+      <allowedNonApplicationUrls>
+        <add domain=""this"" path=""/is/allowed.html"" />
+        <add domain=""?his"" path=""/is/allowed*"" />
+        <add domain=""*this"" path=""/is/allow?"" />
+        <add domain=""this"" path=""/is/allowed.html"" />
+        <add domain=""this"" path=""/is/secure.html"" requireSSL=""true"" />
+        <add domain=""this"" path=""/is/(also/)?allowed.html"" useRegex=""true"" />        
+      </allowedNonApplicationUrls>
+    </security>	
+
+  </desktopGapConfiguration>
 </configuration>";
 
 
@@ -73,64 +79,93 @@ namespace DesktopGap.UnitTests
     [Test]
     public void IsAllowed_AskForProhibitedUrl_ShouldReturnFalse ()
     {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (_urlRules);
       Assert.That (urlGuard.IsAllowed ("http://not/allowed.html"), Is.False);
     }
 
     [Test]
     public void IsAllowed_AskForProhibitedUrl2_ShouldReturnFalse ()
     {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (_urlRules);
       Assert.That (urlGuard.IsAllowed ("http://some.stuff.test.com/badapp"), Is.False);
     }
 
     [Test]
     public void IsAllowed_AskForProhibitedUrl3_ShouldReturnFalse ()
     {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (_urlRules);
       Assert.That (urlGuard.IsAllowed ("ftp://another.test.de/badapp"), Is.False);
     }
 
     [Test]
     public void IsAllowed_AskForPermittedUrl_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (_urlRules);
       Assert.That (urlGuard.IsAllowed ("http://this/is/allowed.html"), Is.True);
     }
 
     [Test]
     public void IsAllowed_AskForPermittedUrl2_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
-      Assert.That (urlGuard.IsAllowed ("ftp://this.domain.com/is/allowed.html"), Is.True);
+      var urlGuard = new UrlFilter (_urlRules);
+      Assert.That (urlGuard.IsAllowed ("ftp://this/is/allowed.html"), Is.True);
+    }
+
+    [Test]
+    public void IsAllowed_AskForWildcardedUrl_ShouldReturnTrue ()
+    {
+      var urlGuard = new UrlFilter (_urlRules);
+      Assert.That (urlGuard.IsAllowed ("http://fhis/is/allowed-and-valid"), Is.True);
+    }
+
+    [Test]
+    public void IsAllowed_AskForWildcardedUrl2_ShouldReturnTrue ()
+    {
+      var urlGuard = new UrlFilter (_urlRules);
+      Assert.That (urlGuard.IsAllowed ("http://www.allow.this/is/allowd"), Is.True);
+    }
+
+    [Test]
+    public void IsAllowed_AskForWildcardedUrl3_ShouldReturnTrue ()
+    {
+      var urlGuard = new UrlFilter (_urlRules);
+      Assert.That (urlGuard.IsAllowed ("http://this/is/also/allowed.html"), Is.True);
+    }
+
+    [Test]
+    public void IsAllowed_AskForSSLOnlyUrlWithoutSSL3_ShouldReturnFalse ()
+    {
+      var urlGuard = new UrlFilter (_urlRules);
+      Assert.That (urlGuard.IsAllowed ("http://this/is/secure.html"), Is.False);
+    }
+
+
+    [Test]
+    public void IsAllowed_AskForSSLOnlyUrlWithSSL3_ShouldReturnTrue ()
+    {
+      var urlGuard = new UrlFilter (_urlRules);
+      Assert.That (urlGuard.IsAllowed ("https://this/is/secure.html"), Is.True);
     }
 
 
     [Test]
     public void IsAllowed_AskForPermittedUrl3_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
-      Assert.That (urlGuard.IsAllowed ("http://my.test.at/app?key=value"), Is.True);
+      var urlGuard = new UrlFilter (_urlRules);
+      Assert.That (urlGuard.IsAllowed ("http://this/is/allowed.html?key=value"), Is.True);
     }
 
     [Test]
     public void IsAllowed_AskForPermittedUrlWithAdditionalContent_ShouldReturnTrue ()
     {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
-      Assert.That (urlGuard.IsAllowed ("http://my.test.at/asdasdasdsadasdasdsdasd/app?key=value"), Is.True);
-    }
-
-    [Test]
-    public void IsAllowed_AskForBaseUrlDescendent_ShouldReturnTrue ()
-    {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
-      Assert.That (urlGuard.IsAllowed ("http://base.domain.com/a/short/path/and/stuff/index.html"), Is.True);
+      var urlGuard = new UrlFilter (_urlRules);
+      Assert.That (urlGuard.IsAllowed ("http://this/stuff/is/allowed.html?key=value"), Is.True);
     }
 
     [Test]
     public void IsAllowed_AskForInexistentRule_ShouldReturnFalse ()
     {
-      var urlGuard = new UrlFilter (new Uri ("http://base.domain.com/a/short/path"), _urlRules);
+      var urlGuard = new UrlFilter (_urlRules);
       Assert.That (urlGuard.IsAllowed ("http://this/is/not/allowed.html"), Is.False);
     }
   }

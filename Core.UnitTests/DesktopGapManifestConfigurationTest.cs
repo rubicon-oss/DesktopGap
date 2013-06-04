@@ -36,28 +36,37 @@ namespace DesktopGap.UnitTests
 <configuration>
   
     <configSections>
-    <section name=""DesktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
+    <section name=""desktopGapConfiguration"" type=""DesktopGap.Configuration.DesktopGapConfiguration, DesktopGap.Core"" />
   </configSections>
   
-  <DesktopGapConfiguration>";
+  <desktopGapConfiguration>";
 
-    private const string c_manifestTail = @"</DesktopGapConfiguration></configuration>";
+    private const string c_manifestTail = @"</desktopGapConfiguration></configuration>";
 
-    private const string c_securityTagName = "Security";
-    private const string c_thirdPartyUrlsTagName = "ThirdPartyUrls";
-    private const string c_applicationUrlsTagName = "ApplicationUrls";
-    private const string c_startUpTagName = "StartupURLs";
 
-    private const string c_addInsTagName = "AddIns";
+    private const string c_applicationTagName = "application";
 
-    private const string c_urlTagName = "Url";
-    private const string c_addInTagName = "AddIn";
+    private const string c_securityTagName = "security";
+    private const string c_thirdPartyUrlsTagName = "allowedNonApplicationUrls";
+    private const string c_applicationUrlsTagName = "applicationUrls";
+    private const string c_startUpTagName = "startupURLs";
+    private const string c_addInsTagName = "addIns";
+
+    private const string c_urlTagName = "add";
+    private const string c_addInTagName = "addIn";
 
     private const string c_domainAttribute = "domain";
     private const string c_pathAttribute = "path";
     private const string c_nameAttribute = "name";
-
-    private const string c_patternAttribute = "pattern";
+    private const string c_homeUrlAttribute = "homeUrl";
+    private const string c_baseUrlAttribute = "baseUrl";
+    private const string c_maxFrameNestingDepthAttribute = "maxFrameNestingDepth";
+    private const string c_alwaysOpenHomeUrlAttribute = "alwaysOpenHomeUrl";
+    private const string c_allowCloseHomeTabAttribute = "allowCloseHomeTab";
+    private const string c_iconAttribute = "icon";
+    private const string c_alwaysShowUrlAttribute = "alwaysShowUrl";
+    
+    private const string c_patternAttribute = "useRegex";
     private const string c_sslAttribute = "requireSSL";
 
 
@@ -131,6 +140,30 @@ namespace DesktopGap.UnitTests
       }
     }
 
+    
+    [Test]
+    public void Xml_UseMinimalConfiguration_ShouldSucceed ()
+    {
+      using (var tempFile = new TempFile())
+      {
+        var stringBuilder = new StringBuilder (c_manifestHead);
+
+        stringBuilder.Append (OpenTag ("invalid"));
+
+        var attributes = new Dictionary<string, string> { { c_domainAttribute, ".*" }, { c_pathAttribute, ".*" } };
+
+        stringBuilder.Append (InlineTag (c_urlTagName, attributes));
+
+        stringBuilder.Append (CloseTag ("invalid"));
+
+        stringBuilder.Append (c_manifestTail);
+
+        tempFile.WriteAllText (stringBuilder.ToString());
+        Assert.That (
+            () => DesktopGapConfigurationProvider.Create ("", tempFile.FileName).GetConfiguration(), Throws.InstanceOf<ConfigurationErrorsException>());
+      }
+    }
+
     [Test]
     public void Xml_ValidThirdPartyUrlsPatternTag_ShouldSucceed ()
     {
@@ -172,7 +205,7 @@ namespace DesktopGap.UnitTests
       }
     }
 
-      [Test]
+    [Test]
     public void Xml_ValidThirdPartyUrlsNameTag_ShouldSucceed ()
     {
       var domain = "example.domain.com";
