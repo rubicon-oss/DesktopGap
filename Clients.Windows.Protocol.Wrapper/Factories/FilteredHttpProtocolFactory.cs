@@ -28,11 +28,10 @@ using DesktopGap.Utilities;
 namespace DesktopGap.Clients.Windows.Protocol.Wrapper.Factories
 {
   [ComVisible (true)]
-  public class FilteredHttpProtocolFactory : IClassFactory, IProtocolFactory, IDisposable
+  public class FilteredHttpProtocolFactory : IProtocolFactory, IDisposable
   {
     private readonly IUrlFilter _urlFilter;
     private readonly Control _ctrl;
-    private const string c_protocolName = "http";
 
     private int _lockCount;
 
@@ -57,12 +56,13 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.Factories
 
     public string ProtocolName
     {
-      get { return c_protocolName; }
+      get { return Uri.UriSchemeHttp; }
     }
 
     public void CreateInstance (object pUnkOuter, Guid riid, out object ppvObject)
     {
-      ppvObject = new FilteredHttpProtocol (_ctrl, _urlFilter);
+      //ppvObject = new FilteredHttpProtocol (_ctrl, _urlFilter);
+      ppvObject = new ExtendedHttpProtocol (_ctrl, _urlFilter);
     }
 
     public void LockServer (bool fLock)

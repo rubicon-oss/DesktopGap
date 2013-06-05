@@ -18,27 +18,49 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Controls;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes;
-using DesktopGap.Clients.Windows.WebBrowser.ComTypes;
 using DesktopGap.Security.Urls;
 using DesktopGap.Utilities;
+using IServiceProvider = DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes.IServiceProvider;
 
 namespace DesktopGap.Clients.Windows.Protocol.Wrapper
 {
   [ComVisible (true)]
   [Guid ("E8253D6B-1AEE-4B5A-B7F9-F37D9C76C5FB")]
-  public class ExtendedHttpProtocol : IInternetProtocol, IInternetProtocolRoot
+  public class ExtendedHttpProtocol : IInternetProtocol, IInternetProtocolRoot, IDisposable
   {
-    private IInternetProtocol _wrapped;
-
-    private readonly Control _dispatcher;
     private readonly IUrlFilter _urlFilter;
-    private static readonly object lockObject = new object();
+    private readonly object s_lockObject = new object();
+    private const string c_httpHeaderSplitCharacters = "\r\n";
+
+    private static int counter = 0;
+
+    private static readonly ISet<string> s_restrictedHeaders = new HashSet<string> (
+        new[]
+        {
+            "Accept",
+            "Connection",
+            "Content-Length",
+            "Content-Type",
+            "Date",
+            "Expect",
+            "Host",
+            "If-Modified-Since",
+            "Range",
+            "Referer",
+            "Transfer-Encoding",
+            "User-Agent",
+            "Proxy-Connection"
+        });
 
 
     public ExtendedHttpProtocol (Control dispatcher, IUrlFilter urlFilter)
@@ -49,35 +71,163 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
       _urlFilter = urlFilter;
     }
 
-    protected MemoryStream Stream = new MemoryStream (0x8000);
+    protected Stream Stream;
     protected byte[] StreamBuffer = new byte[0x8000];
+    private HttpWebRequest _webRequest;
+    private HttpWebResponse _httpResponse;
+    private string _currentUrl;
+    private uint _size;
 
     public void Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
     {
-      // How to do more complex stuff: http://www.codeproject.com/Articles/6120/A-Simple-protocol-to-view-aspx-pages-without-IIS-i
-      Uri uri;
+      if(_size != 0)
+        throw new InvalidOperationException("nope");
 
+      new Thread (
+          () =>
+          {
 
-      if (!(Uri.TryCreate (szURL, UriKind.RelativeOrAbsolute, out uri) && _urlFilter.IsAllowed (uri)))
-      {
-        Debug.WriteLine ("is not allowed", szURL);
-        Sink.ReportResult (0, 403, "Forbidden");
-        return;
-      }
+            Debug.WriteLine ("starting url: " + szURL);
 
-      BINDINFO bindinfo = GetBindInfo (pOIBindInfo);
+            counter++;
+            Debug.WriteLine ("current instances: " + counter);
 
-      var wc = WebRequest.Create (uri);
-      wc.Headers = new WebHeaderCollection();
-      wc.Method = GetMethod (bindinfo);
-      wc.
-      Negotiate.BeginningTransaction(szURL, string.Empty, 0, out strRequestHeaders);
+            _currentUrl = szURL;
+            // How to do more complex stuff: http://www.codeproject.com/Articles/6120/A-Simple-protocol-to-view-aspx-pages-without-IIS-i
+            Uri uri;
 
+            if (!(Uri.TryCreate (szURL, UriKind.RelativeOrAbsolute, out uri) && _urlFilter.IsAllowed (uri)))
+            {
+              Sink.ReportResult (0, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
+              return;
+            }
 
-      wc.DownloadData (uri)
+            BINDINFO bindinfo = GetBindInfo (pOIBindInfo);
+            IHttpNegotiate Negotiate = GetHttpNegotiate (Sink);
+
+            var data = GetPostData (bindinfo);
+
+            _webRequest = (HttpWebRequest) WebRequest.Create (uri);
+            _webRequest.UserAgent = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)";
+            _webRequest.Headers = new WebHeaderCollection();
+            _webRequest.Method = GetMethod (bindinfo);
+            
+
+            //_webRequest.KeepAlive = false;
+            _webRequest.AllowAutoRedirect = true;
+
+            string strRequestHeaders;
+            _webRequest.ContentLength = data.Length;
+            Negotiate.BeginningTransaction (szURL, string.Empty, 0, out strRequestHeaders);
+            foreach (
+                var header in
+                    Regex.Split (strRequestHeaders, c_httpHeaderSplitCharacters).Where (
+                        s => !string.IsNullOrEmpty (s)
+                             && !s_restrictedHeaders.Contains (s.Split (':').First())))
+            {
+              _webRequest.Headers.Add (header);
+            }
+            _webRequest.Headers.Add ("Accept-Encoding: gzip, deflate");
+            if (data.Length > 0)
+            {
+              using (var requestStream = _webRequest.GetRequestStream())
+              {
+                requestStream.Write (data, 0, data.Length);
+              }
+            }
+            try
+            {
+              _httpResponse = (HttpWebResponse) _webRequest.GetResponse();
+              //if (!_urlFilter.IsAllowed (_httpResponse.ResponseUri))
+              //  throw new Exception ("not allowed!"); // TODO - do something useful here
+
+              string strNewResponseHeaders;
+              Negotiate.OnResponse (0, _httpResponse.Headers.ToString(), strRequestHeaders, out strNewResponseHeaders);
+              Stream = _httpResponse.GetResponseStream();
+              Sink.ReportData (BSCF.BSCF_LASTDATANOTIFICATION, (uint) _httpResponse.ContentLength, (uint) _httpResponse.ContentLength);
+              Sink.ReportResult (0, (uint) _httpResponse.StatusCode, _httpResponse.StatusDescription);
+            }
+            catch (Exception ex)
+            {
+              Debug.WriteLine (ex);
+              Sink.ReportResult (0, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
+            }
+          }).Start();
     }
 
-    public string GetMethod (BINDINFO bindInfo)
+    public void Continue (ref _tagPROTOCOLDATA pProtocolData)
+    {
+      Debug.WriteLine ("Continue");
+    }
+
+    public void Abort (int hrReason, uint dwOptions)
+    {
+      Debug.WriteLine ("Abort");
+      _webRequest.Abort();
+      if (_httpResponse != null)
+        _httpResponse.Close();
+    }
+
+    public void Terminate (uint dwOptions)
+    {
+      Dispose();
+    }
+
+    public void Suspend ()
+    {
+      Debug.WriteLine ("Suspend");
+    }
+
+    public void Resume ()
+    {
+      Debug.WriteLine ("Resume");
+    }
+
+    public uint Read (IntPtr pv, uint cb, out uint pcbRead)
+    {
+      pcbRead = 0;
+      if (Stream != null)
+      {
+        pcbRead = (uint) Math.Min (cb, StreamBuffer.Length);
+        pcbRead = (uint) Stream.Read (StreamBuffer, 0, (int) pcbRead);
+        Marshal.Copy (StreamBuffer, 0, pv, (int) pcbRead);
+        _size += pcbRead;
+      }
+      var response = (pcbRead == 0) ? HResult.S_FALSE : (UInt32) HResult.S_OK;
+      return response;
+    }
+
+    public void Seek (_LARGE_INTEGER dlibMove, uint dwOrigin, out _ULARGE_INTEGER plibNewPosition)
+    {
+      _ULARGE_INTEGER _plibNewPosition = default(_ULARGE_INTEGER);
+      Debug.WriteLine ("Seek");
+      plibNewPosition = _plibNewPosition;
+    }
+
+    public void LockRequest (uint dwOptions)
+    {
+      Debug.WriteLine ("LockRequest");
+    }
+
+    public void UnlockRequest ()
+    {
+      Debug.WriteLine ("UnlockRequest");
+    }
+
+    private IHttpNegotiate GetHttpNegotiate (IInternetProtocolSink Sink)
+    {
+      if ((Sink is IServiceProvider) == false)
+        throw new Exception ("Error ProtocolSink does not support IServiceProvider.");
+
+      Debug.WriteLine ("ServiceProvider");
+
+      IServiceProvider Provider = (IServiceProvider) Sink;
+      object obj_Negotiate = new object();
+      Provider.QueryService (ref Guids.IID_IHttpNegotiate, ref Guids.IID_IHttpNegotiate, out obj_Negotiate);
+      return (IHttpNegotiate) obj_Negotiate;
+    }
+
+    private string GetMethod (BINDINFO bindInfo)
     {
       switch (bindInfo.dwBindVerb)
       {
@@ -93,7 +243,8 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
           throw new ArgumentOutOfRangeException();
       }
     }
-    public byte[] GetPostData(BINDINFO BindInfo)
+
+    private byte[] GetPostData (BINDINFO BindInfo)
     {
       if (BindInfo.dwBindVerb != BINDVERB.BINDVERB_POST)
         return new byte[0];
@@ -103,13 +254,14 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
         UInt32 length = BindInfo.cbStgmedData;
         result = new byte[length];
 
-        Marshal.Copy(BindInfo.stgmedData.u, result, 0, (int)length);
+        Marshal.Copy (BindInfo.stgmedData.u, result, 0, (int) length);
         if (BindInfo.stgmedData.pUnkForRelease == null)
-          Marshal.FreeHGlobal(BindInfo.stgmedData.u);
+          Marshal.FreeHGlobal (BindInfo.stgmedData.u);
       }
       return result;
     }
-    public BINDINFO GetBindInfo (IInternetBindInfo pOIBindInfo)
+
+    private BINDINFO GetBindInfo (IInternetBindInfo pOIBindInfo)
     {
       BINDINFO BindInfo = new BINDINFO();
       BindInfo.cbSize = (UInt32) Marshal.SizeOf (typeof (BINDINFO));
@@ -118,60 +270,19 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
       return BindInfo;
     }
 
-    public void Continue (ref _tagPROTOCOLDATA pProtocolData)
+    public void Dispose ()
     {
-      var _pProtocolData = pProtocolData;
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.Continue (ref _pProtocolData));
-      pProtocolData = _pProtocolData;
-    }
-
-    public void Abort (int hrReason, uint dwOptions)
-    {
-      Debug.WriteLine ("Abort");
-    }
-
-    public void Terminate (uint dwOptions)
-    {
-      Debug.WriteLine ("Terminate");
-    }
-
-    public void Suspend ()
-    {
-      Debug.WriteLine ("Suspend");
-    }
-
-    public void Resume ()
-    {
-      Debug.WriteLine ("Resume");
-    }
-
-    public uint Read (IntPtr pv, uint cb, out uint pcbRead)
-    {
-      lock (lockObject)
+      lock (s_lockObject)
       {
-        pcbRead = (uint) Math.Min (cb, StreamBuffer.Length);
-        pcbRead = (uint) Stream.Read (StreamBuffer, 0, (int) pcbRead);
-        Marshal.Copy (StreamBuffer, 0, pv, (int) pcbRead);
-
-        var response = (pcbRead == 0) ? HResult.S_FALSE : (UInt32) HResult.S_OK;
-        return response;
+        counter--;
+        Debug.WriteLine ("Disposing instance, " + _currentUrl + ", " + counter + " instances left");
+        if (Stream != null)
+          Stream.Dispose();
+        if (_httpResponse != null)
+          _httpResponse.Close();
+        _httpResponse = null;
+        _webRequest = null;
       }
-    }
-
-    public void Seek (_LARGE_INTEGER dlibMove, uint dwOrigin, out _ULARGE_INTEGER plibNewPosition)
-    {
-      _ULARGE_INTEGER _plibNewPosition = default(_ULARGE_INTEGER);
-      Debug.WriteLine ("Seek");
-    }
-
-    public void LockRequest (uint dwOptions)
-    {
-      Debug.WriteLine ("LockRequest");
-    }
-
-    public void UnlockRequest ()
-    {
-      Debug.WriteLine ("UnlockRequest");
     }
   }
 }

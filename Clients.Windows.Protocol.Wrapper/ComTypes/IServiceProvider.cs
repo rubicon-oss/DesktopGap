@@ -18,22 +18,17 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Runtime.InteropServices;
 
-namespace DesktopGap.Security.Urls
+namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
 {
-  public class NegativePositiveUrlRule : PositiveUrlRule
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ Guid("6d5140c1-7436-11ce-8034-00aa006009fa")]
+  public interface IServiceProvider
   {
-    public NegativePositiveUrlRule (string domain, string path, bool sslOnly)
-        : base (domain, path, sslOnly)
-    {
-    }
-
-    public override bool? IsMatch (Uri url)
-    {
-      return (_sslOnly && url.Scheme == SslPrefix || !_sslOnly)
-             && DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath)
-                 ? false
-                 : (bool?) null;
-    }
+    void QueryService( 
+        [In] ref System.Guid guidService,
+        [In] ref System.Guid guidType,
+        [Out,MarshalAs(UnmanagedType.Interface)] out object Object);
   }
 }

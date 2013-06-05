@@ -22,6 +22,11 @@ using System.Runtime.InteropServices;
 
 namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
 {
+  public struct Guids
+  {
+    public static Guid IID_IHttpNegotiate = new Guid("79eac9d2-baf9-11ce-8c82-00aa004ba90b");
+  }
+
   public struct _LARGE_INTEGER
   {
     public Int64 QuadPart;

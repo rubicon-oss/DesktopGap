@@ -17,23 +17,25 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
+using System.Runtime.InteropServices;
 
-namespace DesktopGap.Security.Urls
+namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
 {
-  public class NegativePositiveUrlRule : PositiveUrlRule
+  [InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+  [ Guid("79eac9d2-baf9-11ce-8c82-00aa004ba90b")]
+  public interface IHttpNegotiate
   {
-    public NegativePositiveUrlRule (string domain, string path, bool sslOnly)
-        : base (domain, path, sslOnly)
-    {
-    }
-
-    public override bool? IsMatch (Uri url)
-    {
-      return (_sslOnly && url.Scheme == SslPrefix || !_sslOnly)
-             && DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath)
-                 ? false
-                 : (bool?) null;
-    }
+    void BeginningTransaction(
+        [ MarshalAs(UnmanagedType.LPWStr) ]string szURL,
+        [ MarshalAs(UnmanagedType.LPWStr) ]string szHeaders,
+        UInt32 dwReserved,
+        [ MarshalAs(UnmanagedType.LPWStr) ] out string szAdditionalHeaders);
+    void OnResponse(
+        UInt32 dwResponseCode,
+        [ MarshalAs(UnmanagedType.LPWStr) ]string szResponseHeaders,
+        [ MarshalAs(UnmanagedType.LPWStr) ]string szRequestHeaders,
+        [ MarshalAs(UnmanagedType.LPWStr) ]out string szAdditionalRequestHeaders);
   }
 }

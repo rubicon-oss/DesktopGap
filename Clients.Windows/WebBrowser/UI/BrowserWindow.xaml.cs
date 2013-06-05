@@ -33,9 +33,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private readonly Uri _baseUrl;
     private readonly ViewDispatcherBase _viewDispatcher;
 
-    private const string c_protocolSeparator = "://";
-    private const string c_httpProtocolHandler = "http";
-
     private readonly List<IWebBrowserView> _subViews = new List<IWebBrowserView>();
 
     public BrowserWindow (string title, Uri baseUri, ViewDispatcherBase viewDispatcher)
@@ -135,7 +132,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private Uri CreateUri (string url)
     {
-      var protocolUrl = !url.Contains (c_protocolSeparator) ? string.Join (c_protocolSeparator, c_httpProtocolHandler, url) : url;
+      var protocolUrl = !url.Contains (Uri.SchemeDelimiter) ? string.Join (Uri.SchemeDelimiter, Uri.UriSchemeHttp, url) : url;
       Uri uri;
       if (!Uri.TryCreate (protocolUrl, UriKind.RelativeOrAbsolute, out uri))
         throw new Exception ("Invalid URL");

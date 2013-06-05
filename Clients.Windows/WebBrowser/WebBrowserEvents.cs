@@ -59,8 +59,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public override void BeforeNavigate2 (
         object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
     {
-
-      if(URL.ToString() == "about:blank")
+      if (URL.ToString() == "about:blank")
         return;
       Uri uri;
       if (!Uri.TryCreate (URL.ToString(), UriKind.RelativeOrAbsolute, out uri))
@@ -90,7 +89,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser
       if (targetIsExternal || targetIsApplication || targetIsEntryPoint)
         return;
 
-      Process.Start (uri.ToString());
+      if (uri.Scheme != Uri.UriSchemeFile)
+        Process.Start (uri.ToString());
       Cancel = true;
     }
 

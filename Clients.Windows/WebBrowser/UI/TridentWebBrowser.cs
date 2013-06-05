@@ -437,7 +437,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       HtmlWindow previous = null;
       HtmlElement element = null;
       foreach (var frame in new FrameIterator (Document).GetFrames().TakeWhile (frame => frame.Position.X <= x && frame.Position.Y <= y))
-        previous = frame;
+        previous = frame; // TODO www.oebb.at
 
       if (previous != null && previous.Document != null)
       {

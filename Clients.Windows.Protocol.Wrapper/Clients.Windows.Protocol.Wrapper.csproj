@@ -60,6 +60,7 @@
     <Compile Include="ComTypes\IInternetSession.cs" />
     <Compile Include="ComTypes\HttpProtocol.cs" />
     <Compile Include="ComTypes\HttpsProtocol.cs" />
+    <Compile Include="ComTypes\IServiceProvider.cs" />
     <Compile Include="ExtendedHttpProtocol.cs" />
     <Compile Include="Factories\FilteredHttpsProtocolFactory.cs" />
     <Compile Include="FilteredHttpsProtocol.cs" />
@@ -67,6 +68,7 @@
     <Compile Include="Factories\IProtocolFactory.cs" />
     <Compile Include="ComTypes\Types.cs" />
     <Compile Include="Factories\FilteredHttpProtocolFactory.cs" />
+    <Compile Include="ComTypes\IHttpNegotiate.cs" />
     <Compile Include="ProtocolWrapperManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

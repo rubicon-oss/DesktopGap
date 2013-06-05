@@ -17,9 +17,10 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 
-namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes
+namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
 {
   public sealed class HResult
   {

@@ -24,7 +24,7 @@ namespace DesktopGap.Security.Urls
 {
   public class PositiveUrlRule
   {
-    protected const string c_sslPrefix = "https";
+    protected static readonly string SslPrefix = Uri.UriSchemeHttps;
     protected readonly bool _sslOnly;
 
 
@@ -49,7 +49,7 @@ namespace DesktopGap.Security.Urls
 
     public virtual bool? IsMatch (Uri url)
     {
-      return (_sslOnly && url.Scheme == c_sslPrefix || !_sslOnly)
+      return (_sslOnly && url.Scheme == SslPrefix || !_sslOnly)
              && DomainExpression.IsMatch (url.Host) && PathExpression.IsMatch (url.LocalPath)
                  ? true
                  : (bool?) null;
