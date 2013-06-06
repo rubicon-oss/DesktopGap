@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -39,10 +40,8 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
   public class ExtendedHttpProtocol : IInternetProtocol, IInternetProtocolRoot, IDisposable
   {
     private readonly IUrlFilter _urlFilter;
-    private readonly object s_lockObject = new object();
     private const string c_httpHeaderSplitCharacters = "\r\n";
-
-    private static int counter = 0;
+        private const int c_requiredMaxWorkerThreads = 2;
 
     private static readonly ISet<string> s_restrictedHeaders = new HashSet<string> (
         new[]
@@ -69,10 +68,15 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
       ArgumentUtility.CheckNotNull ("urlFilter", urlFilter);
 
       _urlFilter = urlFilter;
+      int workers, ioThreads;
+      ThreadPool.GetMaxThreads(out workers, out ioThreads);
+      
+      if(workers < c_requiredMaxWorkerThreads)
+        ThreadPool.SetMaxThreads (c_requiredMaxWorkerThreads, ioThreads);
     }
 
-    protected Stream Stream;
-    protected byte[] StreamBuffer = new byte[0x8000];
+    protected Stream ResponseStream;
+    protected byte[] Buffer = new byte[0x8000];
     private HttpWebRequest _webRequest;
     private HttpWebResponse _httpResponse;
     private string _currentUrl;
@@ -80,45 +84,151 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
 
     public void Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
     {
-      if(_size != 0)
-        throw new InvalidOperationException("nope");
+      if (_size != 0)
+        throw new InvalidOperationException ("nope");
 
-      new Thread (
-          () =>
+      #region HTTPCLIENT 
+
+      //_currentUrl = szURL;
+      //Uri uri;
+      //if (!(Uri.TryCreate (szURL, UriKind.RelativeOrAbsolute, out uri) && _urlFilter.IsAllowed (uri)))
+      //{
+      //  Sink.ReportResult (0, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
+      //  return;
+      //}
+      //var httpClient = new HttpClient();
+      //var httpRequestMessage = new HttpRequestMessage { RequestUri = uri };
+      //var bindInfo = GetBindInfo (pOIBindInfo);
+      //var negotiate = GetHttpNegotiate (Sink);
+
+
+      ////"Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)";
+      //var postData = GetPostData (bindInfo);
+
+      //string strRequestHeaders;
+      //negotiate.BeginningTransaction (szURL, string.Empty, 0, out strRequestHeaders);
+      //foreach (
+      //    var header in
+      //        Regex.Split (strRequestHeaders, c_httpHeaderSplitCharacters).Where (
+      //            s => !string.IsNullOrEmpty (s)
+      //                 && !s_restrictedHeaders.Contains (s.Split (':').First())))
+      //{
+      //  var splitHeader = header.Split (':');
+      //  var key = splitHeader[0];
+      //  var value = splitHeader[1];
+      //  httpRequestMessage.Headers.Add (key, value);
+      //}
+
+
+      //switch (bindInfo.dwBindVerb)
+      //{
+      //  case BINDVERB.BINDVERB_GET:
+      //    httpRequestMessage.Method = HttpMethod.Get;
+      //    break;
+
+      //  case BINDVERB.BINDVERB_POST:
+      //    httpRequestMessage.Method = HttpMethod.Post;
+      //    httpRequestMessage.Content = new ByteArrayContent (postData);
+      //    break;
+
+      //  case BINDVERB.BINDVERB_PUT:
+      //    httpRequestMessage.Method = HttpMethod.Put;
+      //    break;
+      //    //case BINDVERB.BINDVERB_CUSTOM: // ???
+      //    //  break;
+      //  default:
+      //    throw new ArgumentOutOfRangeException();
+      //}
+
+
+      //var response = httpClient.SendAsync (httpRequestMessage, HttpCompletionOption.ResponseHeadersRead);
+      ////response.ContinueWith (
+      ////    task =>
+      ////    {
+
+      //var task = response;
+      //task.Wait();
+      //      var status = (uint)HttpStatusCode.NotFound;
+      //      var message = HttpStatusCode.NotFound.ToString();
+
+      //      if (!task.IsFaulted)
+      //      {
+      //        var result = task.Result;
+      //        string strNewResponseHeaders;
+      //        negotiate.OnResponse (0, result.Headers.ToString(), result.Headers.ToString(), out strNewResponseHeaders);
+      //        if (result.IsSuccessStatusCode)
+      //        {
+      //          result.Content.ReadAsStreamAsync().ContinueWith(t => ResponseStream = t.Result);
+      //          Sink.ReportData (BSCF.BSCF_LASTDATANOTIFICATION, (uint)result.Content.Headers.ContentLength, (uint)result.Content.Headers.ContentLength);
+      //        }
+      //        status = (uint) result.StatusCode;
+      //        message = result.ReasonPhrase;
+      //      }
+
+      //      Sink.ReportResult (0, status, message);
+      //    //});
+
+      //if (!_urlFilter.IsAllowed (_httpResponse.ResponseUri))
+      //  throw new Exception ("not allowed!"); // TODO - do something useful here
+
+      #endregion
+
+      #region WebRequest
+
+      Debug.WriteLine ("starting url: " + szURL);
+
+      _currentUrl = szURL;
+      // How to do more complex stuff: http://www.codeproject.com/Articles/6120/A-Simple-protocol-to-view-aspx-pages-without-IIS-i
+      Uri uri;
+
+      if (!(Uri.TryCreate (szURL, UriKind.RelativeOrAbsolute, out uri) && _urlFilter.IsAllowed (uri)))
+      {
+        Sink.ReportResult (0, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
+        return;
+      }
+      var bindInfo = GetBindInfo (pOIBindInfo);
+      var postData = GetPostData (bindInfo);
+
+      string method;
+
+      //_webRequest = (HttpWebRequest) WebRequest.Create (uri);
+      switch (bindInfo.dwBindVerb)
+      {
+        case BINDVERB.BINDVERB_GET:
+          method = HttpMethod.Get.Method;
+          break;
+
+        case BINDVERB.BINDVERB_POST:
+          method = HttpMethod.Post.Method;
+          break;
+
+        case BINDVERB.BINDVERB_PUT:
+          method = HttpMethod.Put.Method;
+          break;
+          //case BINDVERB.BINDVERB_CUSTOM: // ???
+          //  break;
+        default:
+          throw new ArgumentOutOfRangeException();
+      }
+
+      //_webRequest.KeepAlive = false;
+      ThreadPool.QueueUserWorkItem (
+          obj =>
           {
-
-            Debug.WriteLine ("starting url: " + szURL);
-
-            counter++;
-            Debug.WriteLine ("current instances: " + counter);
-
-            _currentUrl = szURL;
-            // How to do more complex stuff: http://www.codeproject.com/Articles/6120/A-Simple-protocol-to-view-aspx-pages-without-IIS-i
-            Uri uri;
-
-            if (!(Uri.TryCreate (szURL, UriKind.RelativeOrAbsolute, out uri) && _urlFilter.IsAllowed (uri)))
+            if (postData.Length > 0)
             {
-              Sink.ReportResult (0, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
-              return;
+              using (var requestStream = _webRequest.GetRequestStream())
+              {
+                requestStream.Write (postData, 0, postData.Length);
+              }
             }
-
-            BINDINFO bindinfo = GetBindInfo (pOIBindInfo);
-            IHttpNegotiate Negotiate = GetHttpNegotiate (Sink);
-
-            var data = GetPostData (bindinfo);
-
             _webRequest = (HttpWebRequest) WebRequest.Create (uri);
+            _webRequest.Method = method;
             _webRequest.UserAgent = "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.2; WOW64; Trident/6.0)";
-            _webRequest.Headers = new WebHeaderCollection();
-            _webRequest.Method = GetMethod (bindinfo);
-            
-
-            //_webRequest.KeepAlive = false;
-            _webRequest.AllowAutoRedirect = true;
+            var negotiate = GetHttpNegotiate (Sink);
 
             string strRequestHeaders;
-            _webRequest.ContentLength = data.Length;
-            Negotiate.BeginningTransaction (szURL, string.Empty, 0, out strRequestHeaders);
+            negotiate.BeginningTransaction (szURL, string.Empty, 0, out strRequestHeaders);
             foreach (
                 var header in
                     Regex.Split (strRequestHeaders, c_httpHeaderSplitCharacters).Where (
@@ -127,33 +237,32 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
             {
               _webRequest.Headers.Add (header);
             }
-            _webRequest.Headers.Add ("Accept-Encoding: gzip, deflate");
-            if (data.Length > 0)
-            {
-              using (var requestStream = _webRequest.GetRequestStream())
-              {
-                requestStream.Write (data, 0, data.Length);
-              }
-            }
+            //_webRequest.Headers.Add ("Accept-Encoding: gzip, deflate");
+
             try
             {
               _httpResponse = (HttpWebResponse) _webRequest.GetResponse();
+
+              //_httpResponse.
               //if (!_urlFilter.IsAllowed (_httpResponse.ResponseUri))
               //  throw new Exception ("not allowed!"); // TODO - do something useful here
 
               string strNewResponseHeaders;
-              Negotiate.OnResponse (0, _httpResponse.Headers.ToString(), strRequestHeaders, out strNewResponseHeaders);
-              Stream = _httpResponse.GetResponseStream();
+              negotiate.OnResponse (0, _httpResponse.Headers.ToString(), strRequestHeaders, out strNewResponseHeaders);
+              ResponseStream = _httpResponse.GetResponseStream();
               Sink.ReportData (BSCF.BSCF_LASTDATANOTIFICATION, (uint) _httpResponse.ContentLength, (uint) _httpResponse.ContentLength);
               Sink.ReportResult (0, (uint) _httpResponse.StatusCode, _httpResponse.StatusDescription);
             }
             catch (Exception ex)
             {
-              Debug.WriteLine (ex);
+              Debug.WriteLine ("exception while retrieving " + _currentUrl + " " + ex);
               Sink.ReportResult (0, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
             }
-          }).Start();
+          });
+
+      #endregion
     }
+
 
     public void Continue (ref _tagPROTOCOLDATA pProtocolData)
     {
@@ -164,8 +273,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
     {
       Debug.WriteLine ("Abort");
       _webRequest.Abort();
-      if (_httpResponse != null)
-        _httpResponse.Close();
+      Dispose();
     }
 
     public void Terminate (uint dwOptions)
@@ -186,11 +294,11 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
     public uint Read (IntPtr pv, uint cb, out uint pcbRead)
     {
       pcbRead = 0;
-      if (Stream != null)
+      if (ResponseStream != null)
       {
-        pcbRead = (uint) Math.Min (cb, StreamBuffer.Length);
-        pcbRead = (uint) Stream.Read (StreamBuffer, 0, (int) pcbRead);
-        Marshal.Copy (StreamBuffer, 0, pv, (int) pcbRead);
+        pcbRead = (uint) Math.Min (cb, Buffer.Length);
+        pcbRead = (uint) ResponseStream.Read (Buffer, 0, (int) pcbRead);
+        Marshal.Copy (Buffer, 0, pv, (int) pcbRead);
         _size += pcbRead;
       }
       var response = (pcbRead == 0) ? HResult.S_FALSE : (UInt32) HResult.S_OK;
@@ -246,7 +354,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
 
     private byte[] GetPostData (BINDINFO BindInfo)
     {
-      if (BindInfo.dwBindVerb != BINDVERB.BINDVERB_POST)
+      if (BindInfo.dwBindVerb != BINDVERB.BINDVERB_POST) // TODO figure out PUT
         return new byte[0];
       byte[] result = new byte[0];
       if (BindInfo.stgmedData.enumType == TYMED.TYMED_HGLOBAL)
@@ -272,12 +380,11 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
 
     public void Dispose ()
     {
-      lock (s_lockObject)
+      lock (this)
       {
-        counter--;
-        Debug.WriteLine ("Disposing instance, " + _currentUrl + ", " + counter + " instances left");
-        if (Stream != null)
-          Stream.Dispose();
+        Debug.WriteLine ("Disposing instance " + _currentUrl);
+        if (ResponseStream != null)
+          ResponseStream.Dispose();
         if (_httpResponse != null)
           _httpResponse.Close();
         _httpResponse = null;

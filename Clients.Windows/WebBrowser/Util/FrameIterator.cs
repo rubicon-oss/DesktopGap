@@ -20,6 +20,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using DesktopGap.Utilities;
@@ -43,7 +44,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Util
         yield break;
 
       yield return frame;
-
+ 
       if (frame.Frames != null)
         foreach (var subframe in frame.Frames.Cast<HtmlWindow>().SelectMany (WalkFrame))
           yield return subframe;

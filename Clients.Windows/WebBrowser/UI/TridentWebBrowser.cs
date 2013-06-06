@@ -19,6 +19,7 @@
 // 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
@@ -436,9 +437,21 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       HtmlWindow previous = null;
       HtmlElement element = null;
-      foreach (var frame in new FrameIterator (Document).GetFrames().TakeWhile (frame => frame.Position.X <= x && frame.Position.Y <= y))
-        previous = frame; // TODO www.oebb.at
-
+      foreach (var frame in new FrameIterator (Document).GetFrames())
+      {
+        try // this way, only a small portion of the code is under try/catch safety - leaving out the recursive stuff for performance
+        {
+          if (!(frame.Position.X <= x && frame.Position.Y <= y))
+            break;
+        }
+        catch (UnauthorizedAccessException unauthorizedException)
+        {
+          Debug.WriteLine (unauthorizedException.ToString());
+          break;
+        }
+        previous = frame;
+      }
+    
       if (previous != null && previous.Document != null)
       {
         var point = new Point (x - previous.Position.X, y - previous.Position.Y);
@@ -556,7 +569,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     public bool ShouldClose ()
     {
-      // known issue: http://support.microsoft.com/kb/253201/en-us
+      // known issue: http://support.microsoft.com/kb/253201/en-us TODO needs work
       object shouldClose = 0;
       object dummy = 0;
       AxIWebBrowser2.ExecWB (
@@ -564,7 +577,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
           OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT,
           ref dummy,
           ref shouldClose);
-      return (bool)shouldClose;
+      return (bool) shouldClose;
     }
   }
 }
