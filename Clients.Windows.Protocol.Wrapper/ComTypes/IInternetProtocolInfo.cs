@@ -62,5 +62,5 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
         UInt32 cbBuffer,
         ref UInt32 pcbBuf,
         UInt32 dwReserved);
-  };
+  }
 }

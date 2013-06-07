@@ -61,8 +61,9 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.Factories
 
     public void CreateInstance (object pUnkOuter, Guid riid, out object ppvObject)
     {
-      //ppvObject = new FilteredHttpProtocol (_ctrl, _urlFilter);
-      ppvObject = new ExtendedHttpProtocol (_ctrl, _urlFilter);
+      ppvObject = new FilteredHttpProtocol (_ctrl, _urlFilter);
+      //ppvObject = new ExtendedHttpProtocol (_ctrl, _urlFilter);
+      //ppvObject = new ProxyHttpProtocol (_ctrl, _urlFilter);
     }
 
     public void LockServer (bool fLock)

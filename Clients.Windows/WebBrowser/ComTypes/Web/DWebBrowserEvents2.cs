@@ -55,14 +55,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.ComTypes.Web
     void PropertyChange ([MarshalAs (UnmanagedType.BStr)] string szProperty);
 
     [DispId (250)]
-    void BeforeNavigate2 (
-        [MarshalAs (UnmanagedType.IDispatch)] object pDisp,
-        [In] ref object URL,
-        [In] ref object Flags,
-        [In] ref object TargetFrameName,
-        [In] ref object PostData,
-        [In] ref object Headers,
-        [In] [Out] [MarshalAs (UnmanagedType.VariantBool)] ref bool Cancel);
+    void BeforeNavigate2 ([MarshalAs (UnmanagedType.IDispatch)] object pDisp, [In] object URL, [In] ref object Flags, [In] ref object TargetFrameName, [In] ref object PostData, [In] ref object Headers, [In, Out, MarshalAs (UnmanagedType.VariantBool)] ref bool Cancel);
 
     [DispId (0xfb)]
     void NewWindow2 (

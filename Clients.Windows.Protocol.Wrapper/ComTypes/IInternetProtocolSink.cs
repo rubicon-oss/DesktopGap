@@ -28,8 +28,8 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
   public interface IInternetProtocolSink
   {
     void Switch (ref _tagPROTOCOLDATA pProtocolData);
-    void ReportProgress (UInt32 ulStatusCode, [MarshalAs (UnmanagedType.LPWStr)] string szStatusText);
+    void ReportProgress (tagBINDSTATUS ulStatusCode, [MarshalAs (UnmanagedType.LPWStr)] string szStatusText);
     void ReportData (BSCF grfBSCF, UInt32 ulProgress, UInt32 ulProgressMax);
-    void ReportResult (Int32 hrResult, UInt32 dwError, [MarshalAs (UnmanagedType.LPWStr)] string szResult);
+    void ReportResult (UInt32 hrResult, UInt32 dwError, [MarshalAs (UnmanagedType.LPWStr)] string szResult);
   }
 }

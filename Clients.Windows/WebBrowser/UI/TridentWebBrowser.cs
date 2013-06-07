@@ -572,11 +572,18 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       // known issue: http://support.microsoft.com/kb/253201/en-us TODO needs work
       object shouldClose = 0;
       object dummy = 0;
-      AxIWebBrowser2.ExecWB (
-          OLECMDID.OLECMDID_ONUNLOAD,
-          OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT,
-          ref dummy,
-          ref shouldClose);
+      try
+      {
+        AxIWebBrowser2.ExecWB ( // TODO exception on premature close
+            OLECMDID.OLECMDID_ONUNLOAD,
+            OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT,
+            ref dummy,
+            ref shouldClose);
+      }
+      catch (Exception ex)
+      {
+        Debug.WriteLine (ex);
+      }
       return (bool) shouldClose;
     }
   }

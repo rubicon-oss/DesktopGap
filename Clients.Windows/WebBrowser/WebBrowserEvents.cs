@@ -57,7 +57,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
 
     public override void BeforeNavigate2 (
-        object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
+        object pDisp, object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
     {
       if (URL.ToString() == "about:blank")
         return;
@@ -67,7 +67,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
         Cancel = true;
         return;
       }
-
+      
       var targetIsApplication = _applicationUrlFiler.IsAllowed (uri);
       var targetIsExternal = _nonApplicationUrlFilter.IsAllowed (uri);
       var targetIsEntryPoint = _entryPointFilter.IsAllowed (uri);

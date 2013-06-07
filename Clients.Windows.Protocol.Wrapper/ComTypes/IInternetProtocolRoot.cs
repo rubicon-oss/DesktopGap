@@ -27,7 +27,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
   [Guid ("79EAC9E3-BAF9-11CE-8C82-00AA004BA90B")]
   public interface IInternetProtocolRoot
   {
-    void Start (
+    uint Start (
         [MarshalAs (UnmanagedType.LPWStr)] string szURL,
         IInternetProtocolSink Sink,
         IInternetBindInfo pOIBindInfo,

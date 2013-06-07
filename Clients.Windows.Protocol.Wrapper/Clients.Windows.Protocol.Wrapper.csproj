@@ -71,6 +71,7 @@
     <Compile Include="ComTypes\HttpProtocol.cs" />
     <Compile Include="ComTypes\HttpsProtocol.cs" />
     <Compile Include="ComTypes\IServiceProvider.cs" />
+    <Compile Include="ProxyHttpProtocol.cs" />
     <Compile Include="ExtendedHttpProtocol.cs" />
     <Compile Include="Factories\FilteredHttpsProtocolFactory.cs" />
     <Compile Include="FilteredHttpsProtocol.cs" />

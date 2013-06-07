@@ -53,17 +53,27 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
           });
     }
 
-    public void Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
-    {
-      Debug.WriteLine ("HTTPS filter applied to " + szURL);
-      var isAllowed = _urlFilter.IsAllowed (szURL);
-      if (!isAllowed)
-      {
-        Sink.ReportResult (-1, 403, "Forbidden");
-        return;
-      }
+    //public void Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
+    //{
+    //  Debug.WriteLine ("HTTPS filter applied to " + szURL);
+    //  var isAllowed = _urlFilter.IsAllowed (szURL);
+    //  if (!isAllowed)
+    //  {
+    //    Sink.ReportResult (0, 403, "Forbidden");
+    //    return;
+    //  }
 
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved));
+    //  _dispatcher.Dispatcher.Invoke (() => _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved));
+    //}
+
+    uint IInternetProtocol.Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
+    {
+      throw new NotImplementedException();
+    }
+
+    public uint Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
+    {
+      throw new NotImplementedException();
     }
 
     public void Continue (ref _tagPROTOCOLDATA pProtocolData)

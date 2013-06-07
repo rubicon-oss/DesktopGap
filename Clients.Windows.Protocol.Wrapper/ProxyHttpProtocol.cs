@@ -20,6 +20,7 @@
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Windows.Controls;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes;
 using DesktopGap.Security.Urls;
@@ -29,14 +30,14 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
 {
   [ComVisible (true)]
   [Guid ("E8253D6B-1AEE-4B5A-B7F9-F37D9C76C5FB")]
-  public class FilteredHttpProtocol : IInternetProtocol, IInternetProtocolRoot
+  public class ProxyHttpProtocol : IInternetProtocol, IInternetProtocolRoot, IInternetProtocolInfo
   {
     private IInternetProtocol _wrapped;
 
     private readonly Control _dispatcher;
     private readonly IUrlFilter _urlFilter;
 
-    public FilteredHttpProtocol (Control dispatcher, IUrlFilter urlFilter)
+    public ProxyHttpProtocol (Control dispatcher, IUrlFilter urlFilter)
     {
       ArgumentUtility.CheckNotNull ("dispatcher", dispatcher);
       ArgumentUtility.CheckNotNull ("urlFilter", urlFilter);
@@ -64,11 +65,15 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
         LockRequest (0);
         Terminate (0);
         UnlockRequest();
-        return HResult.S_FALSE;
+        return HResult.INET_E_DEFAULT_ACTION;
       }
+
+     //Sink.ReportProgress(tagBINDSTATUS.BINDSTATUS_MIMETYPEAVAILABLE, "text/html");
+     // Sink.ReportResult (HResult.INET_E_REDIRECT_FAILED, 0,   );
       _dispatcher.Dispatcher.Invoke (() => _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved));
       return HResult.S_OK;
     }
+
 
     public void Continue (ref _tagPROTOCOLDATA pProtocolData)
     {
@@ -124,6 +129,37 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
     public void UnlockRequest ()
     {
       _dispatcher.Dispatcher.Invoke (() => _wrapped.UnlockRequest());
+    }
+
+    public uint ParseUrl (
+        string pwzUrl, PARSEACTION ParseAction, uint dwParseFlags, IntPtr pwzResult, uint cchResult, out uint pcchResult, uint dwReserved)
+    {
+      var temp = new StringBuilder (pwzUrl);
+
+      temp.Insert (0, "http://localhost:1234/");
+
+      Marshal.Copy(temp.ToString().ToCharArray(), 0, pwzResult, temp.Length);
+      Marshal.WriteInt32(pwzResult, temp.Length * 2, 0);
+      pcchResult = (UInt32)temp.Length+1;
+      return HResult.S_OK;
+    }
+
+    public uint CombineUrl (
+        string pwzBaseUrl, string pwzRelativeUrl, uint dwCombineFlags, IntPtr pwzResult, uint cchResult, out uint pcchResult, uint dwReserved)
+    {
+      pcchResult = HResult.INET_E_DEFAULT_ACTION;
+      return HResult.INET_E_DEFAULT_ACTION;
+    }
+
+    public uint CompareUrl (string pwzUrl1, string pwzUrl2, uint dwCompareFlags)
+    {
+      return HResult.INET_E_DEFAULT_ACTION;
+
+    }
+
+    public uint QueryInfo (string pwzUrl, QUERYOPTION OueryOption, uint dwQueryFlags, IntPtr pBuffer, uint cbBuffer, ref uint pcbBuf, uint dwReserved)
+    {
+      return HResult.INET_E_DEFAULT_ACTION;
     }
   }
 }

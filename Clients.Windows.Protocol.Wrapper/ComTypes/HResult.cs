@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 
 namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
@@ -26,9 +25,10 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
   {
     public const int S_OK = 0;
     public const int S_FALSE = 1;
-    public const int E_NOTIMPL = unchecked((int) 0x80004001);
-
-
+    public const uint E_NOTIMPL = 0x80004001;
+    public const uint INET_E_DEFAULT_ACTION = 0x800C0011;
+    public const uint INET_E_REDIRECT_FAILED = 0x800C0014;
+    public const uint INET_E_REDIRECTING = 0x800C0014;
     /*
     public const int NOERROR = 0;
             public const int S_OK = 0;
