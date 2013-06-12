@@ -41,7 +41,7 @@ namespace DesktopGap.AddIns
       public BrowserWindowStartMode StartMode;
     }
 
-          private const string c_idPrefix = "_";
+          private const string c_idPrefix = "";
 
 
     private readonly IDictionary<string, WindowPreparations> _registeredPreparations = new Dictionary<string, WindowPreparations>();
@@ -74,8 +74,8 @@ namespace DesktopGap.AddIns
     {
       ArgumentUtility.CheckNotNull ("type", type);
       ArgumentUtility.CheckNotNull ("url", url);
-
-      var id = MakeId (Guid.NewGuid());
+      var guid = Guid.NewGuid();
+      var id = MakeId (guid);
       BrowserWindowTarget parsedType;
       if (!BrowserWindowTarget.TryParse (type, true, out parsedType))
         parsedType = BrowserWindowTarget.Tab;

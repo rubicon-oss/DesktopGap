@@ -89,12 +89,14 @@
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
     <Compile Include="DesktopGapCommandLineArguments.cs" />
+    <Compile Include="DesktopGapConfigurator.cs" />
     <Compile Include="WebBrowser\Scripting\ApiFacade.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="WebBrowser\ComTypes\Web\WindowOpenParameters.cs" />
+    <Compile Include="WebBrowser\UI\BrowserTabOption.cs" />
     <Compile Include="WebBrowser\UI\TridentViewDispatcher.cs" />
     <Compile Include="WebBrowser\Util\FrameIterator.cs" />
     <Compile Include="WebBrowser\Util\DocumentIdentifier.cs" />

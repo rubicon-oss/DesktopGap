@@ -94,8 +94,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private bool _resizable = true;
     private bool _allowCalls;
 
-    private static int count = 0;
-
     public TridentWebBrowser (
         IHtmlDocumentHandleRegistry documentHandleRegistry,
         ISubscriptionProvider subscriptionProvider,

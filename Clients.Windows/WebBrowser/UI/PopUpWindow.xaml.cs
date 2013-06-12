@@ -35,6 +35,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private readonly WebBrowserHost _browserHost;
 
     private static readonly Uri s_defaultImageUri = new Uri ("/DesktopGap;component/Resources/new.png", UriKind.RelativeOrAbsolute);
+    private const string c_prefixedTitleFormat = "{0} - {1}";
 
     public PopUpWindow (TridentWebBrowser webBrowser, Guid identifier)
     {
@@ -63,16 +64,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserHost.WebBrowser.DocumentTitleChanged += (s, e) => Title = _browserHost.WebBrowser.Title;
 
       Identifier = identifier;
-      base.Closing += OnBeforeClose;
+      Closing += OnBeforeClose;
       webBrowser.DocumentsFinished += (s, e) => Icon = webBrowser.GetFavicon (s_defaultImageUri);
-    }
-
-    private void OnBeforeClose (object sender, CancelEventArgs e)
-    {
-      var cancel = !ShouldClose();
-      if (!cancel && BeforeClose != null)
-        BeforeClose (this, EventArgs.Empty);
-      e.Cancel = cancel;
     }
 
 
@@ -81,12 +74,26 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _browserHost.Dispose();
     }
 
-
     public event EventHandler<EventArgs> BeforeClose;
 
     public IExtendedWebBrowser WebBrowser
     {
       get { return _browserHost.WebBrowser; }
+    }
+
+    public string TitlePrefix { get; set; }
+
+    public new string Title
+    {
+      get { return base.Title; }
+      set
+      {
+        ArgumentUtility.CheckNotNull ("value", value);
+
+        base.Title = string.IsNullOrEmpty (TitlePrefix)
+                         ? value
+                         : string.Format (c_prefixedTitleFormat, TitlePrefix, value);
+      }
     }
 
     public Guid Identifier { get; private set; }
@@ -120,6 +127,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (Visibility == Visibility.Visible)
         Close();
       Dispose();
+    }
+
+    private void OnBeforeClose (object sender, CancelEventArgs e)
+    {
+      var cancel = !ShouldClose();
+      if (!cancel && BeforeClose != null)
+        BeforeClose (this, EventArgs.Empty);
+      e.Cancel = cancel;
     }
   }
 }

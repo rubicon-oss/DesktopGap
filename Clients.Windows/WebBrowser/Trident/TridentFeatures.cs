@@ -25,10 +25,14 @@ using Microsoft.Win32;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
-  public class TridentFeatures 
+  public class TridentFeatures
   {
     private const string c_gpuRenderingKey = "FEATURE_GPU_RENDERING";
     private const string c_browserModeKey = "FEATURE_BROWSER_EMULATION";
+    private const string c_localMachineLockdown = "FEATURE_LOCALMACHINE_LOCKDOWN";
+    private const string c_localObjectBlocking = "FEATURE_BLOCK_LMZ_OBJECT";
+    private const string c_resourceProtocolRestriction = "FEATURE_RESTRICT_RES_TO_LMZ";
+
     private const string c_featureControlLocation = @"SOFTWARE\Microsoft\Internet Explorer\MAIN\FeatureControl";
     private const string c_registrySeperator = "\\";
 
@@ -41,18 +45,31 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     }
 
 
-    /// <summary>
-    /// 
-    /// </summary>
+    public bool RestrictResourceProtocol
+    {
+      get { return GetKey (c_resourceProtocolRestriction) == "1"; }
+      set { SetKey (c_resourceProtocolRestriction, value ? "1" : "0"); }
+    }
+
+    public bool LocalObjectBlocking
+    {
+      get { return GetKey (c_localObjectBlocking) == "1"; }
+      set { SetKey (c_localObjectBlocking, value ? "1" : "0"); }
+    }
+
+
+    public bool LocalMachineLockdown
+    {
+      get { return GetKey (c_localMachineLockdown) == "1"; }
+      set { SetKey (c_localMachineLockdown, value ? "1" : "0"); }
+    }
+
     public bool GpuAcceleration
     {
       get { return GetKey (c_gpuRenderingKey) == "1"; }
       set { SetKey (c_gpuRenderingKey, value ? "1" : "0"); }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public TridentWebBrowserMode BrowserEmulationMode
     {
       get { return (TridentWebBrowserMode) Enum.ToObject (typeof (TridentWebBrowserMode), int.Parse (GetKey (c_browserModeKey))); }

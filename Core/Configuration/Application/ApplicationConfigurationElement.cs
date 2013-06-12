@@ -36,7 +36,7 @@ namespace DesktopGap.Configuration.Application
       get { return (string) this["baseUrl"]; }
     }
 
-      public Uri GetBaseUri ()
+    public Uri GetBaseUri ()
     {
       Uri uri;
       if (!Uri.TryCreate (BaseUrl, UriKind.RelativeOrAbsolute, out uri))
@@ -84,11 +84,21 @@ namespace DesktopGap.Configuration.Application
     }
 
 
-    [ConfigurationProperty ("maxFrameNestingDepth", DefaultValue = (uint)10)]
+    [ConfigurationProperty ("maxFrameNestingDepth", DefaultValue = (uint) 10)]
     public uint MaxFrameNestingDepth
     {
       get { return (uint) this["maxFrameNestingDepth"]; }
     }
 
+    public Uri GetHomeUri ()
+    {
+      if (string.IsNullOrEmpty (HomeUrl))
+        return null;
+
+      Uri uri;
+      if (!Uri.TryCreate (HomeUrl, UriKind.RelativeOrAbsolute, out uri))
+        throw new InvalidOperationException (string.Format ("Location '{0}' is not a valid URI", Icon));
+      return uri;
+    }
   }
 }

@@ -48,6 +48,7 @@
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Web" />
+    <Reference Include="System.Windows.Presentation" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -71,8 +72,8 @@
     <Compile Include="ComTypes\HttpProtocol.cs" />
     <Compile Include="ComTypes\HttpsProtocol.cs" />
     <Compile Include="ComTypes\IServiceProvider.cs" />
-    <Compile Include="ProxyHttpProtocol.cs" />
-    <Compile Include="ExtendedHttpProtocol.cs" />
+    <Compile Include="Experimental\ProxyHttpProtocol.cs" />
+    <Compile Include="Experimental\ExtendedHttpProtocol.cs" />
     <Compile Include="Factories\FilteredHttpsProtocolFactory.cs" />
     <Compile Include="FilteredHttpsProtocol.cs" />
     <Compile Include="FilteredHttpProtocol.cs" />

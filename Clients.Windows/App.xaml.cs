@@ -18,8 +18,6 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel.Composition.Hosting;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
@@ -32,10 +30,6 @@ using DesktopGap.Clients.Windows.Protocol.Wrapper.Factories;
 using DesktopGap.Clients.Windows.WebBrowser;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
-using DesktopGap.Configuration;
-using DesktopGap.Security.AddIns;
-using DesktopGap.Security.Urls;
-using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.StartOptions;
 using PowerArgs;
@@ -47,28 +41,11 @@ namespace DesktopGap.Clients.Windows
   /// </summary>
   public partial class App
   {
-    private const string c_addInDirectory = @".";
     private IWebBrowserFactory _browserFactory;
 
     public App ()
     {
     }
-
-    //public class DesktopGapConfigurator
-    //{
-
-    //  public DesktopGapConfigurator (Uri manifestLocation)
-    //  {
-    //    ArgumentUtility.CheckNotNull ("manifestLocation", manifestLocation);
-        
-    //    ManifestLocation = manifestLocation;
-    //  }
-
-    //  public IUrlFilter 
-
-    //        public Uri ManifestLocation { get; set; }
-
-    //}
 
     [STAThread]
     private void Application_Startup (object sender, StartupEventArgs e)
@@ -77,59 +54,49 @@ namespace DesktopGap.Clients.Windows
 
       //try
       //{
-        var configuration = DesktopGapConfigurationProvider.Create (String.Empty, args.ManifestUri.ToString()).GetConfiguration();
-        var baseUri = new Uri (configuration.Application.BaseUrl);
-        var startupUri = args.StartupUri;
 
-        var thirdPartyUrlRules = configuration.Security.NonApplicationUrlRules;
-        var applicationUrlRules = configuration.Security.ApplicationUrlRules;
-        var startUpUrlRules = configuration.Security.StartupUrlRules;
+      var configurator = new DesktopGapConfigurator();
 
-        var resourceUrls = thirdPartyUrlRules.Union (applicationUrlRules);
+      configurator.LoadFrom (args.ManifestUri);
+      configurator.SetInternetExplorerFeatures (TridentWebBrowserMode.ForcedIE10, true, false,false,false);
 
-        var addInRules = configuration.Security.AddInRules;
+      var startupUri = args.StartupUri;
 
-        var resourceFilter = new UrlFilter (resourceUrls);
-        var nonApplicationUrlFilter = new UrlFilter (thirdPartyUrlRules);
-        var addInAllowedFilter = new UrlFilter (applicationUrlRules);
-        var startupFilter = new UrlFilter (startUpUrlRules);
+      var filter = new ProtocolWrapperManager();
+      //filter.RegisterProtocol (new FilteredHttpProtocolFactory (configurator.ResourceFilter));
+      //filter.RegisterProtocol (new FilteredHttpsProtocolFactory (configurator.ResourceFilter));
 
 
-        var catalog = new AggregateCatalog();
-        var dirCatalog = new DirectoryCatalog (c_addInDirectory);
-        catalog.Catalogs.Add (dirCatalog);
-        var compositionContainer = new CompositionContainer (catalog);
+      var htmlDocumentHandleRegistry = configurator.CreateDocumentRegistry(".");
 
-        var tridentFeatures = new TridentFeatures();
-        tridentFeatures.BrowserEmulationMode = TridentWebBrowserMode.ForcedIE10;
-        tridentFeatures.GpuAcceleration = true;
+      var subscriptionHandler = (ISubscriptionProvider) htmlDocumentHandleRegistry;
+      _browserFactory = new TridentWebBrowserFactory (
+          htmlDocumentHandleRegistry,
+          subscriptionHandler,
+          configurator.NonApplicationUrlFilter,
+          configurator.StartUpFilter,
+          configurator.AddInAllowedFilter);
 
-        var filter = new ProtocolWrapperManager();
-        filter.RegisterProtocol (new FilteredHttpProtocolFactory (resourceFilter));
-        //filter.RegisterProtocol (new FilteredHttpsProtocolFactory (new UrlFilter (baseUri, urlRules)));
+      var viewDispatcher = new TridentViewDispatcher (_browserFactory, subscriptionHandler);
 
-        var addInFilter = new AddInFilter (addInRules);
-
-        var htmlDocumentHandleRegistry = new HtmlDocumentHandleRegistry (
-            new ServiceManagerFactory (new CompositionBasedAddInFactory<ExternalServiceBase> (compositionContainer, addInFilter)),
-            new EventManagerFactory (new CompositionBasedAddInFactory<ExternalEventBase> (compositionContainer, addInFilter)));
-
-        var subscriptionHandler = (ISubscriptionProvider) htmlDocumentHandleRegistry;
-        _browserFactory = new TridentWebBrowserFactory (htmlDocumentHandleRegistry, subscriptionHandler, nonApplicationUrlFilter, startupFilter, addInAllowedFilter);
-
-        var viewDispatcher = new TridentViewDispatcher (_browserFactory, subscriptionHandler);
-
-        htmlDocumentHandleRegistry.DocumentRegistered += viewDispatcher.OnDocumentRegistered;
-        htmlDocumentHandleRegistry.BeforeDocumentUnregister += viewDispatcher.OnBeforeDocumentUnregister;
+      htmlDocumentHandleRegistry.DocumentRegistered += viewDispatcher.OnDocumentRegistered;
+      htmlDocumentHandleRegistry.BeforeDocumentUnregister += viewDispatcher.OnBeforeDocumentUnregister;
 
 
-        var mainWindow = new BrowserWindow (configuration.Application.Name, baseUri, viewDispatcher);
-        mainWindow.NewTab (baseUri, BrowserWindowStartMode.Active);
+      var homeUri = configurator.Application.BaseUri;
 
-        if (startupUri != null && (startupFilter.IsAllowed (startupUri) || nonApplicationUrlFilter.IsAllowed(startupUri)))
-          mainWindow.NewTab (startupUri, BrowserWindowStartMode.Active);
-        mainWindow.Icon = new BitmapImage (configuration.Application.GetIconUri());
-        mainWindow.Show();
+        if (configurator.Application.HomeUri != null)
+          homeUri = configurator.Application.HomeUri;
+
+
+      var mainWindow = new BrowserWindow (configurator.Application.Name, configurator.Application.IconUri, homeUri, viewDispatcher);
+      if (configurator.Application.AlwaysOpenHomeUrl)
+        mainWindow.NewStickyTab(homeUri, BrowserWindowStartMode.Active);
+
+      if (startupUri != null && (configurator.StartUpFilter.IsAllowed (startupUri) || configurator.NonApplicationUrlFilter.IsAllowed (startupUri)))
+        mainWindow.NewTab (startupUri, BrowserWindowStartMode.Active);
+
+      mainWindow.Show();
       //}
       //catch (Exception ex)
       //{

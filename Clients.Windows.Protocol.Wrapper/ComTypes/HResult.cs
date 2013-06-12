@@ -29,6 +29,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes
     public const uint INET_E_DEFAULT_ACTION = 0x800C0011;
     public const uint INET_E_REDIRECT_FAILED = 0x800C0014;
     public const uint INET_E_REDIRECTING = 0x800C0014;
+    public const uint INET_E_RESOURCE_NOT_FOUND = 0x800C0005;
     /*
     public const int NOERROR = 0;
             public const int S_OK = 0;

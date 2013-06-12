@@ -35,8 +35,9 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
 
     public void Dispose ()
     {
-      // TODO  unregister all namespaces here?
+      
     }
+    
 
     public void RegisterProtocol (IProtocolFactory factory)
     {

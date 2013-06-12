@@ -60,10 +60,21 @@ namespace DesktopGap.Clients.Windows.Components
       }
     }
 
+    public void ShowCloseButton ()
+    {
+      IsCloseable = true;
+    }
+
+
+    public void HideCloseButton ()
+    {
+      IsCloseable = false;
+    }
+
     public bool IsCloseable
     {
       get { return CloseButtonVisibility == Visibility.Visible; }
-      set { CloseButtonVisibility = value ? Visibility.Visible : Visibility.Hidden; }
+      private set { CloseButtonVisibility = value ? Visibility.Visible : Visibility.Hidden; }
     }
 
     public BitmapImage Icon

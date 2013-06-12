@@ -19,8 +19,9 @@
 // 
 using System;
 using System.Diagnostics;
+using System.Net;
 using System.Runtime.InteropServices;
-using System.Windows.Controls;
+using System.Windows.Threading;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes;
 using DesktopGap.Security.Urls;
 using DesktopGap.Utilities;
@@ -33,75 +34,66 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
   {
     private IInternetProtocol _wrapped;
 
-    private readonly Control _dispatcher;
+    private readonly Dispatcher _dispatcher;
     private readonly IUrlFilter _urlFilter;
+    private bool _isAllowed;
+    private string _currentUrl;
 
-    public FilteredHttpsProtocol (Control dispatcher, IUrlFilter urlFilter)
+    public FilteredHttpsProtocol (Dispatcher dispatcher, IUrlFilter urlFilter)
     {
       ArgumentUtility.CheckNotNull ("dispatcher", dispatcher);
       ArgumentUtility.CheckNotNull ("urlFilter", urlFilter);
 
-
-      _dispatcher = dispatcher;
       _urlFilter = urlFilter;
-
-      _dispatcher.Dispatcher.Invoke (
+      _dispatcher = dispatcher;
+      _dispatcher.Invoke (
           () =>
           {
-            var originalHttpHandler = new HttpsProtocol();
-            _wrapped = (IInternetProtocol) originalHttpHandler;
+            var originalHandler = new HttpsProtocol();
+            _wrapped = (IInternetProtocol) originalHandler;
           });
     }
 
-    //public void Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
-    //{
-    //  Debug.WriteLine ("HTTPS filter applied to " + szURL);
-    //  var isAllowed = _urlFilter.IsAllowed (szURL);
-    //  if (!isAllowed)
-    //  {
-    //    Sink.ReportResult (0, 403, "Forbidden");
-    //    return;
-    //  }
-
-    //  _dispatcher.Dispatcher.Invoke (() => _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved));
-    //}
-
-    uint IInternetProtocol.Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
+    public void Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
     {
-      throw new NotImplementedException();
+      // How to do more complex stuff: http://www.codeproject.com/Articles/6120/A-Simple-protocol-to-view-aspx-pages-without-IIS-i
+      _currentUrl = szURL;
+      _isAllowed = _urlFilter.IsAllowed (szURL);
+      if (!_isAllowed)
+      {
+        Sink.ReportResult (HResult.INET_E_RESOURCE_NOT_FOUND, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
+        return;
+      }
+      _dispatcher.Invoke (() => _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved), new TimeSpan (0, 0, 0, 30));
     }
 
-    public uint Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
-    {
-      throw new NotImplementedException();
-    }
 
     public void Continue (ref _tagPROTOCOLDATA pProtocolData)
     {
       var _pProtocolData = pProtocolData;
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.Continue (ref _pProtocolData));
+      _dispatcher.Invoke (() => _wrapped.Continue (ref _pProtocolData));
       pProtocolData = _pProtocolData;
     }
 
     public void Abort (int hrReason, uint dwOptions)
     {
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.Abort (hrReason, dwOptions));
+      _dispatcher.Invoke (() => _wrapped.Abort (hrReason, dwOptions));
     }
 
     public void Terminate (uint dwOptions)
     {
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.Terminate (dwOptions));
+      _dispatcher.Invoke (() => _wrapped.Terminate (dwOptions));
     }
 
     public void Suspend ()
     {
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.Suspend());
+      _dispatcher.Invoke (() => _wrapped.Suspend());
     }
 
 
     public void Resume ()
     {
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.Resume());
+      _dispatcher.Invoke (() => _wrapped.Resume());
     }
 
     public uint Read (IntPtr pv, uint cb, out uint pcbRead)
@@ -109,7 +101,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
       uint result = 0;
       uint _pcbRead = 0;
 
-      _dispatcher.Dispatcher.Invoke (() => result = _wrapped.Read (pv, cb, out _pcbRead));
+      _dispatcher.Invoke (() => result = _wrapped.Read (pv, cb, out _pcbRead));
       pcbRead = _pcbRead;
 
       return result;
@@ -118,18 +110,18 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
     public void Seek (_LARGE_INTEGER dlibMove, uint dwOrigin, out _ULARGE_INTEGER plibNewPosition)
     {
       _ULARGE_INTEGER _plibNewPosition = default(_ULARGE_INTEGER);
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.Seek (dlibMove, dwOrigin, out _plibNewPosition));
+      _dispatcher.Invoke (() => _wrapped.Seek (dlibMove, dwOrigin, out _plibNewPosition));
       plibNewPosition = _plibNewPosition;
     }
 
     public void LockRequest (uint dwOptions)
     {
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.LockRequest (dwOptions));
+      _dispatcher.Invoke (() => _wrapped.LockRequest (dwOptions));
     }
 
     public void UnlockRequest ()
     {
-      _dispatcher.Dispatcher.Invoke (() => _wrapped.UnlockRequest());
+      _dispatcher.Invoke (() => _wrapped.UnlockRequest());
     }
   }
 }

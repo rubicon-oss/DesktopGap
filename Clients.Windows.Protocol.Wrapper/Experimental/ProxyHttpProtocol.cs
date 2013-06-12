@@ -17,6 +17,7 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
@@ -26,7 +27,7 @@ using DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes;
 using DesktopGap.Security.Urls;
 using DesktopGap.Utilities;
 
-namespace DesktopGap.Clients.Windows.Protocol.Wrapper
+namespace DesktopGap.Clients.Windows.Protocol.Wrapper.Experimental
 {
   [ComVisible (true)]
   [Guid ("E8253D6B-1AEE-4B5A-B7F9-F37D9C76C5FB")]
@@ -54,7 +55,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
           });
     }
 
-    public uint Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
+    public void Start (string szURL, IInternetProtocolSink Sink, IInternetBindInfo pOIBindInfo, uint grfPI, uint dwReserved)
     {
       // How to do more complex stuff: http://www.codeproject.com/Articles/6120/A-Simple-protocol-to-view-aspx-pages-without-IIS-i
       var isAllowed = _urlFilter.IsAllowed (szURL);
@@ -65,13 +66,11 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
         LockRequest (0);
         Terminate (0);
         UnlockRequest();
-        return HResult.INET_E_DEFAULT_ACTION;
       }
 
      //Sink.ReportProgress(tagBINDSTATUS.BINDSTATUS_MIMETYPEAVAILABLE, "text/html");
      // Sink.ReportResult (HResult.INET_E_REDIRECT_FAILED, 0,   );
       _dispatcher.Dispatcher.Invoke (() => _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved));
-      return HResult.S_OK;
     }
 
 

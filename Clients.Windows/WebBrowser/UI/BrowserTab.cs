@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
 using DesktopGap.Clients.Windows.Components;
@@ -40,11 +41,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private static readonly Uri s_defaultImageUri = new Uri ("/DesktopGap;component/Resources/new.png", UriKind.RelativeOrAbsolute);
 
 
-    public BrowserTab (TridentWebBrowser webBrowser, Guid identifier, bool isCloseable = true, bool isHomeTab = false)
+    public BrowserTab (TridentWebBrowser webBrowser, Guid identifier, BrowserTabOption option = BrowserTabOption.Closeable)
     {
       ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
       Identifier = identifier;
-      IsHomeTab = isHomeTab;
+      Option = option;
 
       webBrowser.DocumentTitleChanged += OnDocumentTitleChanged;
       webBrowser.DocumentsFinished += (s, e) => Header.Icon = webBrowser.GetFavicon (s_defaultImageUri);
@@ -53,19 +54,28 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       _webBrowserHost = new WebBrowserHost (webBrowser);
       Content = _webBrowserHost;
 
-      Header = new CloseableTabHeader (string.Empty, new BitmapImage (s_defaultImageUri), isCloseable);
+      Header = new CloseableTabHeader (string.Empty, new BitmapImage (s_defaultImageUri), option == BrowserTabOption.Closeable);
       Header.TabClose += (s, e) =>
                          {
                            if (ShouldClose())
                              CloseView();
                          };
 
-
-      if (IsHomeTab)
+      if (option == BrowserTabOption.Sticky)
         return;
 
-      LostFocus += (s, e) => IsCloseable = false;
-      GotFocus += (s, e) => IsCloseable = true;
+      LostFocus += OnFocusLost;
+      GotFocus += OnFocus;
+    }
+
+    private void OnFocus (object s, RoutedEventArgs e)
+    {
+      Header.ShowCloseButton();
+    }
+
+    private void OnFocusLost (object s, RoutedEventArgs e)
+    {
+      Header.HideCloseButton();
     }
 
 
@@ -77,7 +87,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     public bool IsCloseable
     {
       get { return Header.IsCloseable; }
-      set { Header.IsCloseable = !IsHomeTab && value; }
     }
 
     public new CloseableTabHeader Header
@@ -92,7 +101,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     }
 
     public Guid Identifier { get; private set; }
-    public bool IsHomeTab { get; set; }
+    public BrowserTabOption Option { get; private set; }
+
+    public void MakeStickyTab ()
+    {
+      LostFocus -= OnFocusLost;
+      GotFocus -= OnFocus;
+      Header.HideCloseButton();
+      Option = BrowserTabOption.Sticky;
+    }
 
     public void Show (BrowserWindowStartMode startMode)
     {

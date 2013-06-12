@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Windows.Media.Imaging;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
@@ -30,23 +31,27 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   public partial class BrowserWindow : IWebBrowserWindow
   {
-    private readonly Uri _baseUrl;
+    private readonly Uri _homeUri;
     private readonly ViewDispatcherBase _viewDispatcher;
 
     private readonly List<IWebBrowserView> _subViews = new List<IWebBrowserView>();
+    private bool _nextIsSticky;
 
-    public BrowserWindow (string title, Uri baseUri, ViewDispatcherBase viewDispatcher)
+    public BrowserWindow (string title, Uri iconUri, Uri homeUri, ViewDispatcherBase viewDispatcher)
     {
       ArgumentUtility.CheckNotNull ("title", title);
-      ArgumentUtility.CheckNotNull ("baseUri", baseUri);
+      ArgumentUtility.CheckNotNull ("homeUri", homeUri);
+      ArgumentUtility.CheckNotNull ("iconUri", iconUri);
       ArgumentUtility.CheckNotNull ("viewDispatcher", viewDispatcher);
 
       InitializeComponent();
       Title = title;
-      _baseUrl = baseUri;
+      _homeUri = homeUri;
       _viewDispatcher = viewDispatcher;
       _viewDispatcher.ViewCreated += OnSubViewCreated;
       Closing += (s, e) => e.Cancel = CloseWindow();
+
+      Icon = new BitmapImage (iconUri);
     }
 
     public void Dispose ()
@@ -69,6 +74,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private void btnAddNew_Click_1 (object sender, RoutedEventArgs e)
     {
       NewTab (CreateUri (_urlTextBox.Text), BrowserWindowStartMode.Active);
+    }
+
+    public void NewStickyTab (Uri uri, BrowserWindowStartMode mode)
+    {
+      ArgumentUtility.CheckNotNull ("uri", uri);
+
+      _nextIsSticky = true;
+      NewTab (uri, mode);
     }
 
     public void NewTab (Uri uri, BrowserWindowStartMode mode)
@@ -94,6 +107,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (tab != null)
       {
         _tabControl.Items.Add (tab);
+        if (_nextIsSticky)
+        {
+          tab.MakeStickyTab();
+          _nextIsSticky = false;
+        }
         args.View.BeforeClose += (s, e) => RemoveSubView (tab);
       }
       args.View.Show (args.StartMode);
@@ -109,7 +127,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnGotoHome (object sender, RoutedEventArgs e)
     {
-      NewTab (_baseUrl, BrowserWindowStartMode.Active);
+      var homeTab = _subViews.First (view => view is BrowserTab && ((BrowserTab) view).Option == BrowserTabOption.Sticky);
+      if (homeTab != null)
+      {
+        homeTab.WebBrowser.Navigate (_homeUri.ToString());
+        ((BrowserTab)homeTab).Focus();
+      }
+      else
+        NewTab (_homeUri, BrowserWindowStartMode.Active);
     }
 
     private void OnZoomIn (object sender, RoutedEventArgs e)

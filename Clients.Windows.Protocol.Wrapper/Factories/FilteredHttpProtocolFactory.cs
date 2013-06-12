@@ -17,11 +17,10 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Controls;
-using DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes;
+using System.Windows.Threading;
 using DesktopGap.Security.Urls;
 using DesktopGap.Utilities;
 
@@ -34,6 +33,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.Factories
     private readonly Control _ctrl;
 
     private int _lockCount;
+    private readonly Dispatcher _dispatcher;
 
     public FilteredHttpProtocolFactory (IUrlFilter urlFilter)
     {
@@ -41,12 +41,12 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.Factories
 
       _urlFilter = urlFilter;
       _ctrl = new Control();
+      _dispatcher = _ctrl.Dispatcher;
     }
 
-    
     public void Dispose ()
     {
-      
+      _dispatcher.InvokeShutdown();
     }
 
     public Type ProtocolType
@@ -61,19 +61,17 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper.Factories
 
     public void CreateInstance (object pUnkOuter, Guid riid, out object ppvObject)
     {
-      ppvObject = new FilteredHttpProtocol (_ctrl, _urlFilter);
-      //ppvObject = new ExtendedHttpProtocol (_ctrl, _urlFilter);
-      //ppvObject = new ProxyHttpProtocol (_ctrl, _urlFilter);
+      ppvObject = new FilteredHttpProtocol (_dispatcher, _urlFilter);
     }
 
     public void LockServer (bool fLock)
     {
-      if(fLock)
+      if (fLock)
         _lockCount++;
       else
         _lockCount--;
 
-      if(_lockCount == 0)
+      if (_lockCount == 0)
         Dispose();
     }
   }
