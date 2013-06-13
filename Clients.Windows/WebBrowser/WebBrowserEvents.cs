@@ -57,7 +57,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
 
     public override void BeforeNavigate2 (
-        object pDisp, object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
+        object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
     {
       if (URL.ToString() == "about:blank")
         return;
@@ -120,7 +120,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser
       _browserControl.OnWindowSetWidth (width);
     }
 
-    // TODO not pretty
     public override void NewWindow2 (ref object ppDisp, ref bool Cancel)
     {
       NewWindow3 (ref ppDisp, ref Cancel, 0, String.Empty, String.Empty);

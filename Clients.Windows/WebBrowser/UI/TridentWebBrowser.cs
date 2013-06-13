@@ -108,7 +108,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       ArgumentUtility.CheckNotNull ("applicationUrlFilter", applicationUrlFilter);
 
       BrowserEvents = new WebBrowserEvents (this, nonApplicationUrlFilter, applicationUrlFilter, entryPointFilter);
-
       Navigate (c_blankSite); // bootstrap
 
       _documentHandleRegistry = documentHandleRegistry;
@@ -119,7 +118,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       DocumentCompleted += TridentWebBrowser_DocumentCompleted;
       _documentHandleRegistry.DocumentRegistered += OnDocumentRegistered;
-      ScriptErrorsSuppressed = false;
     }
 
     protected override void Dispose (bool disposing)
@@ -172,11 +170,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       private set { _resizable = value; }
     }
 
-    private new ApiFacade ObjectForScripting
-    {
-      get { return (ApiFacade) base.ObjectForScripting; }
-      set { base.ObjectForScripting = value; }
-    }
+    //private new ApiFacade ObjectForScripting
+    //{
+    //  get { return (ApiFacade) base.ObjectForScripting; }
+    //  set { base.ObjectForScripting = value; }
+    //}
 
     //
     // WINDOW EVENTS

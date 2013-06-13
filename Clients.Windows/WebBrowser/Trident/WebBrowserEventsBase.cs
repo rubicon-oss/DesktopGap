@@ -55,8 +55,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     {
     }
 
-    public virtual void BeforeNavigate2 (object pDisp, object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
+    public virtual void BeforeNavigate2 (object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
     {
+
     }
 
     public virtual void NewWindow2 (ref object ppDisp, ref bool Cancel)

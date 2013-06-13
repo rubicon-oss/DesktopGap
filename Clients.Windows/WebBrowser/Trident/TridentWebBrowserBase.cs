@@ -70,21 +70,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     protected TridentWebBrowserBase ()
     {
       IsWebBrowserContextMenuEnabled = EnableWebBrowserContextMenu;
-      Features = new TridentFeatures();
-      IsGPUAccelerated = true;
     }
 
-    public bool IsGPUAccelerated
-    {
-      get { return Features.GpuAcceleration; }
-      set { Features.GpuAcceleration = value; }
-    }
-
-    public TridentWebBrowserMode BrowserMode
-    {
-      get { return Features.BrowserEmulationMode; }
-      set { Features.BrowserEmulationMode = value; }
-    }
 
     /// <summary>
     /// Retrieve the _axIWebBrowser2 implementation from the .NET WebBrowser. 

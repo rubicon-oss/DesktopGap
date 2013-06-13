@@ -127,7 +127,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int EnableModeless (bool fEnable)
     {
-      return HResult.E_NOTIMPL;
+      return HResult.S_OK;
     }
 
     /// <summary>
@@ -141,7 +141,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int OnDocWindowActivate (bool fActivate)
     {
-      return HResult.E_NOTIMPL;
+      return HResult.S_FALSE;
     }
 
     /// <summary>
@@ -155,7 +155,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int OnFrameWindowActivate (bool fActivate)
     {
-      return HResult.E_NOTIMPL;
+      return HResult.S_FALSE;
     }
 
     /// <summary>
@@ -167,7 +167,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// <returns>Returns S_OK if successful, or an error value otherwise.</returns>
     public virtual int ResizeBorder (ref tagRECT rect, IOleInPlaceUIWindow doc, bool fFrameWindow)
     {
-      return HResult.E_NOTIMPL;
+      return HResult.S_FALSE;
     }
 
     /// <summary>
@@ -181,7 +181,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     ///S_FALSE 	The message was not handled. Host default behavior is allowed. </returns>
     public virtual int TranslateAccelerator (ref tagMSG msg, ref Guid group, uint nCmdID)
     {
-      return HResult.E_NOTIMPL;
+      return HResult.S_FALSE;
     }
 
     /// <summary>
@@ -193,7 +193,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     public virtual int GetOptionKeyPath (out string pbstrKey, uint dw)
     {
       pbstrKey = null;
-      return HResult.E_NOTIMPL;
+      return HResult.S_FALSE;
     }
 
     /// <summary>
@@ -222,7 +222,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       }
 
       ppDispatch = null;
-      return HResult.E_NOTIMPL;
+      return HResult.S_FALSE;
     }
 
     /// <summary>

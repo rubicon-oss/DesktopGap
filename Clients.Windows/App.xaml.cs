@@ -19,12 +19,8 @@
 // 
 using System;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
-using DesktopGap.AddIns.Factories;
-using DesktopGap.AddIns.Services;
 using DesktopGap.Clients.Windows.Protocol.Wrapper;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.Factories;
 using DesktopGap.Clients.Windows.WebBrowser;
@@ -58,16 +54,16 @@ namespace DesktopGap.Clients.Windows
       var configurator = new DesktopGapConfigurator();
 
       configurator.LoadFrom (args.ManifestUri);
-      configurator.SetInternetExplorerFeatures (TridentWebBrowserMode.ForcedIE10, true, false,false,false);
+      configurator.SetInternetExplorerFeatures (TridentWebBrowserMode.ForcedIE10, true, false, false, false);
 
       var startupUri = args.StartupUri;
 
       var filter = new ProtocolWrapperManager();
-      //filter.RegisterProtocol (new FilteredHttpProtocolFactory (configurator.ResourceFilter));
-      //filter.RegisterProtocol (new FilteredHttpsProtocolFactory (configurator.ResourceFilter));
+      filter.RegisterProtocol (new FilteredHttpProtocolFactory (configurator.ResourceFilter));
+      filter.RegisterProtocol (new FilteredHttpsProtocolFactory (configurator.ResourceFilter));
 
 
-      var htmlDocumentHandleRegistry = configurator.CreateDocumentRegistry(".");
+      var htmlDocumentHandleRegistry = configurator.CreateDocumentRegistry (".");
 
       var subscriptionHandler = (ISubscriptionProvider) htmlDocumentHandleRegistry;
       _browserFactory = new TridentWebBrowserFactory (
@@ -85,13 +81,13 @@ namespace DesktopGap.Clients.Windows
 
       var homeUri = configurator.Application.BaseUri;
 
-        if (configurator.Application.HomeUri != null)
-          homeUri = configurator.Application.HomeUri;
+      if (configurator.Application.HomeUri != null)
+        homeUri = configurator.Application.HomeUri;
 
 
       var mainWindow = new BrowserWindow (configurator.Application.Name, configurator.Application.IconUri, homeUri, viewDispatcher);
       if (configurator.Application.AlwaysOpenHomeUrl)
-        mainWindow.NewStickyTab(homeUri, BrowserWindowStartMode.Active);
+        mainWindow.NewStickyTab (homeUri, BrowserWindowStartMode.Active);
 
       if (startupUri != null && (configurator.StartUpFilter.IsAllowed (startupUri) || configurator.NonApplicationUrlFilter.IsAllowed (startupUri)))
         mainWindow.NewTab (startupUri, BrowserWindowStartMode.Active);

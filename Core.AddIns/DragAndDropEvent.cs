@@ -224,11 +224,12 @@ namespace DesktopGap.AddIns
       return result % c_dragdropEffectCount;
     }
 
-    private string[] GetFileNames (IDataObject data)
+    private string[] GetFileNames (IDataObject data) // TODO-MK Replace with proper implementation
     {
       var paths = new string[0];
-      if (data != null)
-        paths = ((string[]) data.GetData (DataFormats.FileDrop));
+
+      //if (data != null)
+      //  paths = ((string[]) data.GetData (DataFormats.FileDrop));
 
       return paths;
     }
