@@ -21,6 +21,7 @@ using System;
 using System.Windows;
 using System.Windows.Threading;
 using DesktopGap.AddIns.Events;
+using DesktopGap.Clients.Windows.DebugConsole;
 using DesktopGap.Clients.Windows.Protocol.Wrapper;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.Factories;
 using DesktopGap.Clients.Windows.WebBrowser;
@@ -38,6 +39,7 @@ namespace DesktopGap.Clients.Windows
   public partial class App
   {
     private IWebBrowserFactory _browserFactory;
+    public static DebugWindow DebugWindow;
 
     public App ()
     {
@@ -50,11 +52,12 @@ namespace DesktopGap.Clients.Windows
 
       //try
       //{
-
+      DebugWindow = new DebugWindow();
+      DebugWindow.Show();
       var configurator = new DesktopGapConfigurator();
 
       configurator.LoadFrom (args.ManifestUri);
-      configurator.SetInternetExplorerFeatures (TridentWebBrowserMode.ForcedIE10, true, false, false, false);
+      configurator.SetInternetExplorerFeatures (TridentWebBrowserMode.ForcedIE10, true, true, true, true);
 
       var startupUri = args.StartupUri;
 
@@ -85,7 +88,7 @@ namespace DesktopGap.Clients.Windows
         homeUri = configurator.Application.HomeUri;
 
 
-      var mainWindow = new BrowserWindow (configurator.Application.Name, configurator.Application.IconUri, homeUri, viewDispatcher);
+      var mainWindow = new BrowserWindow (configurator.Application.Name, configurator.Application.IconUri, homeUri, viewDispatcher, true);
       if (configurator.Application.AlwaysOpenHomeUrl)
         mainWindow.NewStickyTab (homeUri, BrowserWindowStartMode.Active);
 

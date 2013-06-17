@@ -52,7 +52,6 @@ namespace DesktopGap.Clients.Windows
 
     public DesktopGapConfigurator ()
     {
-
     }
 
     public IUrlFilter ResourceFilter { get; private set; }
@@ -114,7 +113,7 @@ namespace DesktopGap.Clients.Windows
 
     public IHtmlDocumentHandleRegistry CreateDocumentRegistry (string addInDirectory = c_addInDirectory)
     {
-            ArgumentUtility.CheckNotNull ("addInDirectory", addInDirectory);
+      ArgumentUtility.CheckNotNull ("addInDirectory", addInDirectory);
 
       if (!Directory.Exists (addInDirectory))
         throw new ArgumentException (string.Format ("The configured AddIn directory '{0}' does not exist", addInDirectory));

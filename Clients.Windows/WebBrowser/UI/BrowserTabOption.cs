@@ -8,6 +8,5 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
   public enum BrowserTabOption
   {
     Closeable,
-    Sticky
-  }
+    Sticky  }
 }

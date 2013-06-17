@@ -108,7 +108,7 @@ namespace DesktopGap.Configuration.Security
       else
         return Regex.Escape (url);
       
-      var regexPath = url.Remove (url.IndexOf (wildcard, StringComparison.Ordinal));
+      var regexPath = url.Remove (url.IndexOf (wildcard, StringComparison.Ordinal), wildcard.Length);
       return wildcardReplacement + Regex.Escape (regexPath);
     }
   }

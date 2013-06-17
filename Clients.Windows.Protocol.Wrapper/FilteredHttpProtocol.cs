@@ -18,10 +18,8 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.Diagnostics;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows.Threading;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.ComTypes;
 using DesktopGap.Security.Urls;
@@ -62,15 +60,12 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
       _isAllowed = _urlFilter.IsAllowed (szURL);
       if (!_isAllowed)
       {
-        Sink.ReportResult (HResult.INET_E_RESOURCE_NOT_FOUND, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString());
+        _dispatcher.Invoke (
+            () => Sink.ReportResult (HResult.INET_E_RESOURCE_NOT_FOUND, (uint) HttpStatusCode.NotFound, HttpStatusCode.NotFound.ToString()));
         return;
       }
       _dispatcher.Invoke (
-          () =>
-          {
-            Debug.WriteLine ("start on thread " + Thread.CurrentThread.ManagedThreadId + " with URL '" + szURL + "'");
-            _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved);
-          },
+          () => _wrapped.Start (szURL, Sink, pOIBindInfo, grfPI, dwReserved),
           new TimeSpan (0, 0, 0, 30));
     }
 
@@ -107,8 +102,7 @@ namespace DesktopGap.Clients.Windows.Protocol.Wrapper
       uint _pcbRead = 0;
       if (_isAllowed)
         _dispatcher.Invoke (() => result = _wrapped.Read (pv, cb, out _pcbRead));
-      //if(_isAllowed)
-      //  result = _wrapped.Read (pv, cb, out _pcbRead);
+
       pcbRead = _pcbRead;
 
       return result;

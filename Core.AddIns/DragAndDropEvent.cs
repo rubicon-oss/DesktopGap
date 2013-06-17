@@ -228,8 +228,8 @@ namespace DesktopGap.AddIns
     {
       var paths = new string[0];
 
-      //if (data != null)
-      //  paths = ((string[]) data.GetData (DataFormats.FileDrop));
+      if (data != null) // TODO known issue: dragging images within the web page crashes DG
+        paths = ((string[]) data.GetData (DataFormats.FileDrop));
 
       return paths;
     }
