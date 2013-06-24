@@ -21,6 +21,7 @@ using System;
 using DesktopGap.AddIns;
 using DesktopGap.AddIns.Events;
 using DesktopGap.AddIns.Events.Subscriptions;
+using DesktopGap.Security;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser.Arguments;
 using DesktopGap.WebBrowser.StartOptions;
@@ -102,12 +103,12 @@ namespace DesktopGap.WebBrowser.View
     public abstract void NewView (BrowserWindowTarget target, Uri uri, BrowserWindowStartMode startMode);
 
 
-    protected abstract void Dispatch (IExtendedWebBrowser browser, BrowserWindowTarget target, BrowserWindowStartMode startMode, string targetName);
+    protected abstract void Dispatch (IExtendedWebBrowser browser, BrowserWindowTarget target, BrowserWindowStartMode startMode, string targetName, TargetAddressType addressType);
 
-    protected void ViewCreationDone (IWebBrowserView view, BrowserWindowStartMode startMode)
+    protected void ViewCreationDone (IWebBrowserView view, BrowserWindowStartMode startMode, TargetAddressType addressType)
     {
       if (ViewCreated != null)
-        ViewCreated (this, new NewViewEventArgs (view, startMode));
+        ViewCreated (this, new NewViewEventArgs (view, startMode, addressType));
     }
 
     protected IExtendedWebBrowser CreateBrowser ()
@@ -154,10 +155,10 @@ namespace DesktopGap.WebBrowser.View
       if (_preparations is FullWindowPreparations)
       {
         var preparations = (FullWindowPreparations) _preparations;
-        Dispatch (preparations.Browser, preparations.Target, preparations.StartMode, string.Empty);
+        Dispatch (preparations.Browser, preparations.Target, preparations.StartMode, string.Empty, e.AddressType);
       }
       else
-        Dispatch (_preparations.Browser, e.BrowserWindowTarget, e.StartMode, e.TargetName);
+        Dispatch (_preparations.Browser, e.BrowserWindowTarget, e.StartMode, e.TargetName, e.AddressType);
 
       _preparations = null;
     }

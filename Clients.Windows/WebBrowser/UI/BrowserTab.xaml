@@ -24,23 +24,55 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="20" />
+             d:DesignHeight="300" d:DesignWidth="300" >
+    <TabItem.Resources>
+        <BitmapImage x:Key="GoButton" UriSource="/DesktopGap;component/Resources/go.png" />
+        <BitmapImage x:Key="CloseButton" UriSource="/DesktopGap;component/Resources/close.png" />
 
-            <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-     
-        <Grid Grid.Row="0">
+    </TabItem.Resources>
+    
+    <TabItem.Header>
+        <DockPanel HorizontalAlignment="Right" 
+                   DataContext="{Binding Path=TabHeaderViewModel}">
+                   <!--Background="{Binding Path=BackgroundBrush}">-->
+            <Border DockPanel.Dock="Left" BorderThickness="3" BorderBrush="{Binding Path=BackgroundBrush}" Margin="0 0 5 0"  Height="15"
+                    />
+            <Image 
+                Width="16" 
+                Height="16" 
+                Margin="0 -2 0 0" 
+                Source="{Binding Path=Icon}" DockPanel.Dock="Left" />
+            <Label Margin="0 -4 0 0" Content="{Binding Path=Text, FallbackValue='Loading ...'}" DockPanel.Dock="Left"/>
+            
+            <Button Visibility="{Binding Path=CloseButtonVisibility}" 
+                    Background="Transparent" 
+                    BorderBrush="Transparent" 
+                    Padding="1 0 1 0" 
+                    FontWeight="Bold"
+                    DockPanel.Dock="Right"
+                    Command="{Binding Path=CloseCommand}">
+                <Image Margin="0 -2 0 0" Width="16" HorizontalAlignment="Right" >
+                    <Image.Source>
+                        <StaticResource ResourceKey="CloseButton" />
+                    </Image.Source>
+                </Image>
+            </Button>
+        </DockPanel>
+    </TabItem.Header>
+    
+    <DockPanel>
+        <Grid DockPanel.Dock="Top" Visibility="{Binding Path=AddressBarVisibility}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
                 <ColumnDefinition Width="50" />
             </Grid.ColumnDefinitions>
-            <TextBox Name="urlTextBox" Text="{Binding Path=Url}" KeyDown="OnUrlTextKeyDown" Grid.Column="0" />
-            <Button  Content=" >> " Click="OnGoClick" Grid.Column="1"/>
+            <TextBox Name="urlTextBox" Text="{Binding Path=WebBrowser.Url}" KeyDown="OnUrlTextKeyDown" Grid.Column="0" />
+            <Button Click="OnGoClick" Grid.Column="1" Height="24">
+                <Image Source="{StaticResource ResourceKey=GoButton}" />
+            </Button>
         </Grid>
-        <ContentControl Content="{Binding Path=WebBrowserHost}" Grid.Row="1" Grid.RowSpan="1" />
+        
+        <ContentControl Content="{Binding Path=WebBrowserHost}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"  DockPanel.Dock="Top"/>
 
-    </Grid>
+    </DockPanel>
 </TabItem>

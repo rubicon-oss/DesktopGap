@@ -27,6 +27,12 @@ namespace DesktopGap.Configuration.Security
 {
   public class SecurityConfigurationElement : ConfigurationElement
   {
+    [ConfigurationProperty ("enableResourceFilter", DefaultValue = false)]
+    public bool EnableResourceFilter
+    {
+      get { return (bool) this["enableResourceFilter"]; }
+    }
+
     [ConfigurationProperty ("startupUrls")]
     public UrlConfigurationElementCollection StartupUrls
     {

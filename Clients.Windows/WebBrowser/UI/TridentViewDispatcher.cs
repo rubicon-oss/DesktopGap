@@ -18,7 +18,10 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using DesktopGap.AddIns.Events;
+using DesktopGap.Security;
+using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.StartOptions;
 using DesktopGap.WebBrowser.View;
@@ -27,9 +30,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   public class TridentViewDispatcher : ViewDispatcherBase
   {
-    public TridentViewDispatcher (IWebBrowserFactory browserFactory, ISubscriptionProvider subscriptionProvider)
+    private readonly IDictionary<Tuple<TargetAddressType, BrowserTab.TabType>, BrowserTabState> _states;
+
+    public TridentViewDispatcher (IWebBrowserFactory browserFactory, ISubscriptionProvider subscriptionProvider, IDictionary<Tuple<TargetAddressType, BrowserTab.TabType>, BrowserTabState> states)
         : base (browserFactory, subscriptionProvider)
     {
+      ArgumentUtility.CheckNotNull ("states", states);
+      
+      _states = states;
     }
 
 
@@ -40,7 +48,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       browser.Navigate (uri.ToString()); // starts event chain (handled in base class)
     }
 
-    protected override void Dispatch (IExtendedWebBrowser browser, BrowserWindowTarget target, BrowserWindowStartMode startMode, string targetName)
+    protected override void Dispatch (IExtendedWebBrowser browser, BrowserWindowTarget target, BrowserWindowStartMode startMode, string targetName, TargetAddressType addressType)
     {
       var webBrowser = (TridentWebBrowser) browser;
       IWebBrowserView view;
@@ -51,8 +59,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (target == BrowserWindowTarget.PopUp)
         view = new PopUpWindow (webBrowser, id);
       else
-        view = new BrowserTab (webBrowser, id);
-      ViewCreationDone (view, startMode);
+        view = new BrowserTab (webBrowser, id, _states);
+      ViewCreationDone (view, startMode, addressType);
     }
   }
 }

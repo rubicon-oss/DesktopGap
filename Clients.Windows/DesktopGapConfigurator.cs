@@ -41,6 +41,7 @@ namespace DesktopGap.Clients.Windows
     {
       public string Name { get; set; }
       public Uri BaseUri { get; set; }
+
       public Uri IconUri { get; set; }
       public Uri ManifestUri { get; set; }
       public Uri HomeUri { get; set; }
@@ -54,6 +55,8 @@ namespace DesktopGap.Clients.Windows
     {
     }
 
+    public bool EnableResourceFilter { get; private set; }
+
     public IUrlFilter ResourceFilter { get; private set; }
     public IUrlFilter AddInAllowedFilter { get; private set; }
     public IUrlFilter StartUpFilter { get; private set; }
@@ -61,8 +64,11 @@ namespace DesktopGap.Clients.Windows
 
     public IAddInFilter AddInFilter { get; private set; }
 
-
     public ApplicationInfo Application { get; private set; }
+
+    public string HomeTabColorCode { get; private set; }
+    public string ApplicationTabColorCode { get; private set; }
+    public string NonApplicationTabColorCode { get; private set; }
 
     public void SetInternetExplorerFeatures (
         TridentWebBrowserMode mode, bool gpuAcceleration, bool localMachineLockdown, bool localObjectBlocking, bool restrictResourceProtocol)
@@ -109,6 +115,12 @@ namespace DesktopGap.Clients.Windows
       AddInAllowedFilter = new UrlFilter (applicationUrlRules);
       StartUpFilter = new UrlFilter (startUpUrlRules);
       AddInFilter = new AddInFilter (addInRules);
+
+      HomeTabColorCode = configuration.Application.TabColors.Home;
+      NonApplicationTabColorCode = configuration.Application.TabColors.NonApplication;
+      ApplicationTabColorCode = configuration.Application.TabColors.Application;
+
+      EnableResourceFilter = configuration.Security.EnableResourceFilter;
     }
 
     public IHtmlDocumentHandleRegistry CreateDocumentRegistry (string addInDirectory = c_addInDirectory)

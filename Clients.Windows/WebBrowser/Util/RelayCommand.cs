@@ -17,26 +17,37 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
-using DesktopGap.Security;
+using System.Windows.Input;
 using DesktopGap.Utilities;
-using DesktopGap.WebBrowser.StartOptions;
-using DesktopGap.WebBrowser.View;
 
-namespace DesktopGap.WebBrowser.Arguments
+namespace DesktopGap.Clients.Windows.WebBrowser.Util
 {
-  public class NewViewEventArgs : EventArgs
+  public class RelayCommand : ICommand
   {
-    public BrowserWindowStartMode StartMode { get; private set; }
-    public TargetAddressType AddressType { get; private set; }
-    public IWebBrowserView View { get; private set; }
+    private readonly Predicate<object> _canExecute;
+    private readonly Action<object> _execute;
 
-    public NewViewEventArgs (IWebBrowserView view, BrowserWindowStartMode startMode, TargetAddressType addressType)
+    public RelayCommand (Predicate<object> canExecute, Action<object> execute)
     {
-      ArgumentUtility.CheckNotNull ("view", view);
-      StartMode = startMode;
-      AddressType = addressType;
-      View = view;
+      ArgumentUtility.CheckNotNull ("canExecute", canExecute);
+      ArgumentUtility.CheckNotNull ("execute", execute);
+
+      _canExecute = canExecute;
+      _execute = execute;
     }
+
+    public bool CanExecute (object parameter)
+    {
+      return _canExecute (parameter);
+    }
+
+    public void Execute (object parameter)
+    {
+      _execute (parameter);
+    }
+
+    public event EventHandler CanExecuteChanged;
   }
 }

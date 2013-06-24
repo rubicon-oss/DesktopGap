@@ -18,6 +18,7 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using DesktopGap.Security;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser.StartOptions;
 
@@ -28,6 +29,7 @@ namespace DesktopGap.WebBrowser.Arguments
     public BrowserWindowStartMode StartMode { get; set; }
 
     public BrowserWindowTarget BrowserWindowTarget { get; set; }
+    public TargetAddressType AddressType { get; set; }
 
     public bool Cancel { get; set; }
 
@@ -42,7 +44,8 @@ namespace DesktopGap.WebBrowser.Arguments
         bool cancel,
         Uri uri,
         string target,
-        BrowserWindowTarget windowTarget)
+        BrowserWindowTarget windowTarget,
+        TargetAddressType addressType)
     {
       ArgumentUtility.CheckNotNull ("target", target);
       ArgumentUtility.CheckNotNull ("uri", uri);
@@ -53,6 +56,7 @@ namespace DesktopGap.WebBrowser.Arguments
       Url = uri;
       TargetName = target;
       BrowserWindowTarget = windowTarget;
+      AddressType = addressType;
     }
   }
 }

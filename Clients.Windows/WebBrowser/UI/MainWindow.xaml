@@ -29,31 +29,145 @@
         <BitmapImage x:Key="PrintButton" UriSource="/DesktopGap;component/Resources/print.png" />
         <BitmapImage x:Key="ZoomButton" UriSource="/DesktopGap;component/Resources/zoom.png" />
         <BitmapImage x:Key="PrintPreviewButton" UriSource="/DesktopGap;component/Resources/print-preview.png" />
-    </Window.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
-            <ColumnDefinition Width="48px" />
-        </Grid.ColumnDefinitions>
-        
-        <TabControl Name="_tabControl" Grid.ColumnSpan="1" Grid.RowSpan="1" BorderThickness="0, 1, 1, 0">
-            
-        </TabControl>
 
-        <StackPanel Grid.Row="0" Grid.Column="1" VerticalAlignment="Top">
-            <Button Grid.Row="0" Grid.Column="1"  Panel.ZIndex="15" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource buttonStyle}" Click="OnGotoHome">
-                <Image Source="{StaticResource HomeButton}" />
-            </Button>
-            <Button Grid.Row="0" Grid.Column="1"  Panel.ZIndex="15" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource buttonStyle}" Click="OnPrint">
-                <Image Source="{StaticResource PrintButton}" />
-            </Button>
-                <Button Grid.Row="0" Grid.Column="1"  Panel.ZIndex="15" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource buttonStyle}" Click="OnPrintPreview">
-                    <Image Source="{StaticResource PrintPreviewButton}" />
-                </Button>
-                <Button Grid.Row="0" Grid.Column="1"  Panel.ZIndex="15" HorizontalAlignment="Right" VerticalAlignment="Top" Style="{StaticResource buttonStyle}" Click="OnZoomIn">
-                <Image Source="{StaticResource ZoomButton}" />
-            </Button>
-        </StackPanel>
+        <Style  TargetType="{x:Type TabControl}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabControl}">
+                        <Grid KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <Grid
+                                Grid.Row="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                
+                                <TabPanel Name="HeaderPanel"
+                                          Grid.Column="0"
+                                          Margin="0"
+                                          ClipToBounds="false"
+                                          IsItemsHost="True"
+                                  KeyboardNavigation.TabIndex="1" />
+
+                                <Menu Grid.Column="1" Background="Transparent" Height="24" HorizontalAlignment="Right" VerticalAlignment="Top">
+                                    <MenuItem >
+                                        <MenuItem.Header>
+                                            <Image Source="{StaticResource ResourceKey=SettingsButton}" />
+                                        </MenuItem.Header>
+                                        <MenuItem Header="Open Home URL" Click="OnGotoHome">
+                                            <MenuItem.Icon>
+                                                <Image Source="{StaticResource ResourceKey=HomeButton}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="_Print" Click="OnPrint">
+                                            <MenuItem.Icon>
+                                                <Image Source="{StaticResource ResourceKey=PrintButton}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+
+                                        <MenuItem Header="P_rint Preview" Click="OnPrintPreview">
+                                            <MenuItem.Icon>
+                                                <Image Source="{StaticResource ResourceKey=PrintPreviewButton}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                        <MenuItem Header="_Reset Zoom" Click="OnZoomIn">
+                                            <MenuItem.Icon>
+                                                <Image Source="{StaticResource ResourceKey=ZoomButton}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+                                    </MenuItem>
+                                </Menu>
+                            </Grid>
+                            <Border Grid.Row="1" BorderThickness="0 0 0 0" BorderBrush="Gainsboro">
+                                <ContentPresenter 
+                                    Name="PART_SelectedContentHost"
+                                    Margin="2 -1 2 2"
+                                    ContentSource="SelectedContent" 
+                                     />
+                            </Border>
+                        </Grid>
+
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            
+        </Style>
+
+        <!-- The TabControl's Style. -->
+        <!--<Style  TargetType="{x:Type TabControl}">
+            <Setter Property="OverridesDefaultStyle" Value="True" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TabControl}">
+                        <Grid KeyboardNavigation.TabNavigation="Local">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+                            <TabPanel>
+                                <TabPanel.Style>
+                                    <Style TargetType="{x:Type TabPanel}">
+                                        <Setter Property="Focusable" Value="False"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate>
+                                                    <Grid SnapsToDevicePixels="True" 
+                                                Grid.Row="0" Grid.Column="0">
+                                                        <Grid.ColumnDefinitions>
+
+                                                            <ColumnDefinition Width="*"/>
+                 
+                                                            <ColumnDefinition Width="Auto"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <ScrollContentPresenter 
+                                                   x:Name="PART_ScrollContentPresenter"
+                                                   VirtualizingStackPanel.IsVirtualizing="False"                                                    
+                                                   SnapsToDevicePixels="True" 
+                                                   Grid.Column="0" 
+                                                   Content="{TemplateBinding ScrollViewer.Content}"/>
+                                                        <Grid x:Name="gScrollButtons" 
+                                                   HorizontalAlignment="Right"
+                                                   Grid.Column="1">
+                                                            <Grid.RowDefinitions>
+                                                                <RowDefinition Height="*"/>
+                                                                <RowDefinition Height="Auto"/>
+                                                            </Grid.RowDefinitions>
+                                                            <StackPanel Grid.Row="1" Orientation="Horizontal">
+                               
+                                        
+                                                            </StackPanel>
+                                                        </Grid>
+                                                    </Grid>  
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                            </TabPanel.Style>
+                            </TabPanel>
+                                <ContentPresenter 
+              Name="PART_SelectedContentHost"
+              Margin="4"
+              ContentSource="SelectedContent" />
+           
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>-->
+    </Window.Resources>
+
+
+    <Grid>
+        <TabControl Name="_tabControl" Margin="0">
+
+        </TabControl>
     </Grid>
 
 </Window>

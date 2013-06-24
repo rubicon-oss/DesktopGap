@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -18,25 +18,33 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using DesktopGap.Security;
-using DesktopGap.Utilities;
-using DesktopGap.WebBrowser.StartOptions;
-using DesktopGap.WebBrowser.View;
+using System.Configuration;
 
-namespace DesktopGap.WebBrowser.Arguments
+namespace DesktopGap.Configuration.Application
 {
-  public class NewViewEventArgs : EventArgs
+  public class TabColorsConfigurationElement : ConfigurationElement
   {
-    public BrowserWindowStartMode StartMode { get; private set; }
-    public TargetAddressType AddressType { get; private set; }
-    public IWebBrowserView View { get; private set; }
-
-    public NewViewEventArgs (IWebBrowserView view, BrowserWindowStartMode startMode, TargetAddressType addressType)
+    [ConfigurationProperty ("home")]
+    public string Home
     {
-      ArgumentUtility.CheckNotNull ("view", view);
-      StartMode = startMode;
-      AddressType = addressType;
-      View = view;
+      get { return this["home"] as string; }
+    }
+
+    [ConfigurationProperty ("application")]
+    public string Application
+    {
+      get { return this["application"] as string; }
+    }
+
+    [ConfigurationProperty ("nonApplication")]
+    public string NonApplication
+    {
+      get { return this["nonApplication"] as string; }
+    }
+
+    public string Key
+    {
+      get { return ToString(); }
     }
   }
 }

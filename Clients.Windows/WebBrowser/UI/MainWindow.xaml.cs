@@ -29,16 +29,14 @@ using DesktopGap.WebBrowser.View;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
- public partial class BrowserWindow : IWebBrowserWindow
+  public partial class BrowserWindow : IWebBrowserWindow
   {
     private readonly Uri _homeUri;
     private readonly ViewDispatcherBase _viewDispatcher;
-   private readonly bool _showAddressField;
 
-   private readonly List<IWebBrowserView> _subViews = new List<IWebBrowserView>();
-    private bool _nextIsSticky;
+    private readonly List<IWebBrowserView> _subViews = new List<IWebBrowserView>();
 
-    public BrowserWindow (string title, Uri iconUri, Uri homeUri, ViewDispatcherBase viewDispatcher, bool showAddressField)
+    public BrowserWindow (string title, Uri iconUri, Uri homeUri, ViewDispatcherBase viewDispatcher)
     {
       ArgumentUtility.CheckNotNull ("title", title);
       ArgumentUtility.CheckNotNull ("homeUri", homeUri);
@@ -46,17 +44,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       ArgumentUtility.CheckNotNull ("viewDispatcher", viewDispatcher);
 
       InitializeComponent();
+
       Title = title;
       _homeUri = homeUri;
       _viewDispatcher = viewDispatcher;
-      _showAddressField = showAddressField;
       _viewDispatcher.ViewCreated += OnSubViewCreated;
-      Closing += (s, e) =>
-                 {
-                   e.Cancel = CloseWindow();
-                   if(!e.Cancel)
-                     App.DebugWindow.Close();
-                 };
+      Closing += (s, e) => { e.Cancel = CloseWindow(); };
 
       Icon = new BitmapImage (iconUri);
     }
@@ -67,23 +60,20 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         disposable.Dispose();
     }
 
-    private bool CloseWindow ()
-    {
-      foreach (var browserView in _subViews.Where (view => view.ShouldClose()).ToList())
-      {
-        browserView.CloseView();
-        RemoveSubView (browserView);
-      }
-
-      return _subViews.Count > 0;
-    }
-
     public void NewStickyTab (Uri uri, BrowserWindowStartMode mode)
     {
       ArgumentUtility.CheckNotNull ("uri", uri);
 
-      _nextIsSticky = true;
       NewTab (uri, mode);
+      _viewDispatcher.ViewCreated += OnStickyTabCreated;
+    }
+
+    private void OnStickyTabCreated (object sender, NewViewEventArgs args)
+    {
+      var browserTab = args.View as BrowserTab;
+      if (browserTab != null)
+        browserTab.Type = BrowserTab.TabType.HomeTab;
+      _viewDispatcher.ViewCreated -= OnStickyTabCreated;
     }
 
     public void NewTab (Uri uri, BrowserWindowStartMode mode)
@@ -109,11 +99,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       if (tab != null)
       {
         _tabControl.Items.Add (tab);
-        if (_nextIsSticky)
-        {
-          tab.MakeStickyTab();
-          _nextIsSticky = false;
-        }
         args.View.BeforeClose += (s, e) => RemoveSubView (tab);
       }
       args.View.Show (args.StartMode);
@@ -129,14 +114,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     private void OnGotoHome (object sender, RoutedEventArgs e)
     {
-      var homeTab = _subViews.First (view => view is BrowserTab && ((BrowserTab) view).Option == BrowserTabOption.Sticky);
-      if (homeTab != null)
+      if (_subViews.Count > 0)
       {
+        var homeTab = _subViews.First (view => view is BrowserTab && ((BrowserTab) view).Type == BrowserTab.TabType.HomeTab);
         homeTab.WebBrowser.Navigate (_homeUri.ToString());
         ((BrowserTab) homeTab).Focus();
       }
       else
-        NewTab (_homeUri, BrowserWindowStartMode.Active);
+        NewStickyTab (_homeUri, BrowserWindowStartMode.Active);
     }
 
     private void OnZoomIn (object sender, RoutedEventArgs e)
@@ -157,5 +142,15 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       currentBrowser.PrintPreview();
     }
 
+    private bool CloseWindow ()
+    {
+      foreach (var browserView in _subViews.Where (view => view.ShouldClose()).ToList())
+      {
+        browserView.CloseView();
+        RemoveSubView (browserView);
+      }
+
+      return _subViews.Count > 0;
+    }
   }
 }

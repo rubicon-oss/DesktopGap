@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
+using DesktopGap.Security;
 using DesktopGap.Security.Urls;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser.Arguments;
@@ -59,7 +60,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
     public override void BeforeNavigate2 (
         object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
     {
-      if (URL.ToString().StartsWith("about:blank"))
+      if (URL.ToString().StartsWith ("about:blank"))
         return;
       Uri uri;
       if (!Uri.TryCreate (URL.ToString(), UriKind.RelativeOrAbsolute, out uri))
@@ -71,15 +72,23 @@ namespace DesktopGap.Clients.Windows.WebBrowser
       var targetIsApplication = _applicationUrlFiler.IsAllowed (uri);
       var targetIsExternal = _nonApplicationUrlFilter.IsAllowed (uri);
       var targetIsEntryPoint = _entryPointFilter.IsAllowed (uri);
-      App.DebugWindow.AddMessage (
-          "url: " + URL + " app: " + targetIsApplication + " external: " + targetIsExternal + " entry point: " + targetIsEntryPoint);
-      if ((_isExternal && targetIsEntryPoint) || (!_isExternal && targetIsApplication) || targetIsExternal)
+
+      TargetAddressType targetAddressType;
+      if (targetIsApplication)
+        targetAddressType = TargetAddressType.Application;
+      else
+        targetAddressType = TargetAddressType.NonApplication;
+
+
+      if ((_isExternal && targetIsEntryPoint)
+          || (!_isExternal && targetIsApplication)
+          || targetIsExternal)
       {
         var target = String.Empty;
         if (TargetFrameName != null)
           target = TargetFrameName.ToString();
 
-        var eventArgs = new NavigationEventArgs (BrowserWindowStartMode.Active, Cancel, uri, target, BrowserWindowTarget.Tab);
+        var eventArgs = new NavigationEventArgs (BrowserWindowStartMode.Active, Cancel, uri, target, BrowserWindowTarget.Tab, targetAddressType);
 
         _browserControl.OnBeforeNavigate (eventArgs);
 

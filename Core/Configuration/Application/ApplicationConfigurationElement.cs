@@ -83,6 +83,11 @@ namespace DesktopGap.Configuration.Application
       get { return (bool) this["allowCloseHomeTab"]; }
     }
 
+    [ConfigurationProperty ("tabColors")]
+    public TabColorsConfigurationElement TabColors
+    {
+      get { return (TabColorsConfigurationElement) this["tabColors"]; }
+    }
 
     [ConfigurationProperty ("maxFrameNestingDepth", DefaultValue = (uint) 10)]
     public uint MaxFrameNestingDepth

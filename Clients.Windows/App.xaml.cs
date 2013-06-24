@@ -18,15 +18,17 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
+using System.Collections.Generic;
 using System.Windows;
+using System.Windows.Media;
 using System.Windows.Threading;
 using DesktopGap.AddIns.Events;
-using DesktopGap.Clients.Windows.DebugConsole;
 using DesktopGap.Clients.Windows.Protocol.Wrapper;
 using DesktopGap.Clients.Windows.Protocol.Wrapper.Factories;
 using DesktopGap.Clients.Windows.WebBrowser;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.UI;
+using DesktopGap.Security;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.StartOptions;
 using PowerArgs;
@@ -39,7 +41,6 @@ namespace DesktopGap.Clients.Windows
   public partial class App
   {
     private IWebBrowserFactory _browserFactory;
-    public static DebugWindow DebugWindow;
 
     public App ()
     {
@@ -52,8 +53,7 @@ namespace DesktopGap.Clients.Windows
 
       //try
       //{
-      DebugWindow = new DebugWindow();
-      DebugWindow.Show();
+
       var configurator = new DesktopGapConfigurator();
 
       configurator.LoadFrom (args.ManifestUri);
@@ -61,10 +61,12 @@ namespace DesktopGap.Clients.Windows
 
       var startupUri = args.StartupUri;
 
-      var filter = new ProtocolWrapperManager();
-      filter.RegisterProtocol (new FilteredHttpProtocolFactory (configurator.ResourceFilter));
-      filter.RegisterProtocol (new FilteredHttpsProtocolFactory (configurator.ResourceFilter));
-
+      if (configurator.EnableResourceFilter)
+      {
+        var filter = new ProtocolWrapperManager();
+        filter.RegisterProtocol (new FilteredHttpProtocolFactory (configurator.ResourceFilter));
+        filter.RegisterProtocol (new FilteredHttpsProtocolFactory (configurator.ResourceFilter));
+      }
 
       var htmlDocumentHandleRegistry = configurator.CreateDocumentRegistry (".");
 
@@ -76,7 +78,70 @@ namespace DesktopGap.Clients.Windows
           configurator.StartUpFilter,
           configurator.AddInAllowedFilter);
 
-      var viewDispatcher = new TridentViewDispatcher (_browserFactory, subscriptionHandler);
+      //var converter = new ColorConverter();
+
+      //var applicationTabBrush = new RadialGradientBrush (
+      //    (Color) converter.ConvertFrom (configurator.ApplicationTabColorCode),
+      //    Brushes.Transparent.Color);
+
+      //var nonApplicationTabBrush = new RadialGradientBrush (
+      //    (Color) converter.ConvertFrom (configurator.NonApplicationTabColorCode),
+      //    Brushes.Transparent.Color);
+
+      //var homeTabBrush = new RadialGradientBrush (
+      //  (Color) converter.ConvertFrom (configurator.HomeTabColorCode), 
+      //  Brushes.Transparent.Color);
+
+      var converter = new BrushConverter();
+
+      var applicationTabBrush = (Brush) converter.ConvertFrom (configurator.ApplicationTabColorCode);
+
+      var nonApplicationTabBrush = (Brush) converter.ConvertFrom (configurator.NonApplicationTabColorCode);
+
+      var homeTabBrush = (Brush) converter.ConvertFrom (configurator.HomeTabColorCode);
+
+
+      var states = new Dictionary<Tuple<TargetAddressType, BrowserTab.TabType>, BrowserTabState>
+                   {
+                       {
+                           Tuple.Create (TargetAddressType.Application, BrowserTab.TabType.CommonTab),
+                           new BrowserTabState
+                           {
+                               HeaderColor = applicationTabBrush,
+                               IsClosable = true,
+                               ShowAddressBar = configurator.Application.AlwaysShowUrl
+                           }
+                       },
+                       {
+                           Tuple.Create (TargetAddressType.NonApplication, BrowserTab.TabType.CommonTab),
+                           new BrowserTabState
+                           {
+                               HeaderColor = nonApplicationTabBrush,
+                               IsClosable = true,
+                               ShowAddressBar = true
+                           }
+                       },
+                       {
+                           Tuple.Create (TargetAddressType.Application, BrowserTab.TabType.HomeTab),
+                           new BrowserTabState
+                           {
+                               HeaderColor = homeTabBrush,
+                               IsClosable = false,
+                               ShowAddressBar = configurator.Application.AlwaysShowUrl
+                           }
+                       },
+                       {
+                           Tuple.Create (TargetAddressType.NonApplication, BrowserTab.TabType.HomeTab),
+                           new BrowserTabState
+                           {
+                               HeaderColor = nonApplicationTabBrush,
+                               IsClosable = false,
+                               ShowAddressBar = true
+                           }
+                       },
+                   };
+
+      var viewDispatcher = new TridentViewDispatcher (_browserFactory, subscriptionHandler, states);
 
       htmlDocumentHandleRegistry.DocumentRegistered += viewDispatcher.OnDocumentRegistered;
       htmlDocumentHandleRegistry.BeforeDocumentUnregister += viewDispatcher.OnBeforeDocumentUnregister;
@@ -88,7 +153,11 @@ namespace DesktopGap.Clients.Windows
         homeUri = configurator.Application.HomeUri;
 
 
-      var mainWindow = new BrowserWindow (configurator.Application.Name, configurator.Application.IconUri, homeUri, viewDispatcher, true);
+      var mainWindow = new BrowserWindow (
+          configurator.Application.Name,
+          configurator.Application.IconUri,
+          homeUri,
+          viewDispatcher);
       if (configurator.Application.AlwaysOpenHomeUrl)
         mainWindow.NewStickyTab (homeUri, BrowserWindowStartMode.Active);
 

@@ -67,6 +67,7 @@
     <Compile Include="AddIns\Factories\IAddInManagerFactory.cs" />
     <Compile Include="AddIns\Factories\ServiceManagerFactory.cs" />
     <Compile Include="AddIns\Services\ServiceAddInBase.cs" />
+    <Compile Include="Configuration\Application\TabColorsConfigurationElement.cs" />
     <Compile Include="Configuration\Application\ApplicationConfigurationElement.cs" />
     <Compile Include="Configuration\Application\FaviconConfigurationElement.cs" />
     <Compile Include="Configuration\IDesktopGapConfigurationProvider.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="Resources\ResourceManager.cs" />
     <Compile Include="Security\AddIns\AddInFilter.cs" />
     <Compile Include="Security\AddIns\IAddInFilter.cs" />
+    <Compile Include="Security\TargetAddressType.cs" />
     <Compile Include="Security\Urls\NegativePositiveUrlRule.cs" />
     <Compile Include="Security\Urls\IUrlFilter.cs" />
     <Compile Include="Security\Urls\UrlFilter.cs" />

@@ -18,96 +18,37 @@
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
 using System;
-using System.ComponentModel;
 using System.Windows;
-using System.Windows.Media.Imaging;
 using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.Components
-{
-  /// <summary>
-  /// Interaction logic for CloseableTabHeader.xaml
-  /// </summary>
-  public partial class CloseableTabHeader : INotifyPropertyChanged
+{ 
+  public partial class CloseableTabHeader
   {
-    private string _text;
-    private Visibility _visibility = Visibility.Visible;
-    private BitmapImage _icon;
-
-    public CloseableTabHeader (string headerText, BitmapImage icon, bool isCloseable = false)
+    public CloseableTabHeader (TabHeaderViewModel viewModel)
     {
-      ArgumentUtility.CheckNotNull ("headerText", headerText);
-      ArgumentUtility.CheckNotNull ("icon", icon);
+      ArgumentUtility.CheckNotNull ("viewModel", viewModel);
 
       InitializeComponent();
-      IsCloseable = isCloseable;
-      Text = headerText;
-      DataContext = this;
-      _icon = icon;
+
+      ViewModel = viewModel;
     }
 
     public event EventHandler TabClose;
-    public event PropertyChangedEventHandler PropertyChanged;
 
-
-    public String Text
+    public TabHeaderViewModel ViewModel
     {
-      get { return _text; }
+      get { return (TabHeaderViewModel) DataContext; }
       set
       {
-        OnPropertyChanged ("Text");
-        _text = value ?? String.Empty;
+        ArgumentUtility.CheckNotNull ("value", value);
+        DataContext = value;
       }
-    }
-
-    public void ShowCloseButton ()
-    {
-      IsCloseable = true;
-    }
-
-
-    public void HideCloseButton ()
-    {
-      IsCloseable = false;
-    }
-
-    public bool IsCloseable
-    {
-      get { return CloseButtonVisibility == Visibility.Visible; }
-      private set { CloseButtonVisibility = value ? Visibility.Visible : Visibility.Hidden; }
-    }
-
-    public BitmapImage Icon
-    {
-      get { return _icon; }
-      set
-      {
-        _icon = value;
-        OnPropertyChanged ("Icon");
-      }
-    }
-
-    public Visibility CloseButtonVisibility
-    {
-      get { return _visibility; }
-      set
-      {
-        _visibility = value;
-        OnPropertyChanged ("CloseButtonVisibility");
-      }
-    }
-
-
-    private void OnPropertyChanged (string propertyName)
-    {
-      var handler = PropertyChanged;
-      if (handler != null)
-        handler (this, new PropertyChangedEventArgs (propertyName));
     }
 
     private void CloseButton_Click (object sender, RoutedEventArgs eventArgs)
     {
-      if (IsCloseable && TabClose != null)
+      if (TabClose != null)
         TabClose (sender, eventArgs);
     }
   }

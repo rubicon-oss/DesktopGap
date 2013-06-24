@@ -88,6 +88,8 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="WebBrowser\Util\RelayCommand.cs" />
+    <Compile Include="Components\TabHeaderViewModel.cs" />
     <Compile Include="DesktopGapCommandLineArguments.cs" />
     <Compile Include="DesktopGapConfigurator.cs" />
     <Compile Include="WebBrowser\Scripting\ApiFacade.cs" />
@@ -99,14 +101,13 @@
     <Compile Include="WebBrowser\UI\BrowserTab.xaml.cs">
       <DependentUpon>BrowserTab.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WebBrowser\UI\BrowserTabOption.cs" />
     <Compile Include="WebBrowser\UI\TridentViewDispatcher.cs" />
     <Compile Include="WebBrowser\Util\FrameIterator.cs" />
     <Compile Include="WebBrowser\Util\DocumentIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="WebBrowser\UI\BrowserWindow.xaml.cs">
-      <DependentUpon>BrowserWindow.xaml</DependentUpon>
+    <Compile Include="WebBrowser\UI\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Components\CloseableTabHeader.xaml.cs">
       <DependentUpon>CloseableTabHeader.xaml</DependentUpon>
@@ -167,7 +168,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="WebBrowser\UI\BrowserWindow.xaml">
+    <Page Include="WebBrowser\UI\MainWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -181,10 +182,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Clients.Windows.DebugConsole\Clients.Windows.DebugConsole.csproj">
-      <Project>{47B081E6-8EFD-49B8-9525-47E3163F2C60}</Project>
-      <Name>Clients.Windows.DebugConsole</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Clients.Windows.Protocol.Wrapper\Clients.Windows.Protocol.Wrapper.csproj">
       <Project>{ccfcb3e3-9bd2-4317-8cc2-6a52532a1aaf}</Project>
       <Name>Clients.Windows.Protocol.Wrapper</Name>
@@ -243,7 +240,9 @@
   <ItemGroup>
     <Resource Include="Resources\new.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\go.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

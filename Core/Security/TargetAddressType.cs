@@ -17,26 +17,12 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-using System;
-using DesktopGap.Security;
-using DesktopGap.Utilities;
-using DesktopGap.WebBrowser.StartOptions;
-using DesktopGap.WebBrowser.View;
 
-namespace DesktopGap.WebBrowser.Arguments
+namespace DesktopGap.Security
 {
-  public class NewViewEventArgs : EventArgs
+  public enum TargetAddressType
   {
-    public BrowserWindowStartMode StartMode { get; private set; }
-    public TargetAddressType AddressType { get; private set; }
-    public IWebBrowserView View { get; private set; }
-
-    public NewViewEventArgs (IWebBrowserView view, BrowserWindowStartMode startMode, TargetAddressType addressType)
-    {
-      ArgumentUtility.CheckNotNull ("view", view);
-      StartMode = startMode;
-      AddressType = addressType;
-      View = view;
-    }
+    Application,
+    NonApplication,
   }
 }

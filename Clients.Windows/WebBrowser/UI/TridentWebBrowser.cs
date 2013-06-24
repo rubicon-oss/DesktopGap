@@ -35,6 +35,7 @@ using DesktopGap.Clients.Windows.WebBrowser.Scripting;
 using DesktopGap.Clients.Windows.WebBrowser.Trident;
 using DesktopGap.Clients.Windows.WebBrowser.Util;
 using DesktopGap.OleLibraryDependencies;
+using DesktopGap.Security;
 using DesktopGap.Security.Urls;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
@@ -146,6 +147,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       base.Dispose (disposing);
     }
 
+    public TargetAddressType CurrentAddressType { get; private set; }
+
     public string Title
     {
       get
@@ -237,6 +240,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       if (navigationEventArgs.Url.ToString() == c_blankSite)
         return;
+
+      CurrentAddressType = navigationEventArgs.AddressType;
 
       _allowCalls = _applicationUrlFiler.IsAllowed (navigationEventArgs.Url);
       if (_allowCalls)
@@ -538,8 +543,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         var windowTarget = c_defaultWindowTarget;
         var targetName = String.Empty;
 
-        if (AfterNavigate != null)
-          AfterNavigate (this, new NavigationEventArgs (startMode, false, e.Url, targetName, windowTarget));
+        //if (AfterNavigate != null)
+        //  AfterNavigate (this, new NavigationEventArgs (startMode, false, e.Url, targetName, windowTarget));
       }
     }
 
