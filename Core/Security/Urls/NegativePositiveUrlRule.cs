@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,14 +17,15 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 
 namespace DesktopGap.Security.Urls
 {
   public class NegativePositiveUrlRule : PositiveUrlRule
   {
-    public NegativePositiveUrlRule (string domain, string path, bool sslOnly)
-        : base (domain, path, sslOnly)
+    public NegativePositiveUrlRule (string domain, string path, bool sslOnly, bool ignorePathCasing)
+        : base (domain, path, sslOnly, ignorePathCasing)
     {
     }
 

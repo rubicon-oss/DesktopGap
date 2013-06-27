@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -58,7 +58,13 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
 
     public override void BeforeNavigate2 (
-        object pDisp, ref object URL, ref object Flags, ref object TargetFrameName, ref object PostData, ref object Headers, ref bool Cancel)
+        object pDisp,
+        ref object URL,
+        ref object Flags,
+        ref object TargetFrameName,
+        ref object PostData,
+        ref object Headers,
+        ref bool Cancel)
     {
       if (URL.ToString().StartsWith ("about:blank"))
         return;
@@ -73,11 +79,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser
       var targetIsExternal = _nonApplicationUrlFilter.IsAllowed (uri);
       var targetIsEntryPoint = _entryPointFilter.IsAllowed (uri);
 
-      TargetAddressType targetAddressType;
-      if (targetIsApplication)
-        targetAddressType = TargetAddressType.Application;
-      else
-        targetAddressType = TargetAddressType.NonApplication;
+      var targetAddressType = targetIsApplication ? TargetAddressType.Application : TargetAddressType.NonApplication;
 
 
       if ((_isExternal && targetIsEntryPoint)

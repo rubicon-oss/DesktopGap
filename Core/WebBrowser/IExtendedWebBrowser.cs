@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using DesktopGap.OleLibraryDependencies;
 using DesktopGap.WebBrowser.Arguments;
@@ -45,7 +46,9 @@ namespace DesktopGap.WebBrowser
     void Navigate (string to, string target);
 
     void Zoom (int percent);
-    void PrintPreview ();
-    void Print ();
+    void ShowPrintPreviewDialog ();
+    void ShowPrintDialog ();
+    void ShowPageSetupDialog ();
+    void ShowFindOnPage ();
   }
 }

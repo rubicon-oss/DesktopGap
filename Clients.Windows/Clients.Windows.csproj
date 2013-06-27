@@ -88,6 +88,7 @@
     <Compile Include="..\AssemblyInfoShared.cs">
       <Link>Properties\AssemblyInfoShared.cs</Link>
     </Compile>
+    <Compile Include="WebBrowser\ComTypes\Web\NMWF.cs" />
     <Compile Include="WebBrowser\Util\RelayCommand.cs" />
     <Compile Include="Components\TabHeaderViewModel.cs" />
     <Compile Include="DesktopGapCommandLineArguments.cs" />
@@ -226,9 +227,6 @@
     <Resource Include="Resources\close.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\home.png" />
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="Resources\print.png" />
   </ItemGroup>
   <ItemGroup>
@@ -241,7 +239,13 @@
     <Resource Include="Resources\new.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\go.png" />
+    <Resource Include="Resources\page-setup.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\find-on-page.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\default-app-icon.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\nuget.targets" />

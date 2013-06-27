@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Text.RegularExpressions;
 
@@ -30,18 +31,21 @@ namespace DesktopGap.Security.Urls
 
     private const RegexOptions c_defaultDomainRegexOptions = RegexOptions.Compiled
                                                              | RegexOptions.IgnoreCase
-                                                             | RegexOptions.Singleline;
+                                                             | RegexOptions.Singleline
+                                                             | RegexOptions.CultureInvariant;
 
     private const RegexOptions c_defaultPathRegexOptions = RegexOptions.Compiled
-                                                           | RegexOptions.IgnoreCase
                                                            | RegexOptions.Singleline
-                                                           | RegexOptions.RightToLeft;
+                                                           | RegexOptions.CultureInvariant;
 
-    public PositiveUrlRule (string domain, string path, bool sslOnly)
+    public PositiveUrlRule (string domain, string path, bool sslOnly, bool ignorePathCasing)
     {
       _sslOnly = sslOnly;
       DomainExpression = new Regex (domain, c_defaultDomainRegexOptions);
-      PathExpression = new Regex (path, c_defaultPathRegexOptions);
+      var pathOptions = c_defaultPathRegexOptions;
+      if(ignorePathCasing)
+        pathOptions |= RegexOptions.IgnoreCase;
+      PathExpression = new Regex (path, pathOptions);
     }
 
     public Regex DomainExpression { get; private set; }

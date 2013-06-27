@@ -1,4 +1,4 @@
-﻿<!-- This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿<!-- This file is part of DesktopGap (http://desktopgap.codeplex.com)
  ! Copyright (c) rubicon IT GmbH, Vienna, and contributors
  ! 
  ! This program is free software; you can redistribute it and/or
@@ -19,13 +19,15 @@
  ! 
 -->
 
-<Window x:Class="DesktopGap.Clients.Windows.WebBrowser.UI.BrowserWindow"
+<Window x:Class="DesktopGap.Clients.Windows.WebBrowser.UI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="DesktopGap" MinHeight="600" MinWidth="800" Icon="/DesktopGap;component/Resources/logo.png" >
+        Title="DesktopGap" MinHeight="600" MinWidth="800" Icon="{StaticResource ResourceKey=DesktopGapLogo}" >
     <Window.Resources>
         <BitmapImage x:Key="SettingsButton" UriSource="/DesktopGap;component/Resources/gear.png" />
-        <BitmapImage x:Key="HomeButton" UriSource="/DesktopGap;component/Resources/home.png" />
+        <BitmapImage x:Key="FindOnPageButton" UriSource="/DesktopGap;component/Resources/find-on-page.png" />
+
+        <BitmapImage x:Key="PageSetupButton" UriSource="/DesktopGap;component/Resources/page-setup.png" />
         <BitmapImage x:Key="PrintButton" UriSource="/DesktopGap;component/Resources/print.png" />
         <BitmapImage x:Key="ZoomButton" UriSource="/DesktopGap;component/Resources/zoom.png" />
         <BitmapImage x:Key="PrintPreviewButton" UriSource="/DesktopGap;component/Resources/print-preview.png" />
@@ -59,37 +61,69 @@
                                     <MenuItem >
                                         <MenuItem.Header>
                                             <Image Source="{StaticResource ResourceKey=SettingsButton}" />
+                                          
                                         </MenuItem.Header>
-                                        <MenuItem Header="Open Home URL" Click="OnGotoHome">
+                                        <MenuItem Header="{Binding Path=HomeMenuText}" Click="OnGotoHome">
                                             <MenuItem.Icon>
-                                                <Image Source="{StaticResource ResourceKey=HomeButton}"/>
+                                                <Image Source="{Binding Path=Icon}"/>
                                             </MenuItem.Icon>
                                         </MenuItem>
-                                        <MenuItem Header="_Print" Click="OnPrint">
+                                        <MenuItem Header="_Print">
                                             <MenuItem.Icon>
                                                 <Image Source="{StaticResource ResourceKey=PrintButton}"/>
                                             </MenuItem.Icon>
+                                            <MenuItem Header="_Print" Click="OnPrint">
+                                                <MenuItem.Icon>
+                                                    <Image Source="{StaticResource ResourceKey=PrintButton}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+
+                                            <MenuItem Header="P_rint Preview" Click="OnPrintPreview">
+                                                <MenuItem.Icon>
+                                                    <Image Source="{StaticResource ResourceKey=PrintPreviewButton}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
+
+                                            <MenuItem Header="P_age Setup" Click="OnPageSetup">
+                                                <MenuItem.Icon>
+                                                    <Image Source="{StaticResource ResourceKey=PageSetupButton}"/>
+                                                </MenuItem.Icon>
+                                            </MenuItem>
                                         </MenuItem>
 
-                                        <MenuItem Header="P_rint Preview" Click="OnPrintPreview">
-                                            <MenuItem.Icon>
-                                                <Image Source="{StaticResource ResourceKey=PrintPreviewButton}"/>
-                                            </MenuItem.Icon>
-                                        </MenuItem>
-                                        <MenuItem Header="_Reset Zoom" Click="OnZoomIn">
+                                        <MenuItem Header="_Zoom">
                                             <MenuItem.Icon>
                                                 <Image Source="{StaticResource ResourceKey=ZoomButton}"/>
                                             </MenuItem.Icon>
+                                            <MenuItem Header="_400%" Command="{Binding Path=ZoomCommand}" CommandParameter="400" />
+                                            <MenuItem Header="_200%" Command="{Binding Path=ZoomCommand}" CommandParameter="200" />
+                                            <MenuItem Header="_150%" Command="{Binding Path=ZoomCommand}" CommandParameter="150" />
+                                            <MenuItem Header="_125%" Command="{Binding Path=ZoomCommand}" CommandParameter="125" />
+                                            <MenuItem Header="_100%" Command="{Binding Path=ZoomCommand}" CommandParameter="100" InputGestureText="{Binding Path=ResetZoomKeyboardShortcutText}" />
+                                            <MenuItem Header="_75%" Command="{Binding Path=ZoomCommand}" CommandParameter="75" />
+                                            <MenuItem Header="_50%" Command="{Binding Path=ZoomCommand}" CommandParameter="50" />
                                         </MenuItem>
+
+                                        <MenuItem Header="_Find on Page" Click="OnFindOnPage"  IsEnabled="false">
+                                            <MenuItem.Icon>
+                                                <Image Source="{StaticResource ResourceKey=FindOnPageButton}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+
+                                        <MenuItem Header="_About" Click="OnAbout">
+                                            <MenuItem.Icon>
+                                                <Image Source="{StaticResource ResourceKey=DesktopGapLogo}"/>
+                                            </MenuItem.Icon>
+                                        </MenuItem>
+
                                     </MenuItem>
-                                </Menu>
+                                </Menu> 
                             </Grid>
                             <Border Grid.Row="1" BorderThickness="0 0 0 0" BorderBrush="Gainsboro">
-                                <ContentPresenter 
-                                    Name="PART_SelectedContentHost"
-                                    Margin="2 -1 2 2"
-                                    ContentSource="SelectedContent" 
-                                     />
+                                
+                                <ContentPresenter Name="PART_SelectedContentHost"
+                                                  Margin="0"
+                                                  ContentSource="SelectedContent" />
                             </Border>
                         </Grid>
 
@@ -98,76 +132,11 @@
             </Setter>
             
         </Style>
-
-        <!-- The TabControl's Style. -->
-        <!--<Style  TargetType="{x:Type TabControl}">
-            <Setter Property="OverridesDefaultStyle" Value="True" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TabControl}">
-                        <Grid KeyboardNavigation.TabNavigation="Local">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-                            <TabPanel>
-                                <TabPanel.Style>
-                                    <Style TargetType="{x:Type TabPanel}">
-                                        <Setter Property="Focusable" Value="False"/>
-                                        <Setter Property="Template">
-                                            <Setter.Value>
-                                                <ControlTemplate>
-                                                    <Grid SnapsToDevicePixels="True" 
-                                                Grid.Row="0" Grid.Column="0">
-                                                        <Grid.ColumnDefinitions>
-
-                                                            <ColumnDefinition Width="*"/>
-                 
-                                                            <ColumnDefinition Width="Auto"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <ScrollContentPresenter 
-                                                   x:Name="PART_ScrollContentPresenter"
-                                                   VirtualizingStackPanel.IsVirtualizing="False"                                                    
-                                                   SnapsToDevicePixels="True" 
-                                                   Grid.Column="0" 
-                                                   Content="{TemplateBinding ScrollViewer.Content}"/>
-                                                        <Grid x:Name="gScrollButtons" 
-                                                   HorizontalAlignment="Right"
-                                                   Grid.Column="1">
-                                                            <Grid.RowDefinitions>
-                                                                <RowDefinition Height="*"/>
-                                                                <RowDefinition Height="Auto"/>
-                                                            </Grid.RowDefinitions>
-                                                            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                               
-                                        
-                                                            </StackPanel>
-                                                        </Grid>
-                                                    </Grid>  
-                                                </ControlTemplate>
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                            </TabPanel.Style>
-                            </TabPanel>
-                                <ContentPresenter 
-              Name="PART_SelectedContentHost"
-              Margin="4"
-              ContentSource="SelectedContent" />
-           
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>-->
+      
     </Window.Resources>
-
-
+    
     <Grid>
-        <TabControl Name="_tabControl" Margin="0">
-
-        </TabControl>
+        <TabControl Name="_tabControl" Margin="0" />
     </Grid>
 
 </Window>

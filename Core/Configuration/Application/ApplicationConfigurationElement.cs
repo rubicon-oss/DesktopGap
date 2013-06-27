@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -39,7 +39,7 @@ namespace DesktopGap.Configuration.Application
     public Uri GetBaseUri ()
     {
       Uri uri;
-      if (!Uri.TryCreate (BaseUrl, UriKind.RelativeOrAbsolute, out uri))
+      if (!Uri.TryCreate (BaseUrl, UriKind.Absolute, out uri))
         throw new InvalidOperationException (string.Format ("Location '{0}' is not a valid URI", Icon));
       return uri;
     }
@@ -50,7 +50,7 @@ namespace DesktopGap.Configuration.Application
       get { return (string) this["homeUrl"]; }
     }
 
-    [ConfigurationProperty ("icon")]
+    [ConfigurationProperty ("icon", IsRequired = false)]
     public string Icon
     {
       get { return (string) this["icon"]; }
@@ -59,8 +59,8 @@ namespace DesktopGap.Configuration.Application
     public Uri GetIconUri ()
     {
       Uri uri;
-      if (!Uri.TryCreate (Icon, UriKind.RelativeOrAbsolute, out uri))
-        throw new InvalidOperationException (string.Format ("Location '{0}' is not a valid URI", Icon));
+      if (!Uri.TryCreate (Icon, UriKind.Absolute, out uri))
+        return null;
       return uri;
     }
 

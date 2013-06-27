@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -23,6 +23,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.Windows.Media.Imaging;
@@ -40,21 +41,16 @@ using DesktopGap.Security.Urls;
 using DesktopGap.Utilities;
 using DesktopGap.WebBrowser;
 using DesktopGap.WebBrowser.Arguments;
-using DesktopGap.WebBrowser.StartOptions;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.UI
 {
   public class TridentWebBrowser : TridentWebBrowserBase, IExtendedWebBrowser, IScriptingHost
   {
-    private const BrowserWindowStartMode c_defaultStartMode = BrowserWindowStartMode.Active;
-    private const BrowserWindowTarget c_defaultWindowTarget = BrowserWindowTarget.Tab;
     private const string c_registrationDoneCallback = "DesktopGap_DocumentRegistered";
-    private const string c_defaultFaviconPath = "/favicon.ico";
 
     private const DragDropEffects c_defaulEffect = DragDropEffects.Move;
     private const string c_blankSite = "about:blank";
-
-    private static readonly string[] s_attributes = new[] { "dg_droptarget", "dg_dropcondition" };
+    private const string c_defaultFaviconPath = "/favicon.ico";
 
     private static readonly Regex _linkExpression = new Regex (
         @"<link.*rel=\""[ \w]*icon\"".*/>",
@@ -67,6 +63,9 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         RegexOptions.CultureInvariant
         | RegexOptions.IgnoreCase
         | RegexOptions.Compiled);
+
+    private static readonly string[] s_attributes = new[] { "dg_droptarget", "dg_dropcondition" };
+
 
     public event EventHandler<EventArgs> DocumentsFinished;
 
@@ -117,7 +116,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       InstallCustomUIHandler (new DocumentHostUIHandler (this));
 
-      DocumentCompleted += TridentWebBrowser_DocumentCompleted;
+      DocumentCompleted += OnDocumentCompleted;
       _documentHandleRegistry.DocumentRegistered += OnDocumentRegistered;
     }
 
@@ -173,11 +172,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       private set { _resizable = value; }
     }
 
-    //private new ApiFacade ObjectForScripting
-    //{
-    //  get { return (ApiFacade) base.ObjectForScripting; }
-    //  set { base.ObjectForScripting = value; }
-    //}
+    private new ApiFacade ObjectForScripting
+    {
+      get { return (ApiFacade) base.ObjectForScripting; }
+      set { base.ObjectForScripting = value; }
+    }
 
     //
     // WINDOW EVENTS
@@ -333,7 +332,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     {
       var keyCode = keyEventArgs.KeyCode | ModifierKeys;
 
-      if (keyCode == (Keys.Control | Keys.NumPad0)) // TODO improve
+      if (keyCode == (Keys.Control | Keys.NumPad0)
+          || (keyCode == (Keys.Control | Keys.D0)))
         Zoom (100);
 
 
@@ -404,6 +404,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       }
     }
 
+
     public void Zoom (int factor)
     {
       object pvaIn = factor;
@@ -414,14 +415,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
           IntPtr.Zero);
     }
 
-    public void PrintPreview ()
+    public void ShowFindOnPage ()
     {
-      ShowPrintPreviewDialog();
-    }
-
-    public new void Print ()
-    {
-      ShowPrintDialog();
     }
 
     private void OnDocumentRegistered (object sender, DocumentRegisterationEventArgs e)
@@ -452,7 +447,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         }
         previous = frame;
       }
-    
+
       if (previous != null && previous.Document != null)
       {
         var point = new Point (x - previous.Position.X, y - previous.Position.Y);
@@ -477,9 +472,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private void RemoveSubscribedAddIns (ISubscriptionProvider subscriptionProvider, HtmlDocumentHandle handle)
     {
       foreach (var subscriber in subscriptionProvider.GetSubscribers<IBrowserEventSubscriber> (handle))
-      {
         Unsubscribe (subscriber);
-      }
     }
 
     private void RemoveDocument (HtmlDocumentHandle handle)
@@ -505,7 +498,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       DragLeave -= subscriber.OnDragLeave;
     }
 
-    private void TridentWebBrowser_DocumentCompleted (object sender, WebBrowserDocumentCompletedEventArgs e)
+    private void OnDocumentCompleted (object sender, WebBrowserDocumentCompletedEventArgs e)
     {
       try
       {
@@ -535,17 +528,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       var inactiveHandles = _currentDocuments.Keys.Where (handle => !activeHandles.Contains (handle)).ToList();
       foreach (var handle in inactiveHandles)
         RemoveDocument (handle);
-
-
-      if (e.Url.AbsolutePath == Url.AbsolutePath)
-      {
-        var startMode = c_defaultStartMode;
-        var windowTarget = c_defaultWindowTarget;
-        var targetName = String.Empty;
-
-        //if (AfterNavigate != null)
-        //  AfterNavigate (this, new NavigationEventArgs (startMode, false, e.Url, targetName, windowTarget));
-      }
     }
 
 
@@ -570,20 +552,20 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     public bool ShouldClose ()
     {
-      // known issue: http://support.microsoft.com/kb/253201/en-us TODO needs work
       object shouldClose = 0;
       object dummy = 0;
       try
       {
-        AxIWebBrowser2.ExecWB ( // TODO exception on premature close
+        AxIWebBrowser2.ExecWB (
             OLECMDID.OLECMDID_ONUNLOAD,
             OLECMDEXECOPT.OLECMDEXECOPT_DODEFAULT,
             ref dummy,
             ref shouldClose);
       }
-      catch (Exception ex)
+      catch (COMException ex)
       {
-        Debug.WriteLine (ex);
+        // workaround known issue: http://support.microsoft.com/kb/253201/en-us 
+        // COM Exceptions are likely in the event of premature closing
       }
       return (bool) shouldClose;
     }

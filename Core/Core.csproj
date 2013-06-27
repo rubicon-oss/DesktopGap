@@ -133,9 +133,6 @@
     <None Include="..\GPL.licenseheader">
       <Link>GPL.licenseheader</Link>
     </None>
-    <None Include="desktopgap-security-manifest.xsd">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

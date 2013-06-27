@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -83,7 +84,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
       webBrowser.DocumentTitleChanged += OnDocumentTitleChanged;
       webBrowser.DocumentsFinished += (s, e) => TabHeaderViewModel.Icon = webBrowser.GetFavicon (s_defaultImageUri);
-      webBrowser.Navigated += (s, e) => urlTextBox.Text = e.Url.ToString();
+      webBrowser.Navigated += (s, e) => OnPropertyChanged("Url");
 
       WebBrowserHost = new WebBrowserHost (webBrowser);
       DataContext = this;
@@ -144,6 +145,12 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
 
     public TabHeaderViewModel TabHeaderViewModel { get; private set; }
 
+    public string Url
+    {
+      get { return WebBrowser.Url.ToString(); }
+      set { }
+    }
+
     public void Show (BrowserWindowStartMode startMode)
     {
       switch (startMode)
@@ -203,11 +210,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
         handler (this, new PropertyChangedEventArgs (propertyName));
     }
 
-    private void OnGoClick (object sender, RoutedEventArgs e)
-    {
-      if (WebBrowser != null)
-        WebBrowser.Navigate (CreateUri (urlTextBox.Text).ToString());
-    }
 
     private void OnUrlTextKeyDown (object sender, KeyEventArgs e)
     {
@@ -227,7 +229,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
     private void ChangeState (BrowserTabState state)
     {
       TabHeaderViewModel.BackgroundBrush = state.HeaderColor;
-      TabHeaderViewModel.IsCloseable = state.IsClosable;
+      TabHeaderViewModel.IsCloseable = state.IsClosable && IsFocused;
 
       AddressBarVisibility = state.ShowAddressBar ? Visibility.Visible : Visibility.Collapsed;
     }

@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using DesktopGap.AddIns.Events;
 using DesktopGap.Clients.Windows.Protocol.Wrapper;
@@ -41,6 +42,7 @@ namespace DesktopGap.Clients.Windows
   public partial class App
   {
     private IWebBrowserFactory _browserFactory;
+    private const string c_defaultAppIcon = "DefaultAppIcon";
 
     public App ()
     {
@@ -78,26 +80,10 @@ namespace DesktopGap.Clients.Windows
           configurator.StartUpFilter,
           configurator.AddInAllowedFilter);
 
-      //var converter = new ColorConverter();
-
-      //var applicationTabBrush = new RadialGradientBrush (
-      //    (Color) converter.ConvertFrom (configurator.ApplicationTabColorCode),
-      //    Brushes.Transparent.Color);
-
-      //var nonApplicationTabBrush = new RadialGradientBrush (
-      //    (Color) converter.ConvertFrom (configurator.NonApplicationTabColorCode),
-      //    Brushes.Transparent.Color);
-
-      //var homeTabBrush = new RadialGradientBrush (
-      //  (Color) converter.ConvertFrom (configurator.HomeTabColorCode), 
-      //  Brushes.Transparent.Color);
-
       var converter = new BrushConverter();
 
       var applicationTabBrush = (Brush) converter.ConvertFrom (configurator.ApplicationTabColorCode);
-
       var nonApplicationTabBrush = (Brush) converter.ConvertFrom (configurator.NonApplicationTabColorCode);
-
       var homeTabBrush = (Brush) converter.ConvertFrom (configurator.HomeTabColorCode);
 
 
@@ -152,10 +138,11 @@ namespace DesktopGap.Clients.Windows
       if (configurator.Application.HomeUri != null)
         homeUri = configurator.Application.HomeUri;
 
-
-      var mainWindow = new BrowserWindow (
+      var mainWindow = new MainWindow (
           configurator.Application.Name,
-          configurator.Application.IconUri,
+          configurator.Application.IconUri != null
+              ? new BitmapImage (configurator.Application.IconUri)
+              : (BitmapImage) Current.Resources[c_defaultAppIcon],
           homeUri,
           viewDispatcher);
       if (configurator.Application.AlwaysOpenHomeUrl)

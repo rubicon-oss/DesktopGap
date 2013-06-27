@@ -1,4 +1,4 @@
-// This file is part of DesktopGap (desktopgap.codeplex.com)
+// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,6 +17,7 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.ComponentModel.Composition.Hosting;
 using System.IO;
@@ -33,6 +34,7 @@ using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows
 {
+  // TODO split into 3 classes, move 2 of them into core package
   public class DesktopGapConfigurator
   {
     private const string c_addInDirectory = @".";

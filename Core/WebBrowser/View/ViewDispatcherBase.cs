@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -33,28 +33,28 @@ namespace DesktopGap.WebBrowser.View
     private class WindowPreparations
     {
       public IExtendedWebBrowser Browser { get; private set; }
+      public BrowserWindowTarget Target { get; private set; }
 
       public Uri Url { get; private set; }
 
-      public WindowPreparations (IExtendedWebBrowser browser, Uri uri)
+      public WindowPreparations (IExtendedWebBrowser browser, Uri uri, BrowserWindowTarget target)
       {
         ArgumentUtility.CheckNotNull ("browser", browser);
         ArgumentUtility.CheckNotNull ("uri", uri);
         Url = uri;
         Browser = browser;
+        Target = target;
       }
     }
 
     private class FullWindowPreparations : WindowPreparations
     {
       public BrowserWindowStartMode StartMode { get; private set; }
-      public BrowserWindowTarget Target { get; private set; }
 
-      public FullWindowPreparations (IExtendedWebBrowser browser, Uri uri, BrowserWindowStartMode startMode, BrowserWindowTarget target)
-          : base (browser, uri)
+      public FullWindowPreparations (IExtendedWebBrowser browser, Uri uri, BrowserWindowTarget target, BrowserWindowStartMode startMode)
+          : base (browser, uri, target)
       {
         StartMode = startMode;
-        Target = target;
       }
     }
 
@@ -103,7 +103,8 @@ namespace DesktopGap.WebBrowser.View
     public abstract void NewView (BrowserWindowTarget target, Uri uri, BrowserWindowStartMode startMode);
 
 
-    protected abstract void Dispatch (IExtendedWebBrowser browser, BrowserWindowTarget target, BrowserWindowStartMode startMode, string targetName, TargetAddressType addressType);
+    protected abstract void Dispatch (
+        IExtendedWebBrowser browser, BrowserWindowTarget target, BrowserWindowStartMode startMode, string targetName, TargetAddressType addressType);
 
     protected void ViewCreationDone (IWebBrowserView view, BrowserWindowStartMode startMode, TargetAddressType addressType)
     {
@@ -119,18 +120,18 @@ namespace DesktopGap.WebBrowser.View
       return browser;
     }
 
-    protected void Prepare (IExtendedWebBrowser webBrowser, Uri uri)
+    protected void Prepare (IExtendedWebBrowser webBrowser, Uri uri, BrowserWindowTarget target)
     {
       ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
 
-      _preparations = new WindowPreparations (webBrowser, uri);
+      _preparations = new WindowPreparations (webBrowser, uri, target);
     }
 
     protected void Prepare (IExtendedWebBrowser webBrowser, Uri uri, BrowserWindowStartMode startMode, BrowserWindowTarget target)
     {
       ArgumentUtility.CheckNotNull ("webBrowser", webBrowser);
 
-      _preparations = new FullWindowPreparations (webBrowser, uri, startMode, target);
+      _preparations = new FullWindowPreparations (webBrowser, uri, target, startMode);
     }
 
 
@@ -142,7 +143,7 @@ namespace DesktopGap.WebBrowser.View
       var webBrowser = CreateBrowser();
 
       eventArgs.TargetView = webBrowser;
-      Prepare (webBrowser, eventArgs.Url);
+      Prepare (webBrowser, eventArgs.Url, eventArgs.BrowserWindowTarget);
     }
 
     private void OnBeforeNavigate (object sender, NavigationEventArgs e)
@@ -158,7 +159,7 @@ namespace DesktopGap.WebBrowser.View
         Dispatch (preparations.Browser, preparations.Target, preparations.StartMode, string.Empty, e.AddressType);
       }
       else
-        Dispatch (_preparations.Browser, e.BrowserWindowTarget, e.StartMode, e.TargetName, e.AddressType);
+        Dispatch (_preparations.Browser, _preparations.Target, e.StartMode, e.TargetName, e.AddressType);
 
       _preparations = null;
     }

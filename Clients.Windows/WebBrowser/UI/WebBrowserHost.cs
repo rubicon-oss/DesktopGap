@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -17,8 +17,10 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
+
 using System;
 using System.Windows.Controls;
+using System.Windows.Forms;
 using System.Windows.Forms.Integration;
 using DesktopGap.Utilities;
 
@@ -34,7 +36,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.UI
       WebBrowser = tridentWebBrowser;
 
       Content = new WindowsFormsHost { Child = tridentWebBrowser };
-      
     }
 
     public void Dispose ()

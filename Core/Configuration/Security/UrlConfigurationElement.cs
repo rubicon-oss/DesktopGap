@@ -1,4 +1,4 @@
-﻿// This file is part of DesktopGap (desktopgap.codeplex.com)
+﻿// This file is part of DesktopGap (http://desktopgap.codeplex.com)
 // Copyright (c) rubicon IT GmbH, Vienna, and contributors
 // 
 // This program is free software; you can redistribute it and/or
@@ -51,6 +51,12 @@ namespace DesktopGap.Configuration.Security
       get { return (bool) this["requireSSL"]; }
     }
 
+    [ConfigurationProperty ("ignoreCase", DefaultValue = true)]
+    public bool IgnoreCase
+    {
+      get { return (bool) this["ignoreCase"]; }
+    }
+
     [ConfigurationProperty ("useRegex", DefaultValue = false)]
     public bool UseRegex
     {
@@ -84,7 +90,7 @@ namespace DesktopGap.Configuration.Security
       }
       else
         return Regex.Escape (url);
-      
+
       var regexPath = url.Remove (url.LastIndexOf (wildcard, StringComparison.Ordinal));
       return Regex.Escape (regexPath) + wildcardReplacement;
     }
@@ -107,7 +113,7 @@ namespace DesktopGap.Configuration.Security
       }
       else
         return Regex.Escape (url);
-      
+
       var regexPath = url.Remove (url.IndexOf (wildcard, StringComparison.Ordinal), wildcard.Length);
       return wildcardReplacement + Regex.Escape (regexPath);
     }
