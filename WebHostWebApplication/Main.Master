@@ -1,0 +1,21 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="Main.master.cs" Inherits="WebHostWebApplication.Main" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head runat="server">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>[TEST] DesktopGap::Sandbox [TEST]</title>
+  <script type="text/javascript" src="/desktopgap.js"></script>
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+  <asp:ContentPlaceHolder ID="head" runat="server">
+  </asp:ContentPlaceHolder>
+</head>
+<body>
+  <div style="background-color: greenyellow; border: 3px solid green; border-radius: 5px; padding: 5px; margin-bottom: 10px">
+    <a href="/Default.aspx" target="_self">&lt; Home</a>
+  </div>
+  <asp:ContentPlaceHolder ID="body" runat="server">
+  </asp:ContentPlaceHolder>
+</body>
+</html>
