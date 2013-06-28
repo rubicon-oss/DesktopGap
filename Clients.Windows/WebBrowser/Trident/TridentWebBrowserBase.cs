@@ -17,7 +17,6 @@
 //
 // Additional permissions are listed in the file DesktopGap_exceptions.txt.
 // 
-
 using System;
 using System.Security.Permissions;
 using System.Windows.Forms;
@@ -27,17 +26,11 @@ using DesktopGap.Utilities;
 
 namespace DesktopGap.Clients.Windows.WebBrowser.Trident
 {
-  /// <summary>
-  /// Base implementation for adding customized events and interfaces for advanced interaction with the .NET WebBrowser control based on the Trident engine.
-  /// </summary>
   public abstract class TridentWebBrowserBase : System.Windows.Forms.WebBrowser
   {
     // Source: http://www.codeproject.com/Articles/13598/Extended-NET-2-0-WebBrowser-Control
 
 
-    /// <summary>
-    /// Avoid default registration as IDropTarget by the WebBrowser.
-    /// </summary>
     protected bool AutomaticallyRegisterAsDropTarget = false;
 
     protected bool EnableWebBrowserContextMenu = false;
@@ -55,18 +48,11 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     /// </summary>
     protected IWebBrowser2 AxIWebBrowser2;
 
-
-    /// <summary>
-    /// Connection point for attacing custom interfaces to the WebBrowser
-    /// </summary>
     private AxHost.ConnectionPointCookie _cookie;
 
-    /// <summary>
-    /// Customized events
-    /// </summary>
     protected DWebBrowserEvents2 BrowserEvents { get; set; }
 
-    protected readonly TridentFeatures Features;
+    public IDocHostUIHandler DocumentHostUiHandler { get; private set; }
 
     protected TridentWebBrowserBase ()
     {
@@ -74,10 +60,6 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     }
 
 
-    /// <summary>
-    /// Retrieve the _axIWebBrowser2 implementation from the .NET WebBrowser. 
-    /// </summary>
-    /// <param name="nativeActiveXObject"></param>
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void AttachInterfaces (object nativeActiveXObject)
     {
@@ -86,28 +68,19 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       base.AttachInterfaces (AxIWebBrowser2);
     }
 
-    /// <summary>
-    /// Clean up properly after the interface is detached.
-    /// </summary>
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void DetachInterfaces ()
-    { 
+    {
       AxIWebBrowser2 = null;
       base.DetachInterfaces();
     }
 
-    /// <summary>
-    /// Property that offers the scripting interface (required on connecting any other interface)
-    /// </summary>
+
     public object Application
     {
       get { return AxIWebBrowser2.Application; }
     }
 
-    /// <summary>
-    /// This method will be called to give
-    /// you a chance to create your own event sink
-    /// </summary>
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void CreateSink ()
     {
@@ -119,9 +92,7 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
       _cookie = new AxHost.ConnectionPointCookie (ActiveXInstance, BrowserEvents, typeof (DWebBrowserEvents2));
     }
 
-    /// <summary>
-    /// Detaches the event sink
-    /// </summary>
+
     [PermissionSet (SecurityAction.LinkDemand, Name = "FullTrust")]
     protected override void DetachSink ()
     {
@@ -133,19 +104,14 @@ namespace DesktopGap.Clients.Windows.WebBrowser.Trident
     }
 
 
-    /// <summary>
-    /// Use a custom IDocHostUIHandler instead of the default. Used for intercepting keyboard and mouse events.
-    /// </summary>
-    /// <param name="desktopGapDocumentUiHandler">The custom handler.</param>
-    protected void InstallCustomUIHandler (IDocHostUIHandler desktopGapDocumentUiHandler)
+    protected void InstallCustomUIHandler (IDocHostUIHandler docHostUiHandler)
     {
-      ArgumentUtility.CheckNotNull ("desktopGapDocumentUiHandler", desktopGapDocumentUiHandler);
+      ArgumentUtility.CheckNotNull ("docHostUiHandler", docHostUiHandler);
+      DocumentHostUiHandler = docHostUiHandler;
       AxIWebBrowser2.RegisterAsDropTarget = false;
-
-
       var customDoc = (ICustomDoc) AxIWebBrowser2.Document;
-      if(customDoc != null)
-        customDoc.SetUIHandler (desktopGapDocumentUiHandler);
+      if (customDoc != null)
+        customDoc.SetUIHandler (docHostUiHandler);
     }
   }
 }

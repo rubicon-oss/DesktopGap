@@ -69,7 +69,6 @@
     <Compile Include="AddIns\Services\ServiceAddInBase.cs" />
     <Compile Include="Configuration\Application\TabColorsConfigurationElement.cs" />
     <Compile Include="Configuration\Application\ApplicationConfigurationElement.cs" />
-    <Compile Include="Configuration\Application\FaviconConfigurationElement.cs" />
     <Compile Include="Configuration\IDesktopGapConfigurationProvider.cs" />
     <Compile Include="Configuration\DesktopGapConfigurationProviderBase.cs" />
     <Compile Include="Configuration\DesktopGapConfigurationManifest.cs" />

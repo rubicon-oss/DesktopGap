@@ -25,19 +25,19 @@ namespace DesktopGap.Configuration.Application
 {
   public class TabColorsConfigurationElement : ConfigurationElement
   {
-    [ConfigurationProperty ("home")]
+    [ConfigurationProperty ("home", DefaultValue = "#CEECF5")]
     public string Home
     {
       get { return this["home"] as string; }
     }
 
-    [ConfigurationProperty ("application")]
+    [ConfigurationProperty ("application", DefaultValue = "#00FF00")]
     public string Application
     {
       get { return this["application"] as string; }
     }
 
-    [ConfigurationProperty ("nonApplication")]
+    [ConfigurationProperty ("nonApplication", DefaultValue = "#FF4000")]
     public string NonApplication
     {
       get { return this["nonApplication"] as string; }

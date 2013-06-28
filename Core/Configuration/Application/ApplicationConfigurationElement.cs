@@ -50,7 +50,7 @@ namespace DesktopGap.Configuration.Application
       get { return (string) this["homeUrl"]; }
     }
 
-    [ConfigurationProperty ("icon", IsRequired = false)]
+    [ConfigurationProperty ("icon")]
     public string Icon
     {
       get { return (string) this["icon"]; }
@@ -64,20 +64,20 @@ namespace DesktopGap.Configuration.Application
       return uri;
     }
 
-    [ConfigurationProperty ("alwaysShowUrl")]
+    [ConfigurationProperty ("alwaysShowUrl", DefaultValue = false)]
     public bool AlwaysShowUrl
     {
       get { return (bool) this["alwaysShowUrl"]; }
     }
 
 
-    [ConfigurationProperty ("alwaysOpenHomeUrl")]
+    [ConfigurationProperty ("alwaysOpenHomeUrl", DefaultValue = true)]
     public bool AlwaysOpenHomeUrl
     {
       get { return (bool) this["alwaysOpenHomeUrl"]; }
     }
 
-    [ConfigurationProperty ("allowCloseHomeTab")]
+    [ConfigurationProperty ("allowCloseHomeTab", DefaultValue=false)]
     public bool AllowCloseHomeTab
     {
       get { return (bool) this["allowCloseHomeTab"]; }

@@ -39,7 +39,10 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
 
     public WebBrowserEvents (
-        TridentWebBrowser browserControl, IUrlFilter nonApplicationUrlFilter, IUrlFilter applicationUrlFiler, IUrlFilter entryPointFilter)
+        TridentWebBrowser browserControl,
+        IUrlFilter nonApplicationUrlFilter,
+        IUrlFilter applicationUrlFiler,
+        IUrlFilter entryPointFilter)
     {
       ArgumentUtility.CheckNotNull ("browserControl", browserControl);
       ArgumentUtility.CheckNotNull ("nonApplicationUrlFilter", nonApplicationUrlFilter);
@@ -144,8 +147,8 @@ namespace DesktopGap.Clients.Windows.WebBrowser
 
       _browserControl.OnNewWindow (eventArgs);
 
-      if (eventArgs.TargetView != null)
-        ppDisp = ((TridentWebBrowserBase) eventArgs.TargetView).Application ?? ppDispOriginal;
+      if (eventArgs.TargetView != null) // set a custom web browser instance to control where the web page should be rendered
+        ppDisp = ((TridentWebBrowserBase) eventArgs.TargetView).Application ?? ppDispOriginal;  
 
       Cancel = eventArgs.Cancel;
     }
