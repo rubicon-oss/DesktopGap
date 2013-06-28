@@ -159,7 +159,7 @@ namespace DesktopGap.WebBrowser.View
         Dispatch (preparations.Browser, preparations.Target, preparations.StartMode, string.Empty, e.AddressType);
       }
       else
-        Dispatch (_preparations.Browser, _preparations.Target, e.StartMode, e.TargetName, e.AddressType);
+        Dispatch (_preparations.Browser, e.BrowserWindowTarget, e.StartMode, e.TargetName, e.AddressType);
 
       _preparations = null;
     }
