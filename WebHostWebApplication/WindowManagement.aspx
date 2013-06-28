@@ -62,15 +62,10 @@
     <a href="#" onclick="openBackgroundTab('DragAndDrop.aspx')">Open a new Tab in background</a> | <a href="#" onclick="toggleBackground(backgroundHandle)">Toggle Background</a><br />
   </div>
   <div style="background-color: tomato; padding: 10px; border-radius: 5px;">
-    <a href="#" onclick="openWindow('Tick.aspx')">Open a new Window</a>
+    <a href="#" onclick="openWindow('Tick.aspx')">Open a new Window (Tick)</a>
     <br />
-    <a href="#" onclick="openModalWindow('Tick.aspx')">Open a modal Window</a>
-
-  </div>
-    <div style="background-color: burlywood; padding: 10px; border-radius: 5px;">
-    <a href="#" onclick="openWindow('Tick.aspx')">Open a new Window</a>
-    <br />
-    <a href="#" onclick="openModalWindow('Tick.aspx')">Open a modal Window</a>
-
-  </div>
+    <a href="#" onclick="openModalWindow('Tick.aspx')">Open a modal Window (Tick)</a>
+  <br />
+      <a href="#" onclick="openModalWindow('Sleep.aspx')">Open a modal Window (Sleep)</a>
+      </div>
 </asp:Content>

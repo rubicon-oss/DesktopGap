@@ -37,15 +37,9 @@
       ticker = null;
     }
 
-    function openModalWindow(url) {
-      var id = windowservice.PrepareNewWindow(url, "popup", "modal");
-      modalHandle = window.open(url, id, "");
-    }
-
-    function dg_documentRegistered() {
+    function DesktopGap_DocumentRegistered() {
       guidservice = window.external.GetService(window.documentHandle, "GuidService");
       windowservice = window.external.GetService(window.documentHandle, "WindowManagerService");
-        alert("hey");
     }
 
 
@@ -56,9 +50,6 @@
   <div style="padding: 10px; float: right">
     <button onclick="stopTicking()">Stop tickin'!</button>
     <button onclick="startTicking()">Start tickin'!</button>
-  </div>
-  <div style="padding: 10px; float: right">
-    <button onclick="openModalWindow('Sleep.aspx')">Tired?</button>
   </div>
 </body>
 </html>
